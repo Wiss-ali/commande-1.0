@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $mot_de_passe = "Themigi69-";
     $nom_base_de_donnees = "u559440517_wissem";
 
-    $mysqli = new mysqli($serveur, $nom_utilisateur_db, $mot_de_passe_db, $nom_base_de_donnees);
+    $mysqli = new mysqli($serveur, $nom_utilisateur, $mot_de_passe, $nom_base_de_donnees);
 
     if ($mysqli->connect_error) {
         die("Erreur de connexion à la base de données: " . $mysqli->connect_error);

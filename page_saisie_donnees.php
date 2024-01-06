@@ -1,38 +1,51 @@
 <?php
 session_start();
-if (!isset($_SESSION["nom_utilisateur"])) {
+if (!isset($_SESSION["username"])) {
     header("Location: connexion.php");
     exit();
 }
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// Récupération des données du formulaire
+$nomClient = $_POST['nom'];
+$prenomClient = $_POST['prenom'];
+$dateDemande = $_POST['date_demande'];
+$demandeClient = $_POST['demande'];
+$dateLivraison = $_POST['date_livraison'];
 
-
-// Vérifiez la validité du token d'authentification
-
-// Définissez les informations de connexion à la base de données
+// Connexion à la base de données
 $serveur = "127.0.0.1:3306";
 $nom_utilisateur = "u559440517_wissem";
 $mot_de_passe = "Wisshafa69-";
 $nom_base_de_donnees = "u559440517_wedevcommandes";
-
-// Connexion à la base de données
 $mysqli = new mysqli($serveur, $nom_utilisateur, $mot_de_passe, $nom_base_de_donnees);
 
 if ($mysqli->connect_error) {
     die("Erreur de connexion à la base de données: " . $mysqli->connect_error);
 }
 
-// Récupérez le nom du projet depuis l'URL
-if (isset($_GET["projet"])) {
-    $nomProjet = urldecode($_GET["projet"]);
+// Préparation de la requête pour insérer les données
+$query = "INSERT INTO projets (nom, prenom, date_demande, demande, date_livraison) VALUES (?, ?, ?, ?, ?)";
+$stmt = $mysqli->prepare($query);
+
+if ($stmt) {
+    // Lier les variables à la requête préparée comme paramètres
+    $stmt->bind_param("sssss", $nomClient, $prenomClient, $dateDemande, $demandeClient, $dateLivraison);
+
+    // Exécuter la requête
+    if ($stmt->execute()) {
+        echo "Nouveau projet enregistré avec succès.";
+    } else {
+        echo "Erreur: " . $stmt->error;
+    }
+
+    // Fermer la déclaration
+    $stmt->close();
 } else {
-    // Redirigez vers la page d'accueil si le nom du projet n'est pas spécifié
-    header("Location: page_accueil.php");
-    exit();
+    echo "Erreur: " . $mysqli->error;
 }
+
+// Fermer la connexion
+$mysqli->close();
 ?>
 
 <!DOCTYPE html>

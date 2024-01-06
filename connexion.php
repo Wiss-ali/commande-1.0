@@ -1,6 +1,10 @@
 <?php
 session_start();
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Définissez les informations de connexion à la base de données
 $serveur = "127.0.0.1:3306";
 $nom_utilisateur = "u559440517_wissem";
@@ -21,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Vérifiez les informations de connexion depuis votre base de données
     // Remplacez 'votre_table_utilisateurs' par le nom de votre table d'utilisateurs
-    $query = "SELECT * FROM votre_table_utilisateurs WHERE username = ? AND password = ?";
+    $query = "SELECT * FROM users WHERE username = ? AND password = ?";
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param("ss", $username, $password);
     $stmt->execute();

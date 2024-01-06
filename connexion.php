@@ -45,6 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 } else {
     echo "Aucun utilisateur trouvé avec ce nom.<br>";
 }
+}
 
 $stmt->close();
 $mysqli->close();
@@ -79,4 +80,5 @@ if (isset($error_message)) {
 </form>
 
 </body>
+
 </html>

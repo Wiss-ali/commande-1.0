@@ -24,8 +24,7 @@ if ($mysqli->connect_error) {
 }
 
 // Récupérez la liste des projets depuis votre base de données
-// Remplacez 'votre_table_projets' par le nom de votre table de projets
-$query = "SELECT * FROM votre_table_projets";
+$query = "SELECT * FROM projets";
 $result = $mysqli->query($query);
 
 if (!$result) {

@@ -5,6 +5,11 @@ if (!isset($_SESSION["nom_utilisateur"])) {
     exit();
 }
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+
 // Vérifiez la validité du token d'authentification
 
 // Définissez les informations de connexion à la base de données

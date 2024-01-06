@@ -1,6 +1,6 @@
 <?php
 session_start();
-if (isset($_SESSION["username"])) {
+if (isset($_SESSION["nom_utilisateur"])) {
     header("Location: page_accueil.php");
     exit();
 }

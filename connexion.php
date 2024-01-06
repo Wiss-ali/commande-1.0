@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Vérifiez les informations de connexion depuis votre base de données
     // Remplacez 'votre_table_utilisateurs' par le nom de votre table d'utilisateurs
-    $query = "SELECT * FROM users WHERE nom_utilisateur = ? AND password = ?";
+    $query = "SELECT * FROM users WHERE nom_utilisateur = ? AND mot_de_passe = ?";
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param("ss", $username, $password);
     $stmt->execute();

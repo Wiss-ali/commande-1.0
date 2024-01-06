@@ -7,13 +7,13 @@ if (isset($_SESSION["username"])) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Récupérez les données du formulaire
-    $nom_utilisateur = $_POST["nom_utilisateur"];
-    $mot_de_passe = $_POST["mot_de_passe"];
+    $usernameForm = $_POST["nom_utilisateur"];
+    $passwordForm = $_POST["mot_de_passe"];
     $nom = $_POST["nom"];
     $prenom = $_POST["prenom"];
     $email = $_POST["email"];
 
-    // Validez et traitez les données (par exemple, vérifiez la validité de l'e-mail, hachez le mot de passe, etc.)
+    // Validez et traitez les données
 
     // Connexion à la base de données
     $serveur = "127.0.0.1:3306";
@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $mot_de_passe = "Wisshafa69-";
     $nom_base_de_donnees = "u559440517_wedevcommandes";
 
-    $mysqli = new mysqli($serveur, $nom_utilisateur, $mot_de_passe, $nom_base_de_donnees);
+    $mysqli = new mysqli($db_server, $db_username, $db_password, $db_name);
 
     if ($mysqli->connect_error) {
         die("Erreur de connexion à la base de données: " . $mysqli->connect_error);
@@ -32,12 +32,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $statement = $mysqli->prepare($requete);
     
     if ($statement) {
-        $mot_de_passe_hache = password_hash($mot_de_passe, PASSWORD_DEFAULT);
-        $statement->bind_param("sssss", $nom_utilisateur, $mot_de_passe_hache, $nom, $prenom, $email);
+        $hashed_password = password_hash($passwordForm, PASSWORD_DEFAULT);
+        $statement->bind_param("sssss", $usernameForm, $hashed_password, $nom, $prenom, $email);
         $resultat = $statement->execute();
 
         if ($resultat) {
-            // Redirigez l'utilisateur vers la page de connexion après une inscription réussie
             header("Location: connexion.php");
             exit();
         } else {
@@ -53,8 +52,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

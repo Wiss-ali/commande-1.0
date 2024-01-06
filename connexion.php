@@ -6,24 +6,21 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Définissez les informations de connexion à la base de données
-$serveur = "127.0.0.1:3306";
-$nom_utilisateur = "u559440517_wissem";
-$mot_de_passe = "Wisshafa69-";
-$nom_base_de_donnees = "u559440517_wedevcommandes";
-
+$db_server = "";
+$db_username = "";
+$db_password = "";
+$db_name = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST["nom_utilisateur"];
     $password = $_POST["mot_de_passe"];
 
-    // Connexion à la base de données
-    $mysqli = new mysqli($serveur, $nom_utilisateur, $mot_de_passe, $nom_base_de_donnees);
+    $mysqli = new mysqli($db_server, $db_username, $db_password, $db_name);
 
     if ($mysqli->connect_error) {
         die("Erreur de connexion à la base de données: " . $mysqli->connect_error);
     }
 
-    // Récupérer le mot de passe haché depuis la base de données
     $query = "SELECT mot_de_passe FROM users WHERE nom_utilisateur = ?";
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param("s", $username);
@@ -34,26 +31,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $row = $result->fetch_assoc();
         $hashed_password = $row['mot_de_passe'];
 
-        // Vérifier si le mot de passe correspond
         if (password_verify($password, $hashed_password)) {
-            // L'authentification a réussi
             $_SESSION["username"] = $username;
             header("Location: page_accueil.php");
             exit();
+        } else {
+            $error_message = "Nom d'utilisateur ou mot de passe incorrect.";
         }
+    } else {
+        $error_message = "Nom d'utilisateur ou mot de passe incorrect.";
     }
-
-    // L'authentification a échoué
-    $error_message = "Nom d'utilisateur ou mot de passe incorrect.";
 
     $stmt->close();
     $mysqli->close();
 }
-
 ?>
 
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

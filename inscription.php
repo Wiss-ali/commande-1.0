@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Insérez les données de l'utilisateur dans la table des utilisateurs
-    $requete = "INSERT INTO utilisateurs (nom_utilisateur, mot_de_passe, nom, prenom, email) VALUES (?, ?, ?, ?, ?)";
+    $requete = "INSERT INTO users (nom_utilisateur, mot_de_passe, nom, prenom, email) VALUES (?, ?, ?, ?, ?)";
     $statement = $mysqli->prepare($requete);
     
     if ($statement) {

@@ -1,9 +1,14 @@
 <?php
 session_start();
-if (!isset($_SESSION["username"])) {
+if (!isset($_SESSION["nom_utilisateur"])) {
     header("Location: connexion.php");
     exit();
 }
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 
 // Définissez les informations de connexion à la base de données
 $serveur = "127.0.0.1:3306";
@@ -45,7 +50,7 @@ $mysqli->close();
 </head>
 <body>
 
-<h2>Bienvenue, <?php echo $_SESSION["username"]; ?>!</h2>
+<h2>Bienvenue, <?php echo $_SESSION["nom_utilisateur"]; ?>!</h2>
 
 <!-- Affichez la liste des projets -->
 <?php

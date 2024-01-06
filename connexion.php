@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     echo "Mot de passe saisi : " . $password . "<br>";
 
     if (password_verify($password, $hashed_password)) {
-        $_SESSION["username"] = $username;
+        $_SESSION["nom_utilisateur"] = $username;
         header("Location: page_accueil.php");
         exit();
     } else {

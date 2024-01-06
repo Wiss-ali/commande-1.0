@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Vérifiez les informations de connexion depuis votre base de données
     // Remplacez 'votre_table_utilisateurs' par le nom de votre table d'utilisateurs
-    $query = "SELECT * FROM users WHERE username = ? AND password = ?";
+    $query = "SELECT * FROM users WHERE nom_utilisateur = ? AND password = ?";
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param("ss", $username, $password);
     $stmt->execute();
@@ -64,11 +64,11 @@ if (isset($error_message)) {
 ?>
 
 <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-    <label for="username">Nom d'utilisateur:</label>
-    <input type="text" id="username" name="username" required><br>
+    <label for="nom_utilisateur">Nom d'utilisateur:</label>
+    <input type="text" id="nom_utilisateur" name="nom_utilisateur" required><br>
 
-    <label for="password">Mot de passe:</label>
-    <input type="password" id="password" name="password" required><br>
+    <label for="mot_de_passe">Mot de passe:</label>
+    <input type="password" id="mot_de_passe" name="mot_de_passe" required><br>
 
     <button type="submit">Se Connecter</button>
 </form>

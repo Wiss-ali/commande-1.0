@@ -5,6 +5,10 @@ if (!isset($_SESSION["username"])) {
     exit();
 }
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Récupération des données du formulaire
 $nomClient = $_POST['nom'];
 $prenomClient = $_POST['prenom'];

@@ -7,9 +7,9 @@ if (!isset($_SESSION["username"])) {
 
 // Définissez les informations de connexion à la base de données
 $serveur = "127.0.0.1:3306";
-$nom_utilisateur = "u559440517__wiss";
-$mot_de_passe = "Themigi69-";
-$nom_base_de_donnees = "u559440517_wissem";
+$nom_utilisateur = "u559440517_wissem";
+$mot_de_passe = "Wisshafa69-";
+$nom_base_de_donnees = "u559440517_wedevcommandes";
 
 // Connexion à la base de données
 $mysqli = new mysqli($serveur, $nom_utilisateur, $mot_de_passe, $nom_base_de_donnees);

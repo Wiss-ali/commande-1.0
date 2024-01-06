@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Connexion à la base de données
     $serveur = "127.0.0.1:3306";
-    $nom_utilisateur = "u559440517__wissem";
+    $nom_utilisateur = "u559440517_wissem";
     $mot_de_passe = "Wisshafa69-";
     $nom_base_de_donnees = "u559440517_wedevcommandes";
 

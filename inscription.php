@@ -1,9 +1,10 @@
 <?php
 session_start();
-if (isset($_SESSION["nom_utilisateur"])) {
+
+/*if (isset($_SESSION["nom_utilisateur"])) {
     header("Location: page_accueil.php");
     exit();
-}
+}*/
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);

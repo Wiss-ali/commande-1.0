@@ -31,20 +31,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $row = $result->fetch_assoc();
         $hashed_password = $row['mot_de_passe'];
 
-        if (password_verify($password, $hashed_password)) {
-            $_SESSION["nom_utilisateur"] = $username;
-            header("Location: page_accueil.php");
-            exit();
-        } else {
-            $error_message = "Nom d'utilisateur ou mot de passe incorrect.";
-        }
-    } else {
-        $error_message = "Nom d'utilisateur ou mot de passe incorrect.";
-    }
+    // Ajout pour le débogage
+    echo "Mot de passe haché récupéré : " . $hashed_password . "<br>";
+    echo "Mot de passe saisi : " . $password . "<br>";
 
-    $stmt->close();
-    $mysqli->close();
+    if (password_verify($password, $hashed_password)) {
+        $_SESSION["username"] = $username;
+        header("Location: page_accueil.php");
+        exit();
+    } else {
+        echo "Échec de la vérification du mot de passe.<br>";
+    }
+} else {
+    echo "Aucun utilisateur trouvé avec ce nom.<br>";
 }
+
+$stmt->close();
+$mysqli->close();
 ?>
 
 

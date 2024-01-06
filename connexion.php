@@ -6,10 +6,10 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 // Définissez les informations de connexion à la base de données
-$db_server = "";
-$db_username = "";
-$db_password = "";
-$db_name = "";
+$serveur = "127.0.0.1:3306";
+$nom_utilisateur = "u559440517_wissem";
+$mot_de_passe = "Wisshafa69-";
+$nom_base_de_donnees = "u559440517_wedevcommandes";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST["nom_utilisateur"];

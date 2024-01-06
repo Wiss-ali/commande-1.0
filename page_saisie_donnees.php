@@ -9,15 +9,8 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Récupération des données du formulaire
-$nomClient = $_POST['nom'];
-$prenomClient = $_POST['prenom'];
-$dateDemande = $_POST['date_demande'];
-$demandeClient = $_POST['demande'];
-$dateLivraison = $_POST['date_livraison'];
-
 // Connexion à la base de données
-$serveur = "127.0.0.1:3306";
+$serveur = "127.0.0.1:3306"; // Assurez-vous que l'adresse du serveur est correcte
 $nom_utilisateur = "u559440517_wissem";
 $mot_de_passe = "Wisshafa69-";
 $nom_base_de_donnees = "u559440517_wedevcommandes";
@@ -27,25 +20,34 @@ if ($mysqli->connect_error) {
     die("Erreur de connexion à la base de données: " . $mysqli->connect_error);
 }
 
-// Préparation de la requête pour insérer les données
-$query = "INSERT INTO projets (nom, prenom, date_demande, demande, date_livraison) VALUES (?, ?, ?, ?, ?)";
-$stmt = $mysqli->prepare($query);
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Récupération des données du formulaire
+    $nomClient = $_POST['nom'] ?? null; // Utiliser l'opérateur de coalescence nulle
+    $prenomClient = $_POST['prenom'] ?? null;
+    $dateDemande = $_POST['date_demande'] ?? null;
+    $demandeClient = $_POST['demande'] ?? null;
+    $dateLivraison = $_POST['date_livraison'] ?? null;
 
-if ($stmt) {
-    // Lier les variables à la requête préparée comme paramètres
-    $stmt->bind_param("sssss", $nomClient, $prenomClient, $dateDemande, $demandeClient, $dateLivraison);
+    // Préparation de la requête pour insérer les données
+    $query = "INSERT INTO projets (nom, prenom, date_demande, demande, date_livraison) VALUES (?, ?, ?, ?, ?)";
+    $stmt = $mysqli->prepare($query);
 
-    // Exécuter la requête
-    if ($stmt->execute()) {
-        echo "Nouveau projet enregistré avec succès.";
+    if ($stmt) {
+        // Lier les variables à la requête préparée comme paramètres
+        $stmt->bind_param("sssss", $nomClient, $prenomClient, $dateDemande, $demandeClient, $dateLivraison);
+
+        // Exécuter la requête
+        if ($stmt->execute()) {
+            echo "Nouveau projet enregistré avec succès.";
+        } else {
+            echo "Erreur: " . $stmt->error;
+        }
+
+        // Fermer la déclaration
+        $stmt->close();
     } else {
-        echo "Erreur: " . $stmt->error;
+        echo "Erreur: " . $mysqli->error;
     }
-
-    // Fermer la déclaration
-    $stmt->close();
-} else {
-    echo "Erreur: " . $mysqli->error;
 }
 
 // Fermer la connexion
@@ -57,15 +59,13 @@ $mysqli->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Saisie des Données - <?php echo $nomProjet; ?></title>
+    <title>Saisie des Données</title>
 </head>
 <body>
 
-<h2>Saisie des Données - <?php echo $nomProjet; ?></h2>
+<h2>Saisie des Données</h2>
 
-<!-- Formulaire de saisie des données clients comme demandé précédemment -->
-
-<form method="post" action="traitement_saisie_donnees.php">
+<form method="post" action="page_saisie_donnees.php">
     <label for="nom">Nom du Client:</label>
     <input type="text" id="nom" name="nom" required><br>
 

@@ -23,27 +23,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Erreur de connexion à la base de données: " . $mysqli->connect_error);
     }
 
-    // Vérifiez les informations de connexion depuis votre base de données
-    // Remplacez 'votre_table_utilisateurs' par le nom de votre table d'utilisateurs
-    $query = "SELECT * FROM users WHERE nom_utilisateur = ? AND mot_de_passe = ?";
+    // Récupérer le mot de passe haché depuis la base de données
+    $query = "SELECT mot_de_passe FROM users WHERE nom_utilisateur = ?";
     $stmt = $mysqli->prepare($query);
-    $stmt->bind_param("ss", $username, $password);
+    $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows === 1) {
-        // L'authentification a réussi, générez un token d'authentification et stockez-le en session
-        $_SESSION["username"] = $username;
-        header("Location: page_accueil.php");
-        exit();
-    } else {
-        // L'authentification a échoué, affichez un message d'erreur
-        $error_message = "Nom d'utilisateur ou mot de passe incorrect.";
+        $row = $result->fetch_assoc();
+        $hashed_password = $row['mot_de_passe'];
+
+        // Vérifier si le mot de passe correspond
+        if (password_verify($password, $hashed_password)) {
+            // L'authentification a réussi
+            $_SESSION["username"] = $username;
+            header("Location: page_accueil.php");
+            exit();
+        }
     }
+
+    // L'authentification a échoué
+    $error_message = "Nom d'utilisateur ou mot de passe incorrect.";
 
     $stmt->close();
     $mysqli->close();
 }
+
 ?>
 
 <!DOCTYPE html>

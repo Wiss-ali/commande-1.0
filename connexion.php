@@ -1,9 +1,9 @@
 <?php
 session_start();
 
-ini_set('display_errors', 1);
+/*ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+error_reporting(E_ALL);*/
 
 // Définissez les informations de connexion à la base de données
 $serveur = "127.0.0.1:3306";

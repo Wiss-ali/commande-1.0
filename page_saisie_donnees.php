@@ -5,9 +5,9 @@ if (!isset($_SESSION["username"])) {
     exit();
 }
 
-ini_set('display_errors', 1);
+/*ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+error_reporting(E_ALL);*/
 
 // Connexion à la base de données
 $serveur = "127.0.0.1:3306"; // Assurez-vous que l'adresse du serveur est correcte

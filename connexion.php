@@ -64,7 +64,7 @@ $mysqli->close();
 </head>
 <body>
 
-<div>
+<div class="corp">
     
    <div class="img">
      <img src="img-con.png" alt="img avec le nom de ma societe">

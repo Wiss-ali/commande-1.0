@@ -1,15 +1,15 @@
 .corp {
-    display: grid;
-    grid-template-columns: 1fr 2fr; /* Répartition de l'espace en deux colonnes, la première plus étroite que la seconde */
-    gap: 10px; /* Espace entre les colonnes */
+    display: flex;
   }
   
   .corp .img {
-    grid-column: 1; /* La div avec la classe 'img' occupera la première colonne */
+    width: 50vw;
+    height: 100vw;
   }
   
   .corp .con {
-    grid-column: 2; /* La div avec la classe 'con' occupera la seconde colonne */
+    width: 50vw;
+    height: 100vw;
   }
 
   body{

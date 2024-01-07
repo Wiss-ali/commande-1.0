@@ -55,15 +55,22 @@ $mysqli->close();
 
 
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr-fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page de Connexion</title>
+    <link rel="stylesheet" href="connexion.css">
 </head>
 <body>
 
-<h2>Connexion</h2>
+<div>
+    
+   <div class="img">
+     <img src="img-con.png" alt="img avec le nom de ma societe">
+   </div>
+   <div class="conn">
+   <h2>Connexion</h2>
 
 <?php
 if (isset($error_message)) {
@@ -71,7 +78,7 @@ if (isset($error_message)) {
 }
 ?>
 
-<form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+   <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
     <label for="nom_utilisateur">Nom d'utilisateur:</label>
     <input type="text" id="nom_utilisateur" name="nom_utilisateur" required><br>
 
@@ -79,7 +86,10 @@ if (isset($error_message)) {
     <input type="password" id="mot_de_passe" name="mot_de_passe" required><br>
 
     <button type="submit">Se Connecter</button>
-</form>
+   </form>
+   </div>
+
+</div>
 
 </body>
 

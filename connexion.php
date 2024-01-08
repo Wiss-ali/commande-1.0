@@ -60,7 +60,7 @@ $mysqli->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page de Connexion</title>
-    <link rel="stylesheet" href="connexion.css">
+    <link rel="stylesheet" href="test.css">
 </head>
 <body>
 
@@ -70,21 +70,25 @@ $mysqli->close();
      <img src="img-acceuil.png" alt="img avec le nom de ma societe" class="img">
   
    <div class="conn">
+    
    <h2>Connexion</h2>
-
+   
 <?php
-if (isset($error_message)) {
-    echo "<p style='color: red;'>$error_message</p>";
-}
+   if (isset($error_message)) {
+       echo "<p style='color: red;'>$error_message</p>";
+   }
 ?>
 
-   <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-    <label for="nom_utilisateur">Nom d'utilisateur:</label>
+   <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>
+
+<div class="lab">
+    <label for="nom_utilisateur">Utilisateur :</label>
     <input type="text" id="nom_utilisateur" name="nom_utilisateur" required><br>
-
-    <label for="mot_de_passe">Mot de passe:</label>
+</div>
+<div class="lab">
+    <label for="mot_de_passe">Mot de passe :</label>
     <input type="password" id="mot_de_passe" name="mot_de_passe" required><br>
-
+</div>
     <button type="submit">Se Connecter</button>
    </form>
    </div>

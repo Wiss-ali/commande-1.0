@@ -71,7 +71,6 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
     for ($i = $indice_debut; $i < min($indice_fin, count($projets)); $i++) {
         $projet = $projets[$i];
 
-    /*on doit enlever les echo pour transformer en html en referment la baluse plus tot juste au decus*/
 
         echo "<li>";
         echo "<strong>ID du Projet:</strong> " .  htmlspecialchars($projet["id"])  . "<br>";

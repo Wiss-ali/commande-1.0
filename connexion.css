@@ -14,16 +14,16 @@
   
   .corp .img {
     width: 50vw;
-    height: 100vh;
+    height: 100%;
   }
   
   .corp .con {
     width: 50vw;
-    height: 100vh;
+    height: 100%;
   }
 
   body{
     background-color: aliceblue;
     width: 100vw;
-    height: 100vh;
+    height: 100%;
   }

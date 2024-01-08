@@ -63,15 +63,18 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
 </head>
 <body>
 
-<h2>Bienvenue, <?php echo htmlspecialchars($_SESSION["nom_utilisateur"]); ?>!</h2>
+<h2>Commandes de <?php echo htmlspecialchars($_SESSION["nom_utilisateur"]); ?>!</h2>
 
 <h3>Liste des Projets (Page <?php echo $page_actuelle; ?>)</h3>
 <ul>
     <?php
     for ($i = $indice_debut; $i < min($indice_fin, count($projets)); $i++) {
         $projet = $projets[$i];
+
+    /*on doit enlever les echo pour transformer en html en referment la baluse plus tot juste au decus*/
+
         echo "<li>";
-        echo "<strong>ID du Projet:</strong> " . htmlspecialchars($projet["id"]) . "<br>";
+        echo "<strong>ID du Projet:</strong> " .  htmlspecialchars($projet["id"])  . "<br>";
         echo "<strong>Nom du Client:</strong> " . htmlspecialchars($projet["nom"]) . "<br>";
         echo "<strong>Prénom du Client:</strong> " . htmlspecialchars($projet["prenom"]) . "<br>";
         echo "<strong>Terminé:</strong> " . ($projet["termine"] ? "Oui" : "Non") . "<br>";

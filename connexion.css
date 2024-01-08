@@ -7,21 +7,59 @@
     font-family: 'Poppins', sans-serif;
 }
 
-
-  .corp {
+.corp {
     display: flex;
+    align-items: center;
   }
   
-  .corp .img {
+.corp .img {
     width: 50vw;
     height: 100vh;
   }
   
-  .corp .con {
+.corp .con {
     width: 50vw;
     height: 100vh;
   }
 
-  body{
+body{
     background-color: aliceblue;
   }
+
+h2 {
+    font-size: 3.4rem;
+    color: rgb(102, 102, 146);
+    text-decoration: underline;
+  }
+
+form {
+  padding-top: 70px;
+  padding-bottom: 80px;
+}
+
+.lab{
+  display: flex;
+  flex-direction: column; 
+  padding: 20px;
+  align-items: center;
+}
+ 
+input{
+  width: 25%;
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 5px;
+}
+
+button{
+  padding: 10px;
+  margin-top: 15px;
+  background-color: rgb(195, 218, 240);
+  border-radius: 8px;
+}
+
+
+.conn{
+  text-align: center;
+  width: 100%;
+}

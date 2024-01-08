@@ -1,15 +1,63 @@
+@import url('https://fonts.googleapis.com/css2? family=Poppins:wght@100&display=swap');
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
 
+header{
+    display: flex;
+    height: 60px;
+    width: 100%;
+    justify-content: space-between;
+    background-color: rgba(111, 128, 172, 0.747);
+    color: aliceblue;
+}
+
+header h1{
+    padding: 10px 10px 10px 20px;
+}
+
+body{
+    background-color: rgb(222, 223, 224);
+}
+
+header ul{
+    display: flex;
+    width: 40%;
+    justify-content: space-around;
+    padding: 10px;
+    align-items: center;
+}
+
+header ul li{
+    text-decoration: none;
+    list-style: none;
+    font-size: 1.2rem;
+    transition: 0.6s;
+}
+
+header ul li:hover{
+    transform: scale(1.05);
+}
+
+header a{
+    color: aliceblue;
+    text-decoration: none;
+}
 
 /*pour les bloc*/
 
-ul {
+.part2 ul {
     list-style-type: none;
     padding: 0;
+    width: 100%;
 }
 
-li {
-    background-color: #f2f2f2;
+.part2 li {
+    background-color: #d9e1e6;
     margin-bottom: 10px;
     padding: 10px;
     border-radius: 5px;
@@ -19,6 +67,7 @@ li {
 strong {
     color: #333;
     font-weight: bold;
+    text-align: end;
 }
 
 input[type="checkbox"] {
@@ -41,4 +90,19 @@ input[type="submit"]:hover {
 
 form {
     margin-top: 10px;
+}
+
+h2{
+    text-align: center;
+    padding: 40px;
+    font-size: 1.9rem;
+}
+
+h3{
+    text-align: center;
+    padding: 0 0 30px 0;
+}
+
+.listep {
+    text-align: center;
 }

@@ -64,9 +64,20 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
 </head>
 <body>
 
-<h2>Commandes de <?php echo htmlspecialchars($_SESSION["nom_utilisateur"]); ?>!</h2>
+<header>
+    <h1>COMMANDES</h1>
+    <ul>
+        <li><a href="#">Accueil</a></li>
+        <li><a href="page_saisie_donnees.php">Nouvelle demande</a></li>
+        <li><a href="#">déconnexion</a></li>
+    </ul>
+</header>
+
+<h2>N'oublie pas de rendre t'es commandes <?php echo htmlspecialchars($_SESSION["nom_utilisateur"]); ?>!</h2>
 
 <h3>Liste des Projets (Page <?php echo $page_actuelle; ?>)</h3>
+
+<div class="part2">
 <ul>
     <?php
     for ($i = $indice_debut; $i < min($indice_fin, count($projets)); $i++) {
@@ -92,8 +103,9 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
     }
     ?>
 </ul>
+</div>
 
-<div>
+<div class="listep">
     <?php
     for ($page = 1; $page <= $nombre_de_pages; $page++) {
         echo "<a href='?page=$page'>$page</a> ";
@@ -101,7 +113,7 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
     ?>
 </div>
 
-<a href="page_saisie_donnees.php">Ajouter un Nouveau Projet</a>
+
 
 </body>
 </html>

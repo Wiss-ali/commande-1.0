@@ -60,6 +60,7 @@ $mysqli->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Saisie des Données</title>
+    <link rel="stylesheet" href="page_saisie_donnees.css">
 </head>
 <body>
 

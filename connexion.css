@@ -7,59 +7,63 @@
     font-family: 'Poppins', sans-serif;
 }
 
-.corp {
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
     display: flex;
+    justify-content: center;
     align-items: center;
-  }
-  
-.corp .img {
-    width: 50vw;
     height: 100vh;
-  }
-  
-.corp .con {
-    width: 50vw;
-    height: 100vh;
-  }
+}
 
-body{
-    background-color: aliceblue;
-  }
+.corp {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
 
 h2 {
-    font-size: 3.4rem;
-    color: rgb(102, 102, 146);
-    text-decoration: underline;
-  }
-
-form {
-  padding-top: 70px;
-  padding-bottom: 80px;
+    color: #333;
 }
 
-.lab{
-  display: flex;
-  flex-direction: column; 
-  padding: 20px;
-  align-items: center;
-}
- 
-input{
-  width: 25%;
-  margin-top: 10px;
-  padding: 8px;
-  border-radius: 5px;
+.lab {
+    margin-bottom: 20px;
 }
 
-button{
-  padding: 10px;
-  margin-top: 15px;
-  background-color: rgb(195, 218, 240);
-  border-radius: 8px;
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
 }
 
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
 
-.conn{
-  text-align: center;
-  width: 100%;
+button[type="submit"] {
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+p {
+    color: red;
 }

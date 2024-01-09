@@ -65,9 +65,6 @@ $mysqli->close();
 <body>
 
 <div class="corp">
-    
-   
-     <img src="img-acceuil.png" alt="img avec le nom de ma societe" class="img">
   
    <div class="conn">
    <h2>Connexion</h2>

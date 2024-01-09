@@ -66,6 +66,7 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
 
 <header>
     <h1>COMMANDES</h1>
+    <img src="logo.wiss.png" alt="mon logo">
     <ul>
         <li><a href="#">Accueil</a></li>
         <li><a href="page_saisie_donnees.php">Nouvelle demande</a></li>

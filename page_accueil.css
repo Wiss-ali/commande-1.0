@@ -58,7 +58,7 @@ header img{
 }
 
 .demande-client {
-    word-wrap: break-word; /* Ou utilisez overflow-wrap: break-word; si nécessaire */
+    word-wrap: break-word; 
 }
 /*pour les bloc*/
 
@@ -78,7 +78,7 @@ header img{
 }
 
 .part2 li {
-    background-color: #ffffff;
+    /*background-color: #ffffff;*/
     margin-bottom: 10px;
     padding: 10px;
     border-radius: 5px;

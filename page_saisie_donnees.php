@@ -61,6 +61,18 @@ $mysqli->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Saisie des Données</title>
     <link rel="stylesheet" href="page_saisie_donnees.css">
+    
+    <script type="text/javascript">
+
+    function confirmerDeconnexion() {
+        var confirmation = confirm("Êtes-vous sûr de vouloir vous déconnecter ?");
+        if (confirmation) {
+            window.location.href = "deconnexion.php";
+        }
+    }
+
+    </script>
+
 </head>
 <body>
 
@@ -68,7 +80,7 @@ $mysqli->close();
     <h1>COMMANDES</h1>
     <img src="logo.wiss.png" alt="mon logo">
     <ul>
-        <li><a href="#">Accueil</a></li>
+        <li><a href="page_accueil.php">Accueil</a></li>
         <li><a href="page_saisie_donnees.php">Nouvelle demande</a></li>
         <li><a href="#" onclick="confirmerDeconnexion()">déconnexion</a></li>
     </ul>

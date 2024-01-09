@@ -57,7 +57,9 @@ header img{
     right: 9%;
 }
 
-
+.demande-client {
+    word-wrap: break-word; /* Ou utilisez overflow-wrap: break-word; si nécessaire */
+}
 /*pour les bloc*/
 
 .part2 ul {

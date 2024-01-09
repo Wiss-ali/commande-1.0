@@ -69,7 +69,7 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
             window.location.href = "deconnexion.php";
         }
     }
-    
+
     </script>
 
 </head>
@@ -102,7 +102,7 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
         echo "<strong>Prénom du Client:</strong> " . htmlspecialchars($projet["prenom"]) . "<br>";
         echo "<strong>Terminé:</strong> " . ($projet["termine"] ? "Oui" : "Non") . "<br>";
         echo "<strong>Date de Demande:</strong> " . htmlspecialchars($projet["date_demande"]) . "<br>";
-        echo "<strong>Demande du Client:</strong> " . htmlspecialchars($projet["demande"]) . "<br>";
+        echo "<strong>Demande du Client:</strong> <span class='demande-client'>" . htmlspecialchars($projet["demande"]) . "</span><br>";
         echo "<strong>Date de Livraison Prévue:</strong> " . htmlspecialchars($projet["date_livraison"]) . "<br>";
 
         echo "<form method='post' action=''>";

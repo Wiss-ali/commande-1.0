@@ -22,7 +22,7 @@ body {
 img{
   width: 100px;
   position: relative;
-  top: 100px;
+  bottom: 100px;
 }
 
 .corp {

@@ -63,11 +63,13 @@ header img{
 /*pour les bloc*/
 
 .non-termine {
-    background-color: #fff; /* Couleur rouge claire */
+    background-color: #fff;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
 }
 
 .termine {
-    background-color: #a3d9a3; /* Couleur verte claire */
+    background-color: #a3d9a3;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
 }
 
 .part2 ul {

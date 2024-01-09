@@ -28,7 +28,6 @@ header ul{
     display: flex;
     width: 30%;
     justify-content: space-around;
-    flex-direction: column;
     padding: 10px;
     align-items: center;
 }
@@ -66,6 +65,7 @@ header img{
     padding: 0;
     width: 100%;
     display: flex;
+    flex-direction: column;
     justify-content: center;
 }
 

@@ -22,7 +22,7 @@ body {
 img{
   width: 100px;
   position: relative;
-  bottom: 180px;
+  bottom: 170px;
 }
 
 .corp {
@@ -79,5 +79,5 @@ p {
 }
 
 .conn{
-  padding-top: 40px;
+  padding-top: 45px;
 }

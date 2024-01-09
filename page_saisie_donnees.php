@@ -63,6 +63,16 @@ $mysqli->close();
 </head>
 <body>
 
+<header>
+    <h1>COMMANDES</h1>
+    <img src="logo.wiss.png" alt="mon logo">
+    <ul>
+        <li><a href="#">Accueil</a></li>
+        <li><a href="page_saisie_donnees.php">Nouvelle demande</a></li>
+        <li><a href="#" onclick="confirmerDeconnexion()">déconnexion</a></li>
+    </ul>
+</header>
+
 <h2>Saisie des Données</h2>
 
 <form method="post" action="page_saisie_donnees.php">

@@ -95,8 +95,9 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
     for ($i = $indice_debut; $i < min($indice_fin, count($projets)); $i++) {
         $projet = $projets[$i];
 
-
-        echo "<li>";
+        $classe_termine = ($projet["termine"] ? "termine" : "");
+    
+        echo "<li class='$classe_termine'>";
         echo "<strong>ID du Projet:</strong> " .  htmlspecialchars($projet["id"])  . "<br>";
         echo "<strong>Nom du Client:</strong> " . htmlspecialchars($projet["nom"]) . "<br>";
         echo "<strong>Prénom du Client:</strong> " . htmlspecialchars($projet["prenom"]) . "<br>";

@@ -62,6 +62,9 @@ header img{
 }
 /*pour les bloc*/
 
+.non-termine {
+    background-color: #ffffff; /* Couleur rouge claire */
+}
 
 .termine {
     background-color: #a3d9a3; /* Couleur verte claire */

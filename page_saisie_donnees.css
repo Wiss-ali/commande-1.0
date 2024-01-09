@@ -1,58 +1,104 @@
-@import url('https://fonts.googleapis.com/css2? family=Poppins:wght@100&display=swap');
-
-* {
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: 'Poppins', sans-serif;
 }
 
-header{
-    display: flex;
-    height: 60px;
-    width: 100%;
-    justify-content: space-between;
-    background-color: #444444;
-    color: aliceblue;
+header {
+    background-color: #007BFF;
+    color: #fff;
+    text-align: center;
+    padding: 10px 0;
 }
 
-header h1{
-    padding: 10px 10px 10px 20px;
+header h1 {
+    font-size: 24px;
+    margin: 0;
 }
 
-body{
-    background-color: rgb(223, 223, 223);
+header img {
+    width: 100px;
+    height: auto;
+    margin-top: 10px;
 }
 
-header ul{
-    display: flex;
-    width: 30%;
-    justify-content: space-around;
-    padding: 10px;
-    align-items: center;
-}
-
-header ul li{
-    text-decoration: none;
+ul {
     list-style: none;
-    font-size: 1.2rem;
-    transition: 0.3s;
+    padding: 0;
+    margin: 0;
 }
 
-header ul li:hover{
-    transform: scale(1.05);
+ul li {
+    display: inline;
+    margin-right: 20px;
 }
 
-header a{
-    color: aliceblue;
+ul li:last-child {
+    margin-right: 0;
+}
+
+h2 {
+    color: #333;
+    text-align: center;
+    margin-top: 20px;
+}
+
+form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+input[type="text"],
+input[type="date"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+button[type="submit"] {
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+a {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #007BFF;
     text-decoration: none;
+    font-weight: bold;
 }
 
-header img{
-    width: 80px;
-    height: 80px;
-    position: relative;
-    top: -9px;
-    left: 8%;
-    right: 9%;
+a:hover {
+    text-decoration: underline;
 }

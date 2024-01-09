@@ -28,6 +28,7 @@ header ul{
     display: flex;
     width: 30%;
     justify-content: space-around;
+    flex-direction: column;
     padding: 10px;
     align-items: center;
 }

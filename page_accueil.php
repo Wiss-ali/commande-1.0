@@ -61,6 +61,17 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page d'Accueil</title>
     <link rel="stylesheet" href="page_accueil.css">
+    <script type="text/javascript">
+
+    function confirmerDeconnexion() {
+        var confirmation = confirm("Êtes-vous sûr de vouloir vous déconnecter ?");
+        if (confirmation) {
+            window.location.href = "deconnexion.php";
+        }
+    }
+    
+    </script>
+
 </head>
 <body>
 
@@ -70,7 +81,7 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
     <ul>
         <li><a href="#">Accueil</a></li>
         <li><a href="page_saisie_donnees.php">Nouvelle demande</a></li>
-        <li><a href="#">déconnexion</a></li>
+        <li><a href="#" onclick="confirmerDeconnexion()">déconnexion</a></li>
     </ul>
 </header>
 

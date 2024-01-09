@@ -89,7 +89,7 @@ header img{
     width: 40%;
     border-radius: 15px;
     margin-bottom: 15px;
-    border: solid rgb(180, 180, 180) 1px;
+    border: solid rgba(180, 180, 180, 0.781) 1px;
 }
 
 strong {

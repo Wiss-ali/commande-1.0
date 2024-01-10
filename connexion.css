@@ -17,6 +17,8 @@ body {
     align-items: center;
     height: 100vh;
     flex-direction: column;
+    position: fixed;
+    top: -150px;
 }
 
 img{

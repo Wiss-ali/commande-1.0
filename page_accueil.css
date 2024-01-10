@@ -144,7 +144,11 @@ h3{
 }
 
 .modif{
-    width: 80px;
+    width: 45px;
+}
+
+modif1{
+    
 }
 
 @media (max-width: 799px){

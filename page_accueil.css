@@ -153,6 +153,10 @@ h3{
     .part2 li{
         width: 80%;
     }
+
+    .med2{
+        display: none;
+    }
 }
 
 

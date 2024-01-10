@@ -107,7 +107,7 @@ $mysqli->close();
     <button type="submit">Enregistrer</button>
 </form>
 
-<a href="page_accueil.php">Retour à la page d'accueil</a>
+<a href="page_accueil.php" class="a">Retour à la page d'accueil</a>
 
 </body>
 </html>

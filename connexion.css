@@ -18,7 +18,7 @@ body {
     height: 100vh;
     flex-direction: column;
     position: fixed;
-    top: -150px;
+    top: -100px;
 }
 
 img{

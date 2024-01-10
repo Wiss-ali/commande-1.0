@@ -55,7 +55,7 @@ header a{
     text-decoration: none;
 }
 
-header img{
+.logo {
     width: 80px;
     height: 80px;
     position: relative;
@@ -172,10 +172,6 @@ h3{
     }
 
     .modif{
-        width: 20px;
-    }
-
-    .med1 img{
         height: 60px;
         width: 60px;
     }

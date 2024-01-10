@@ -85,3 +85,9 @@ p {
         width: 45%;
     }
 }
+
+@media (max-width: 550px){
+    .corp{
+        width: 80%;
+    }
+}

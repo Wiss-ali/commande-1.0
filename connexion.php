@@ -61,6 +61,7 @@ $mysqli->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page de Connexion</title>
     <link rel="stylesheet" href="connexion.css">
+    <link rel="icon" href="logo.wiss.png" type="image/x-icon">
 </head>
 <body>
 <img src="logo.wiss.png" alt="mon logo">

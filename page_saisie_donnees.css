@@ -29,7 +29,7 @@ header ul{
     width: 30%;
     justify-content: space-around;
     padding: 10px;
-    padding-bottom: 10px;
+    align-items: center;
 }
 
 header ul li{
@@ -109,5 +109,14 @@ button[type="submit"] {
 
 button[type="submit"]:hover {
     background-color: #0056b3;
+}
+
+a {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #2668ad;
+    text-decoration: none;
+    font-weight: bold;
 }
 

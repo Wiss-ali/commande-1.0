@@ -111,15 +111,3 @@ button[type="submit"]:hover {
     background-color: #0056b3;
 }
 
-a {
-    display: block;
-    text-align: center;
-    margin-top: 20px;
-    color: #007BFF;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-a:hover {
-    text-decoration: underline;
-}

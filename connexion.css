@@ -79,3 +79,9 @@ p {
 .conn{
   padding-top: 45px;
 }
+
+@media (max-width: 120px){
+    .corp{
+        width: 45%;
+    }
+}

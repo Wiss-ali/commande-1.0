@@ -21,8 +21,7 @@ body {
 
 img{
   width: 100px;
-  position: relative;
-  bottom: 170px;
+  margin-top: 170px;
 }
 
 .corp {

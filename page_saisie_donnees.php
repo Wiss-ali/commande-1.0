@@ -77,14 +77,25 @@ $mysqli->close();
 <body>
 
 <header>
-    <h1>COMMANDES</h1>
-    <img src="logo.wiss.png" alt="mon logo">
-    <ul>
-        <li><a href="page_accueil.php">Accueil</a></li>
+    <div class="med2">
+     <h1>COMMANDES</h1>
+
+     <img src="logo.wiss.png" class="logo" alt="mon logo">
+     
+     <ul>
+        <li><a href="#">Accueil</a></li>
         <li><a href="page_saisie_donnees.php">Nouvelle demande</a></li>
         <li><a href="#" onclick="confirmerDeconnexion()">déconnexion</a></li>
-    </ul>
+     </ul>
+    </div>
+
+    <div class="med1">
+        <a href="page_saisie_donnees.php" class="icomob" ><img src="ajouter.png" alt="icone ajouer fichier" class="modif"></a>
+        <a href="page_accueil.php"><img src="logo.wiss.png" class="logo" alt="mon logo"></a>
+        <a a class="icomob" href="#" onclick="confirmerDeconnexion()"><img src="deconnecter.png" class="modif" alt="icone de deconnexion"></a>
+    </div>
 </header>
+
 
 <h2>Saisie des Données</h2>
 

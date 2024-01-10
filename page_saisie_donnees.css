@@ -8,16 +8,21 @@
 }
 
 header{
-    display: flex;
     height: 60px;
-    width: 100%;
-    justify-content: space-between;
+    width: 100vw;
     background-color: #444444;
     color: aliceblue;
 }
 
+.med2{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 header h1{
     padding: 10px 10px 10px 20px;
+    margin-bottom: 23px;
 }
 
 body {
@@ -29,6 +34,7 @@ header ul{
     width: 30%;
     justify-content: space-around;
     padding: 10px;
+    margin-bottom: 20px;
     align-items: center;
 }
 
@@ -48,7 +54,7 @@ header a{
     text-decoration: none;
 }
 
-header img{
+.logo {
     width: 80px;
     height: 80px;
     position: relative;
@@ -119,4 +125,32 @@ button[type="submit"]:hover {
     text-decoration: none;
     font-weight: bold;
 }
+
+.med1{
+    display: none;
+}
+
+.modif{
+    width: 45px;
+}
+
+@media (max-width: 1370px){
+    .med2{
+        display: none;
+    }
+
+    .med1{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .icomob{
+        margin-bottom: 20px;
+        margin-left: 25px;
+        margin-right: 25px;
+    }
+}
+
+
 

@@ -143,6 +143,10 @@ h3{
     display: none;
 }
 
+.modif{
+    width: 80px;
+}
+
 @media (max-width: 799px){
     .part2 li{
         width: 95%;
@@ -152,6 +156,7 @@ h3{
         display: flex;
         justify-content: space-between;
         padding: 15px;
+        width: 100%;
     }
 
     .med2{

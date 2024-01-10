@@ -76,6 +76,7 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
 <body>
 
 <header>
+    <div class="med2">
     <h1>COMMANDES</h1>
 
     <img src="logo.wiss.png" alt="mon logo">
@@ -84,7 +85,7 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
         <li><a href="page_saisie_donnees.php">Nouvelle demande</a></li>
         <li><a href="#" onclick="confirmerDeconnexion()">déconnexion</a></li>
     </ul>
-
+    </div>
     <div class="med1">
         <a href="page_saisie_donnees.php"><img src="ajouter-le-fichier.png" alt="icone ajouer fichier"></a>
         <a href="page_accueil.php"><img src="logo.wiss.png" alt="mon logo"></a>

@@ -153,4 +153,8 @@ h3{
         justify-content: space-between;
         padding: 15px;
     }
+
+    .med2{
+        display: none;
+    }
 }

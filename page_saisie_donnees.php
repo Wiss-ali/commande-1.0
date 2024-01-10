@@ -83,7 +83,7 @@ $mysqli->close();
      <img src="logo.wiss.png" class="logo" alt="mon logo">
      
      <ul>
-        <li><a href="#">Accueil</a></li>
+        <li><a href="page_accueil.php">Accueil</a></li>
         <li><a href="page_saisie_donnees.php">Nouvelle demande</a></li>
         <li><a href="#" onclick="confirmerDeconnexion()">déconnexion</a></li>
      </ul>

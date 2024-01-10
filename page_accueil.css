@@ -12,6 +12,7 @@ header{
     width: 100vw;
     background-color: #444444;
     color: aliceblue;
+    position: fixed;
 }
 
 .med2{

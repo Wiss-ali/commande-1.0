@@ -77,12 +77,19 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
 
 <header>
     <h1>COMMANDES</h1>
+
     <img src="logo.wiss.png" alt="mon logo">
     <ul>
         <li><a href="#">Accueil</a></li>
         <li><a href="page_saisie_donnees.php">Nouvelle demande</a></li>
         <li><a href="#" onclick="confirmerDeconnexion()">déconnexion</a></li>
     </ul>
+
+    <div class="med1">
+        <a href="page_saisie_donnees.php"><img src="ajouter-le-fichier.png" alt="icone ajouer fichier"></a>
+        <a href="page_accueil.php"><img src="logo.wiss.png" alt="mon logo"></a>
+        <a a href="#" onclick="confirmerDeconnexion()"><img src="exportation.png" alt="icone de deconnexion"></a>
+    </div>
 </header>
 
 <h2>N'oublie pas de rendre t'es commandes <?php echo htmlspecialchars($_SESSION["nom_utilisateur"]); ?>!</h2>

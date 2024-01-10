@@ -147,9 +147,14 @@ h3{
     width: 45px;
 }
 
-modif1{
-    
+
+
+@media (max-width: 1370px){
+    .part2 li{
+        width: 80%;
+    }
 }
+
 
 @media (max-width: 799px){
     .part2 li{
@@ -167,3 +172,5 @@ modif1{
         display: none;
     }
 }
+
+

@@ -58,7 +58,8 @@ header img{
 }
 
 .demande-client {
-    word-wrap: break-word; 
+    word-wrap: break-word;
+    padding: 5px; 
 }
 /*pour les bloc*/
 

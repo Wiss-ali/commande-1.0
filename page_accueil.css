@@ -20,6 +20,11 @@ header{
     align-items: center;
 }
 
+.med2 a{
+    height: 60px;
+    width: 60px;
+}
+
 header h1{
     padding: 10px 10px 10px 20px;
     margin-bottom: 23px;

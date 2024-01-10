@@ -90,5 +90,6 @@ p {
 @media (max-width: 550px){
     .corp{
         width: 80%;
+        padding-bottom: 100px;
     }
 }

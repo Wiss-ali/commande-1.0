@@ -80,7 +80,7 @@ p {
   padding-top: 45px;
 }
 
-@media (max-width: 120px){
+@media (max-width: 1200px){
     .corp{
         width: 45%;
     }

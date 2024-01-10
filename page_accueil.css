@@ -138,3 +138,9 @@ h3{
 .listep {
     text-align: center;
 }
+
+@media (max-width: 799px){
+    .part2 li{
+        width: 90%;
+    }
+}

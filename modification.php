@@ -47,12 +47,14 @@ $projet = $result->fetch_assoc();
 // Traiter la soumission du formulaire de modification
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Récupérer les données du formulaire
-    $nom = $_POST['nom']; // Assurez-vous de valider et de nettoyer toutes les entrées
-    // ... Autres champs ...
+    $nom = $_POST['nom'];
+    $prenom = $_POST['prenom'];
+    $demande = $_POST['demande'];
+    $date_livraison = $_POST['date_livraison'];
 
     // Mise à jour des informations du projet
-    $update = $mysqli->prepare("UPDATE projets SET nom = ?, ... WHERE id = ?");
-    $update->bind_param("si", $nom, $id_projet); // Associez les bons types et valeurs
+    $update = $mysqli->prepare("UPDATE projets SET nom = ?, prenom = ?, demande = ?, date_livraison = ? WHERE id = ?");
+    $update->bind_param("ssssi", $nom, $prenom, $demande, $date_livraison, $id_projet); // Associez les bons types et valeurs
     $update->execute();
 
     if ($update->affected_rows > 0) {
@@ -107,7 +109,7 @@ $mysqli->close();
     <input type="text" id="prenom" name="prenom" value="<?php echo htmlspecialchars($projet['prenom']); ?>">
 
     <label for="demande">Demande du Client:</label>
-    <textarea id="demande" name="demande" rows="4" cols="50" value="<?php echo htmlspecialchars($projet['demande']); ?>"></textarea>
+    <textarea id="demande" name="demande" rows="4" cols="50"><?php echo htmlspecialchars($projet['demande']); ?></textarea>
 
     <label for="date_livraison">Date de Livraison Prévue:</label>
     <input type="date" id="date_livraison" name="date_livraison" value="<?php echo htmlspecialchars($projet['date_livraison']); ?>">

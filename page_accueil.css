@@ -158,6 +158,15 @@ h3{
 
 .modsup{
     display: flex;
+    justify-content: space-around;
+}
+
+.modsup img{
+    width: 60px;
+}
+
+input[type="image"] {
+    width: 60px;
 }
 
 

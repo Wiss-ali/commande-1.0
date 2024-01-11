@@ -139,9 +139,9 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
         
 
         //formulaire de modification
-        echo "<a href='modification.php?id_projet=" . htmlspecialchars($projet["id"]) . "'><img src='pen.png' alt='icone de modification'></a>";
+        echo "<a href='modification.php?id_projet=" . htmlspecialchars($projet["id"]) . "'><img src='pen.png' alt='icone de modification'></a></span>";
 
-        echo "<strong>ID du Projet:</strong> " . htmlspecialchars($projet["id"]) . "<br></span>";
+        echo "<strong>ID du Projet:</strong> " . htmlspecialchars($projet["id"]) . "<br>";
         echo "<strong>Nom du Client:</strong> " . htmlspecialchars($projet["nom"]) . "<br>";
         echo "<strong>Prénom du Client:</strong> " . htmlspecialchars($projet["prenom"]) . "<br>";
         echo "<strong>Terminé:</strong> " . ($projet["termine"] ? "Oui" : "Non") . "<br>";

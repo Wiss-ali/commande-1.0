@@ -44,6 +44,15 @@ if ($result->num_rows == 0) {
 
 $projet = $result->fetch_assoc();
 
+// Vérifier si le bouton 'Annuler' a été cliqué
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['annuler'])) {
+        header("Location: page_accueil.php");
+        exit;
+    }
+}
+
+
 // Traiter la soumission du formulaire de modification
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Récupérer les données du formulaire
@@ -61,7 +70,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "<script>alert('Projet mis à jour avec succès');</script>";
         header("Location: page_accueil.php");
     } else {
-        echo "<script>alert('Erreur lors de la mise à jour du projet');</script>";
+        header("Location: page_accueil.php");
+        exit;
     }
 
     $update->close();
@@ -115,6 +125,8 @@ $mysqli->close();
     <input type="date" id="date_livraison" name="date_livraison" value="<?php echo htmlspecialchars($projet['date_livraison']); ?>">
 
     <button type="submit">Mettre à jour</button>
+    <button type="submit" name="annuler" class="btn-annuler">Annuler</button>
+
 
 </form>
 

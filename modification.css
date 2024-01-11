@@ -61,50 +61,70 @@ header a{
 }
 
 
-body {
-    background-color: #f4f4f4;
-    color: #333;
-    margin: 0;
-    padding: 0;
-}
-
 h2 {
+    color: #333;
     text-align: center;
-    margin-top: 20px;
+    margin-top: 40px;
+    margin-bottom: 40px;
 }
 
 form {
-    width: 60%;
-    margin: 20px auto;
     background-color: #fff;
     padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    max-width: 400px;
+    margin: 0 auto;
 }
 
-form label {
+label {
     display: block;
     margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
 }
 
-form input[type="text"],
-form input[type="submit"] {
+input[type="text"],
+input[type="date"],
+textarea {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     margin-bottom: 20px;
+    border: 1px solid #ccc;
     border-radius: 4px;
-    border: 1px solid #ddd;
+    font-size: 16px;
 }
 
-form input[type="submit"] {
-    background-color: #4CAF50;
-    color: white;
-    cursor: pointer;
+body {
+    background-color: #f4f4f4;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+button[type="submit"] {
+    background-color: #007BFF;
+    color: #fff;
     border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
 }
 
-form input[type="submit"]:hover {
-    background-color: #45a049;
+button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+.a {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #2668ad;
+    text-decoration: none;
+    font-weight: bold;
 }
 
 

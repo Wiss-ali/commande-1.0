@@ -144,7 +144,7 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
         echo "</form>";
 
         //formulaire de modification
-        echo "<a href='modifier_projet.php?id_projet=" . htmlspecialchars($projet["id"]) . "'><button>Modifier</button></a>";
+        echo "<a href='modification.php?id_projet=" . htmlspecialchars($projet["id"]) . "'><button>Modifier</button></a>";
 
         // Formulaire de suppression
         echo "<form method='post'>";

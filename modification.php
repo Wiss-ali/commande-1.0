@@ -114,7 +114,7 @@ $mysqli->close();
     <label for="date_livraison">Date de Livraison Prévue:</label>
     <input type="date" id="date_livraison" name="date_livraison" value="<?php echo htmlspecialchars($projet['date_livraison']); ?>">
 
-    <input type="submit" value="Mettre à jour">
+    <button type="submit">Mettre à jour</button>
 
 </form>
 

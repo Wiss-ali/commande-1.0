@@ -159,6 +159,7 @@ h3{
 .modsup{
     display: flex;
     justify-content: space-around;
+    align-items: center;
 }
 
 .modsup img{

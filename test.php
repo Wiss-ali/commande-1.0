@@ -133,9 +133,8 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
         // Formulaire de suppression
         echo "<form method='post'>";
         echo "<input type='hidden' name='id_projet' value='" . htmlspecialchars($projet["id"]) . "'>";
-        echo "<input type='image' src='bin.png' alt='icone pour Supprimer' onclick='return confirm(\"Êtes-vous sûr de vouloir supprimer ce projet ?\");'>";
+        echo "<input type='submit' name='supprimer' value='Supprimer' onclick='return confirm(\"Êtes-vous sûr de vouloir supprimer ce projet ?\");'>";
         echo "</form>";
-
         
 
         //formulaire de modification

@@ -143,6 +143,9 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
         echo "<input type='submit' value='Enregistrer'>";
         echo "</form>";
 
+        //formulaire de modification
+        echo "<a href='modifier_projet.php?id_projet=" . htmlspecialchars($projet["id"]) . "'><button>Modifier</button></a>";
+
         // Formulaire de suppression
         echo "<form method='post'>";
         echo "<input type='hidden' name='id_projet' value='" . htmlspecialchars($projet["id"]) . "'>";

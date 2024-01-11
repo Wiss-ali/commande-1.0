@@ -129,6 +129,18 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
            }
         // Affichage des détails du projet
         echo "<li class='$classe_statut'>";
+
+        // Formulaire de suppression
+        echo "<form method='post'>";
+        echo "<input type='hidden' name='id_projet' value='" . htmlspecialchars($projet["id"]) . "'>";
+        echo "<input type='image' src='bin.png' alt='icone pour Supprimer' onclick='return confirm(\"Êtes-vous sûr de vouloir supprimer ce projet ?\");'>";
+        echo "</form>";
+
+        
+
+        //formulaire de modification
+        echo "<a href='modification.php?id_projet=" . htmlspecialchars($projet["id"]) . "'><img src='pen.png' alt='icone de modification'></a>";
+
         echo "<strong>ID du Projet:</strong> " . htmlspecialchars($projet["id"]) . "<br>";
         echo "<strong>Nom du Client:</strong> " . htmlspecialchars($projet["nom"]) . "<br>";
         echo "<strong>Prénom du Client:</strong> " . htmlspecialchars($projet["prenom"]) . "<br>";
@@ -136,6 +148,7 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
         echo "<strong>Date de Demande:</strong> " . htmlspecialchars($projet["date_demande"]) . "<br>";
         echo "<strong>Demande du Client:</strong> <span class='demande-client'>" . htmlspecialchars($projet["demande"]) . "</span><br>";
         echo "<strong>Date de Livraison Prévue:</strong> " . htmlspecialchars($projet["date_livraison"]) . "<br>";
+        
 
         echo "<form method='post' action=''>";
         echo "<input type='hidden' name='id_projet' value='" . htmlspecialchars($projet["id"]) . "'>";
@@ -143,16 +156,10 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
         echo "<input type='submit' value='Enregistrer'>";
         echo "</form>";
 
-        //formulaire de modification
-        echo "<a href='modification.php?id_projet=" . htmlspecialchars($projet["id"]) . "'><button>Modifier</button></a>";
-
-        // Formulaire de suppression
-        echo "<form method='post'>";
-        echo "<input type='hidden' name='id_projet' value='" . htmlspecialchars($projet["id"]) . "'>";
-        echo "<input type='submit' name='supprimer' value='Supprimer' onclick='return confirm(\"Êtes-vous sûr de vouloir supprimer ce projet ?\");'>";
-        echo "</form>";
         echo "</li>";
+
     }
+
     ?>
 </ul>
 </div>

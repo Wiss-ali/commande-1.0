@@ -156,6 +156,10 @@ h3{
     width: 45px;
 }
 
+.modsup{
+    display: flex;
+}
+
 
 
 @media (max-width: 1370px){

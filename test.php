@@ -1,15 +1,18 @@
 <?php
 session_start();
+
+// Vérifiez si l'utilisateur est connecté
 if (!isset($_SESSION["nom_utilisateur"])) {
     header("Location: connexion.php");
     exit();
 }
 
+// Activation du rapport d'erreurs
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Définissez les informations de connexion à la base de données
+// Informations de connexion à la base de données
 $serveur = "127.0.0.1:3306";
 $nom_utilisateur = "u559440517_wissem";
 $mot_de_passe = "Wisshafa69-";
@@ -32,7 +35,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["id_projet"])) {
     }
 }
 
-// Récupérez la liste des projets depuis votre base de données, triés par id de façon décroissante
+// Traiter la demande de suppression
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['supprimer']) && isset($_POST["id_projet"])) {
+    $stmt = $mysqli->prepare("DELETE FROM projets WHERE id = ?");
+    $stmt->bind_param("i", $_POST["id_projet"]);
+    $stmt->execute();
+
+    if ($stmt->affected_rows > 0) {
+        echo "<script>alert('Projet supprimé avec succès');</script>";
+    } else {
+        echo "<script>alert('Erreur lors de la suppression du projet');</script>";
+    }
+
+    $stmt->close();
+    echo "<script>window.location = window.location.href;</script>";
+}
+
+// Récupération des projets
 $query = "SELECT * FROM projets ORDER BY id DESC";
 $result = $mysqli->query($query);
 if (!$result) {
@@ -64,14 +83,13 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
     <script type="text/javascript">
 
     function confirmerDeconnexion() {
-        var confirmation = confirm("Êtes-vous sûr de vouloir vous déconnecter ?");
-        if (confirmation) {
-            window.location.href = "deconnexion.php";
-        }
+    var confirmation = confirm("Êtes-vous sûr de vouloir vous déconnecter ?");
+    if (confirmation) {
+        window.location.href = "deconnexion.php";
+      }
     }
 
     </script>
-
 </head>
 <body>
 
@@ -95,8 +113,7 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
     </div>
 </header>
 
-<h2>N'oublie pas de rendre t'es commandes <?php echo htmlspecialchars($_SESSION["nom_utilisateur"]); ?>!</h2>
-
+<h2>N'oublie pas de rendre tes commandes <?php echo htmlspecialchars($_SESSION["nom_utilisateur"]); ?>!</h2>
 <h3>Liste des Projets (Page <?php echo $page_actuelle; ?>)</h3>
 
 <div class="part2">
@@ -105,15 +122,14 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
     for ($i = $indice_debut; $i < min($indice_fin, count($projets)); $i++) {
         $projet = $projets[$i];
 
-        // Vérifiez si le projet est terminé
-       if ($projet["termine"]) {
-        $classe_statut = "termine";
-       } else {
-        $classe_statut = "non-termine";
-       }
-    
-    echo "<li class='$classe_statut'>";
-        echo "<strong>ID du Projet:</strong> " .  htmlspecialchars($projet["id"])  . "<br>";
+        if ($projet["termine"]) {
+            $classe_statut = "termine";
+           } else {
+            $classe_statut = "non-termine";
+           }
+        // Affichage des détails du projet
+        echo "<li class='$classe_statut'>";
+        echo "<strong>ID du Projet:</strong> " . htmlspecialchars($projet["id"]) . "<br>";
         echo "<strong>Nom du Client:</strong> " . htmlspecialchars($projet["nom"]) . "<br>";
         echo "<strong>Prénom du Client:</strong> " . htmlspecialchars($projet["prenom"]) . "<br>";
         echo "<strong>Terminé:</strong> " . ($projet["termine"] ? "Oui" : "Non") . "<br>";
@@ -127,6 +143,11 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
         echo "<input type='submit' value='Enregistrer'>";
         echo "</form>";
 
+        // Formulaire de suppression
+        echo "<form method='post'>";
+        echo "<input type='hidden' name='id_projet' value='" . htmlspecialchars($projet["id"]) . "'>";
+        echo "<input type='submit' name='supprimer' value='Supprimer' onclick='return confirm(\"Êtes-vous sûr de vouloir supprimer ce projet ?\");'>";
+        echo "</form>";
         echo "</li>";
     }
     ?>
@@ -140,8 +161,6 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
     }
     ?>
 </div>
-
-
 
 </body>
 </html>

@@ -59,7 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($update->affected_rows > 0) {
         echo "<script>alert('Projet mis à jour avec succès');</script>";
-        // Redirection vers la page d'accueil ou autre
+        header("Location: page_accueil.php");
     } else {
         echo "<script>alert('Erreur lors de la mise à jour du projet');</script>";
     }

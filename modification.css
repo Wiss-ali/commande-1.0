@@ -1,0 +1,135 @@
+/* CSS pour la page de modification de projet */
+@import url('https://fonts.googleapis.com/css2? family=Poppins:wght@100&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+header{
+    height: 60px;
+    width: 100vw;
+    background-color: #444444;
+    color: aliceblue;
+}
+
+.med2{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1{
+    padding: 10px 10px 10px 20px;
+    margin-bottom: 23px;
+}
+
+header ul{
+    display: flex;
+    width: 30%;
+    justify-content: space-around;
+    padding: 10px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+header ul li{
+    text-decoration: none;
+    list-style: none;
+    font-size: 1.2rem;
+    transition: 0.3s;
+}
+
+header ul li:hover{
+    transform: scale(1.05);
+}
+
+header a{
+    color: aliceblue;
+    text-decoration: none;
+}
+
+.logo {
+    width: 80px;
+    height: 80px;
+    position: relative;
+    top: -9px;
+    left: 8%;
+    right: 9%;
+}
+
+
+body {
+    background-color: #f4f4f4;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+h2 {
+    text-align: center;
+    margin-top: 20px;
+}
+
+form {
+    width: 60%;
+    margin: 20px auto;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+form input[type="text"],
+form input[type="submit"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+form input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    border: none;
+}
+
+form input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+
+.med1{
+    display: none;
+}
+
+.modif{
+    width: 45px;
+}
+
+@media (max-width: 1370px){
+    .med2{
+        display: none;
+    }
+
+    .med1{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .icomob{
+        margin-bottom: 20px;
+        margin-left: 25px;
+        margin-right: 25px;
+    }
+}

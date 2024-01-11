@@ -137,11 +137,11 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
         echo "<input type='image' src='bin.png' alt='Submit' onclick='return confirm(\"Êtes-vous sûr de vouloir supprimer ce projet ?\");'>";
         echo "</form>";
         
-
+        echo "<strong>ID du Projet:</strong> " . htmlspecialchars($projet["id"]) . "<br>";
         //formulaire de modification
         echo "<a href='modification.php?id_projet=" . htmlspecialchars($projet["id"]) . "'><img src='pen.png' alt='icone de modification'></a></span>";
 
-        echo "<strong>ID du Projet:</strong> " . htmlspecialchars($projet["id"]) . "<br>";
+        
         echo "<strong>Nom du Client:</strong> " . htmlspecialchars($projet["nom"]) . "<br>";
         echo "<strong>Prénom du Client:</strong> " . htmlspecialchars($projet["prenom"]) . "<br>";
         echo "<strong>Terminé:</strong> " . ($projet["termine"] ? "Oui" : "Non") . "<br>";

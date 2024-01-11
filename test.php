@@ -134,7 +134,7 @@ $nombre_de_pages = ceil(count($projets) / $projets_par_page);
         echo "<form method='post'>";
         echo "<input type='hidden' name='id_projet' value='" . htmlspecialchars($projet["id"]) . "'>";
         echo "<input type='hidden' name='supprimer' value='Supprimer'>"; // Champ caché pour 'supprimer'
-        echo "<input type='image' src='path_to_your_image.jpg' alt='Submit' onclick='return confirm(\"Êtes-vous sûr de vouloir supprimer ce projet ?\");'>";
+        echo "<input type='image' src='bin.png' alt='Submit' onclick='return confirm(\"Êtes-vous sûr de vouloir supprimer ce projet ?\");'>";
         echo "</form>";
         
 

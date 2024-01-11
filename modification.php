@@ -67,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $update->execute();
 
     if ($update->affected_rows > 0) {
-        echo "<script>alert('Projet mis à jour avec succès');</script>";
+        echo "<script>if(confirm('Projet mis à jour avec succès. Cliquez sur OK pour continuer.')) { window.location = 'page_accueil.php'; } else { window.location = 'page_accueil.php'; }</script>";
         header("Location: page_accueil.php");
     } else {
         header("Location: page_accueil.php");

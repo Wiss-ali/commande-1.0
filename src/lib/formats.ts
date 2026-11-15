@@ -49,3 +49,35 @@ export function normaliserTelephone(saisie: string): string | null {
 export function formaterTelephone(t: string): string {
   return /^0\d{9}$/.test(t) ? [t.slice(0, 4), t.slice(4, 6), t.slice(6, 8), t.slice(8)].join(INSECABLE) : t;
 }
+
+/** Remplace les chiffres arabes (٠-٩) par 0-9 : acceptés à la saisie, jamais stockés. */
+export const chiffresLatins = (s: string) => s.replace(/[٠-٩]/g, (c) => String(c.charCodeAt(0) - 0x0660));
+
+/**
+ * Montant saisi (« 1 250 », « 1250,50 », « 1250.5 ») → centimes de dinar, ou null si la saisie est invalide.
+ * Une saisie vide vaut null : à l'appelant de décider si le champ est obligatoire.
+ */
+export function analyserMontant(saisie: string): number | null {
+  const t = chiffresLatins(saisie).replace(/[\s\u00a0\u202f]/g, '').replace(/(DA|د\.ج)$/i, '').replace(',', '.');
+  if (!/^\d{1,10}(\.\d{1,2})?$/.test(t)) return null;
+  const [entier, decimales = ''] = t.split('.');
+  return Number(entier) * 100 + Number(decimales.padEnd(2, '0'));
+}
+
+/** Quantité entière saisie, entre 0 et 1 000 000, ou null. */
+export function analyserQuantite(saisie: string): number | null {
+  const t = chiffresLatins(saisie).replace(/[\s\u00a0\u202f]/g, '');
+  if (!/^\d{1,7}$/.test(t)) return null;
+  const n = Number(t);
+  return n <= 1_000_000 ? n : null;
+}
+
+/** Centimes → texte pour un champ de saisie (« 1250 » ou « 1250,50 »). */
+export function montantPourSaisie(centimes: number | string | bigint): string {
+  const n = BigInt(centimes);
+  const reste = n % 100n;
+  return `${n / 100n}${reste === 0n ? '' : `,${reste.toString().padStart(2, '0')}`}`;
+}
+
+/** Nom d'un produit ou d'une catégorie dans la langue de l'écran, avec repli sur l'autre langue. */
+export const nomLocal = (o: { nom_fr: string; nom_ar: string }, langue: Langue) => (langue === 'ar' ? o.nom_ar || o.nom_fr : o.nom_fr || o.nom_ar);

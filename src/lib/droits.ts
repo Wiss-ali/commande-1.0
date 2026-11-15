@@ -4,7 +4,7 @@ import type { NomModule, Role } from './types-bd.ts';
 export type Droit =
   | 'vendre' // caisse, commandes, factures, clients
   | 'preparer' // colis, scan, inventaire, consulter le stock
-  | 'stock.corriger' // correction manuelle du stock, prix d'achat
+  | 'stock.corriger' // créer et modifier les produits, corriger le stock, valider un inventaire, prix d'achat
   | 'rapports' // marge, rapports, prix d'achat
   | 'reglages' // informations légales, modules, boutique, abonnement
   | 'equipe'; // inviter, changer un rôle, bloquer, supprimer

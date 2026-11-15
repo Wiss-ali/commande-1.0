@@ -118,7 +118,110 @@ export interface ReglagesPlateforme {
   modifie_le: Generated<Date>;
 }
 
+export interface Categories {
+  id: Generated<string>;
+  commercant_id: string;
+  nom_fr: Generated<string>;
+  nom_ar: Generated<string>;
+  cree_le: Generated<Date>;
+}
+
+export interface Produits {
+  id: Generated<string>;
+  commercant_id: string;
+  nom_fr: Generated<string>;
+  nom_ar: Generated<string>;
+  categorie_id: string | null;
+  visible_boutique: Generated<boolean>;
+  archive_le: HorodatageNul;
+  cree_le: Generated<Date>;
+  modifie_le: Generated<Date>;
+}
+
+export interface Variantes {
+  id: Generated<string>;
+  commercant_id: string;
+  produit_id: string;
+  libelle: Generated<string>;
+  code_barres: string | null;
+  /** Montants en centimes de dinar (bigint en base, renvoyé en texte par le pilote). */
+  prix_achat: ColumnType<string, number | undefined, number>;
+  prix_vente: ColumnType<string, number | undefined, number>;
+  prix_barre: ColumnType<string | null, number | null | undefined, number | null>;
+  seuil_alerte: Generated<number>;
+  ordre: Generated<number>;
+  archive_le: HorodatageNul;
+  cree_le: Generated<Date>;
+  modifie_le: Generated<Date>;
+}
+
+export interface Stocks {
+  variante_id: string;
+  commercant_id: string;
+  quantite: Generated<number>;
+  reservee: Generated<number>;
+}
+
+export type TypeMouvement = 'entree' | 'vente' | 'retour' | 'correction' | 'reservation' | 'liberation';
+export type MotifMouvement = 'stock_initial' | 'achat' | 'import' | 'inventaire' | 'casse' | 'perte' | 'perime' | 'erreur' | 'autre';
+
+export interface MouvementsStock {
+  id: Generated<string>;
+  commercant_id: string;
+  variante_id: string;
+  type: TypeMouvement;
+  quantite: number;
+  stock_apres: Generated<number>;
+  motif: MotifMouvement | null;
+  note: Generated<string>;
+  cout_unitaire: ColumnType<string | null, number | null | undefined, never>;
+  auteur_id: string;
+  inventaire_id: string | null;
+  document_id: string | null;
+  cle: string | null;
+  cree_le: Generated<Date>;
+}
+
+export interface PhotosProduit {
+  id: Generated<string>;
+  commercant_id: string;
+  produit_id: string;
+  ordre: Generated<number>;
+  cree_le: Generated<Date>;
+}
+
+export type EtatInventaire = 'en_cours' | 'valide' | 'annule';
+
+export interface Inventaires {
+  id: Generated<string>;
+  commercant_id: string;
+  etat: Generated<EtatInventaire>;
+  cree_par: string;
+  termine_par: string | null;
+  cree_le: Generated<Date>;
+  termine_le: HorodatageNul;
+}
+
+export interface LignesInventaire {
+  id: Generated<string>;
+  commercant_id: string;
+  inventaire_id: string;
+  variante_id: string;
+  quantite_comptee: number;
+  quantite_theorique: number | null;
+  compte_par: string;
+  modifie_le: Generated<Date>;
+}
+
 export interface BD {
+  categories: Categories;
+  produits: Produits;
+  variantes: Variantes;
+  stocks: Stocks;
+  mouvements_stock: MouvementsStock;
+  photos_produit: PhotosProduit;
+  inventaires: Inventaires;
+  lignes_inventaire: LignesInventaire;
   commercants: Commercants;
   utilisateurs: Utilisateurs;
   administrateurs: Administrateurs;

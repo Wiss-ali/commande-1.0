@@ -1,0 +1,124 @@
+@import 'tailwindcss';
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-sans/700.css';
+@import '@fontsource/ibm-plex-sans-arabic/400.css';
+@import '@fontsource/ibm-plex-sans-arabic/500.css';
+@import '@fontsource/ibm-plex-sans-arabic/600.css';
+@import '@fontsource/ibm-plex-sans-arabic/700.css';
+
+/* Identité Hanout : papier chaud, encre, vert émeraude, safran pour les alertes, terre cuite pour les erreurs. */
+:root {
+  --fond: #f6f2ea;
+  --surface: #ffffff;
+  --creux: #eee8dc;
+  --encre: #1b211f;
+  --doux: #5a6360;
+  --trait: #d6cdbc;
+  --vert: #0e6b4e;
+  --sur-vert: #ffffff;
+  --vert-pale: #dcefe6;
+  --safran: #f2b33d;
+  --safran-pale: #fcefcf;
+  --sur-safran: #3d2a00;
+  --terre: #a63a24;
+  --terre-pale: #f7e0da;
+  --bleu: #1f4e79;
+  --bleu-pale: #dde8f3;
+  color-scheme: light;
+}
+:root[data-theme='sombre'] {
+  --fond: #111614;
+  --surface: #1a211e;
+  --creux: #232c28;
+  --encre: #ece7dd;
+  --doux: #a5ada9;
+  --trait: #3a4842;
+  --vert: #4fc79c;
+  --sur-vert: #08261b;
+  --vert-pale: #173a2d;
+  --safran: #f2b33d;
+  --safran-pale: #3e3011;
+  --sur-safran: #fbe3a8;
+  --terre: #f08c76;
+  --terre-pale: #45201a;
+  --bleu: #9cc4ea;
+  --bleu-pale: #1c2e40;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='clair']) {
+    --fond: #111614;
+    --surface: #1a211e;
+    --creux: #232c28;
+    --encre: #ece7dd;
+    --doux: #a5ada9;
+    --trait: #3a4842;
+    --vert: #4fc79c;
+    --sur-vert: #08261b;
+    --vert-pale: #173a2d;
+    --safran: #f2b33d;
+    --safran-pale: #3e3011;
+    --sur-safran: #fbe3a8;
+    --terre: #f08c76;
+    --terre-pale: #45201a;
+    --bleu: #9cc4ea;
+    --bleu-pale: #1c2e40;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-fond: var(--fond);
+  --color-surface: var(--surface);
+  --color-creux: var(--creux);
+  --color-encre: var(--encre);
+  --color-doux: var(--doux);
+  --color-trait: var(--trait);
+  --color-vert: var(--vert);
+  --color-sur-vert: var(--sur-vert);
+  --color-vert-pale: var(--vert-pale);
+  --color-safran: var(--safran);
+  --color-safran-pale: var(--safran-pale);
+  --color-sur-safran: var(--sur-safran);
+  --color-terre: var(--terre);
+  --color-terre-pale: var(--terre-pale);
+  --color-bleu: var(--bleu);
+  --color-bleu-pale: var(--bleu-pale);
+  --font-sans: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, 'Segoe UI', Tahoma, sans-serif;
+}
+
+html {
+  background: var(--fond);
+  color: var(--encre);
+  -webkit-text-size-adjust: 100%;
+}
+html[lang='ar'] {
+  font-family: 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, Tahoma, sans-serif;
+  line-height: 1.7;
+}
+body {
+  min-height: 100dvh;
+}
+/* Montants, téléphones, codes : chiffres alignés, toujours lus de gauche à droite. */
+.chiffres {
+  font-variant-numeric: tabular-nums;
+  unicode-bidi: isolate;
+  direction: ltr;
+  display: inline-block;
+}
+/* Les icônes de direction (flèches, chevrons) s'inversent en arabe. */
+[dir='rtl'] .directionnelle {
+  transform: scaleX(-1);
+}
+:focus-visible {
+  outline: 3px solid var(--vert);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

@@ -2,6 +2,11 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 15/11/2026 — Correction : les tests changeaient les mots de passe de la base de développement
+
+- Les rôles PostgreSQL sont communs à toutes les bases d'un serveur. Les tests recréaient les rôles avec leurs propres mots de passe, ce qui cassait la connexion de la base de développement.
+- Corrigé dans `tests/env-test.ts` : les tests reprennent les mots de passe du fichier `.env` et ne changent que le nom de la base (`hanout_test`).
+
 ## 15/11/2026 — Étape 1 (socle) terminée
 
 - Le propriétaire a validé la liste de l'étape 1 et choisi le **téléphone** comme identifiant de connexion.

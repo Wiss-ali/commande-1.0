@@ -2,6 +2,22 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 15/11/2026 — Étape 0 validée, recherche de l'étape 1
+
+- Le propriétaire a répondu « ok pour tout ». Décisions enregistrées :
+  - Nom du produit : Hanout.
+  - Boutique sans registre du commerce : avertissement, pas de blocage.
+  - Droit de timbre : réglage par tranches.
+  - Total en lettres sur les factures ; facture récapitulative et bon de transfert « plus tard ».
+  - PDF produits par Chromium côté serveur.
+  - Une commande de la boutique = un devis, vu dans Commandes et dans Devis.
+  - Maquettes acceptées (couleurs, police, disposition).
+  - Ajouts au cahier des charges : import de produits depuis Excel (étape 2), clôture de caisse (étape 3), mot de passe oublié (étape 1). Vente à crédit, fournisseurs, dépenses, plusieurs magasins : version 2.
+  - Équipe : le propriétaire crée les comptes de ses employés par lien d'invitation. Droits : le vendeur vend et prépare ; le préparateur prépare, scanne et fait l'inventaire ; seul le propriétaire voit les prix d'achat, la marge, les rapports, corrige le stock et accède aux réglages.
+  - Nombre d'employés limité selon la formule d'abonnement, réglable par l'administrateur.
+- Écrit `docs/etape-1/01-recherche-socle.md` : recherche et liste des fonctions de l'étape 1. En attente de validation avant de coder.
+- PostgreSQL 18 retenu (la 19 est encore en test). Next.js 16 : `proxy.ts` remplace `middleware.ts`.
+
 ## 15/11/2026 — Étape 0 livrée
 
 - Écrit `docs/etape-0/maquettes.html` : accueil, commandes, scan, facture, boutique. Bouton de langue et de thème. Vérifié par capture d'écran en français clair et en arabe sombre.

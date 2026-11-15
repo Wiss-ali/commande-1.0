@@ -1,28 +1,22 @@
 # État du projet
 
-Dernière mise à jour : 15/11/2026, fin de l'étape 0.
+Dernière mise à jour : 15/11/2026, recherche de l'étape 1 faite.
 
 ## Où on en est
 
-- **Étape 0 (plan, schéma, maquettes) : livrée, en attente de la validation du propriétaire.**
-- Aucun code d'application n'existe encore. Le dépôt ne contient que de la documentation.
-- Branche de travail : `claude/admiring-euler-s5selq`. `main` contient la même chose (le propriétaire a demandé que le nouveau projet remplace l'ancien sur `main`).
+- **Étape 0 : validée par le propriétaire** (« ok pour tout », décisions dans le journal).
+- **Étape 1 (socle) : recherche faite, liste des fonctions proposée, en attente de validation.** Voir `docs/etape-1/01-recherche-socle.md`.
+- Aucun code d'application n'existe encore.
+- Branche de travail : `claude/admiring-euler-s5selq`. `main` est tenu identique, à la demande du propriétaire.
 
 ## Prochaine action
 
-1. Attendre la réponse du propriétaire sur l'étape 0 et sur les questions ci-dessous.
-2. Reporter ses décisions dans `docs/etape-0/` et dans le journal.
-3. Commencer l'étape 1 (socle) : d'abord la recherche du module (comptes, invitations, isolation), la liste « indispensable / utile / plus tard », sa validation, puis le code.
+1. Obtenir la validation de la liste de l'étape 1 et la réponse à la question ci-dessous.
+2. Coder l'étape 1 dans l'ordre de la liste « indispensable », en commençant par l'installation du projet et les tests d'isolation.
 
-## Questions posées au propriétaire, sans réponse pour l'instant
+## Question posée au propriétaire, sans réponse pour l'instant
 
-1. Nom du produit : « Hanout » convient-il ?
-2. Boutique en ligne sans registre du commerce (loi 18-05) : simple avertissement ou blocage de la mise en ligne ?
-3. Droit de timbre : accord pour un réglage par tranches, à faire confirmer par un comptable ?
-4. Ajout du total en lettres sur les factures ; facture récapitulative et bon de transfert classés « plus tard » : d'accord ?
-5. PDF produits par Chromium côté serveur (arabe fiable, 300 Mo de plus) : d'accord ?
-6. Une commande de la boutique est un seul objet (le devis) vu dans Commandes et dans Devis : d'accord ?
-7. Maquettes : couleurs, police et disposition conviennent-elles ?
+- Identifiant de connexion : numéro de téléphone (proposé) ou e-mail ?
 
 ## Points à vérifier plus tard (sources officielles non joignables le 15/11/2026)
 
@@ -41,4 +35,5 @@ Dernière mise à jour : 15/11/2026, fin de l'étape 0.
 | `docs/etape-0/02-plan.md` | Outils, architecture, règles, liens entre modules, étapes |
 | `docs/etape-0/03-schema.md` | Schéma de la base |
 | `docs/etape-0/maquettes.html` | Cinq maquettes, français/arabe, clair/sombre |
+| `docs/etape-1/01-recherche-socle.md` | Recherche et liste des fonctions de l'étape 1 |
 | `docs/journal/JOURNAL.md` | Historique daté |

@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hanout — maquettes</title>
+<style>
+:root{
+  --fond:#F6F2EA; --surface:#FFFFFF; --creux:#EEE8DC; --encre:#1B211F; --doux:#5A6360;
+  --trait:#DDD5C6; --vert:#0E6B4E; --sur-vert:#FFFFFF; --vert-pale:#DCEFE6;
+  --safran:#F2B33D; --safran-pale:#FCEFCF; --sur-safran:#3D2A00;
+  --terre:#A63A24; --terre-pale:#F7E0DA; --bleu-pale:#DDE8F3; --bleu:#1F4E79;
+}
+:root[data-theme="dark"]{
+  --fond:#111614; --surface:#1A211E; --creux:#232C28; --encre:#ECE7DD; --doux:#A5ADA9;
+  --trait:#33403A; --vert:#4FC79C; --sur-vert:#08261B; --vert-pale:#173A2D;
+  --safran:#F2B33D; --safran-pale:#3E3011; --sur-safran:#FBE3A8;
+  --terre:#F08C76; --terre-pale:#45201A; --bleu-pale:#1C2E40; --bleu:#9CC4EA;
+}
+*{box-sizing:border-box;margin:0}
+body{background:var(--creux);color:var(--encre);padding:16px;
+  font-family:"IBM Plex Sans","IBM Plex Sans Arabic","Segoe UI","Noto Sans Arabic",Tahoma,sans-serif;
+  font-size:15px;line-height:1.45}
+.num{font-variant-numeric:tabular-nums}
+.outils{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-block-end:16px}
+.outils h1{font-size:18px;margin-inline-end:auto}
+button{font:inherit;color:inherit;cursor:pointer}
+.bascule{min-height:44px;padding:0 14px;border:1px solid var(--trait);background:var(--surface);border-radius:8px;font-weight:600}
+.planche{display:flex;flex-wrap:wrap;gap:24px;justify-content:center}
+figure{width:360px;max-width:100%}
+figcaption{font-weight:600;margin-block-end:8px;color:var(--doux)}
+.tel{background:var(--fond);border:1px solid var(--trait);border-radius:22px;overflow:hidden;
+  height:700px;display:flex;flex-direction:column;position:relative}
+.haut{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--surface);border-block-end:1px solid var(--trait)}
+.haut b{font-size:16px;margin-inline-end:auto}
+.lang{min-width:44px;min-height:36px;border:1px solid var(--trait);border-radius:8px;background:none;font-weight:600}
+.corps{flex:1;overflow:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.nav{display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border-block-start:1px solid var(--trait);padding:6px 4px 8px}
+.nav div{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--doux);min-height:44px;justify-content:center}
+.nav .ici{color:var(--vert);font-weight:700}
+.nav i{width:20px;height:20px;border:2px solid currentColor;border-radius:5px;display:block}
+.nav .scan i{width:46px;height:46px;border-radius:50%;background:var(--vert);border-color:var(--vert);margin-block-start:-22px;
+  box-shadow:0 0 0 5px var(--surface)}
+.chiffres{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.carte{background:var(--surface);border:1px solid var(--trait);border-radius:10px;padding:10px 12px}
+.carte small{color:var(--doux);display:block}
+.carte strong{font-size:20px;display:block}
+.alerte{background:var(--safran-pale);border-color:var(--safran);color:var(--sur-safran)}
+.alerte small{color:inherit}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--doux);font-weight:600}
+.modules{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.modules .carte{padding:8px 10px}.modules strong{font-size:16px}
+.etat{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:2px 8px;border-radius:99px}
+.etat::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+.e-vert{background:var(--vert-pale);color:var(--vert)}
+.e-safran{background:var(--safran-pale);color:var(--sur-safran)}
+.e-safran::before{border-radius:0;transform:rotate(45deg)}
+.e-bleu{background:var(--bleu-pale);color:var(--bleu)}
+.e-bleu::before{background:none;border:2px solid currentColor}
+.e-terre{background:var(--terre-pale);color:var(--terre)}
+.e-terre::before{border-radius:0}
+.barres{display:flex;align-items:flex-end;gap:6px;height:70px;margin-block-start:8px}
+.barres span{flex:1;background:var(--vert);border-radius:3px 3px 0 0;opacity:.55}
+.barres span:last-child{opacity:1}
+.ligne{display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--trait);border-radius:10px;padding:10px 12px;min-height:56px}
+.ligne .g{flex:1;min-width:0}.ligne small{color:var(--doux);display:block}
+.fleche{color:var(--doux);font-size:18px}
+[dir="rtl"] .fleche{transform:scaleX(-1)}
+.filtres{display:flex;gap:6px;overflow:auto}
+.puce{white-space:nowrap;padding:8px 12px;border-radius:99px;border:1px solid var(--trait);background:var(--surface);font-size:13px}
+.puce.on{background:var(--encre);color:var(--fond);border-color:var(--encre)}
+.principal{min-height:48px;border:0;border-radius:10px;background:var(--vert);color:var(--sur-vert);font-weight:700;font-size:16px;width:100%}
+.second{min-height:44px;border:1px solid var(--trait);border-radius:10px;background:var(--surface);font-weight:600;flex:1}
+.rang{display:flex;gap:8px}
+.camera{flex:1;background:#0B0E0D;border-radius:12px;position:relative;display:grid;place-items:center;min-height:300px;color:#E8E4DA}
+.cadre{width:70%;height:120px;border:3px solid #4FC79C;border-radius:10px;position:relative}
+.cadre::after{content:"";position:absolute;inset-inline:8px;top:50%;height:2px;background:#F2B33D}
+.camera p{position:absolute;bottom:12px;font-size:13px;text-align:center;padding:0 12px}
+.torche{position:absolute;top:10px;inset-inline-end:10px;min-width:44px;min-height:44px;border-radius:50%;border:1px solid #556;background:#1A211E;color:#F2B33D;font-size:18px}
+.papier{background:var(--surface);border:1px solid var(--trait);border-radius:6px;padding:14px;font-size:12.5px;display:flex;flex-direction:column;gap:10px}
+.papier h3{font-size:17px}
+.deux{display:flex;justify-content:space-between;gap:10px}
+.deux>div:last-child{text-align:end}
+table{width:100%;border-collapse:collapse}
+th,td{padding:5px 2px;text-align:start;border-block-end:1px solid var(--trait)}
+th{color:var(--doux);font-weight:600;font-size:11px}
+td:last-child,th:last-child{text-align:end}
+.totaux{margin-inline-start:auto;width:70%}
+.totaux div{display:flex;justify-content:space-between;padding:2px 0}
+.totaux .ttc{font-weight:700;font-size:15px;border-block-start:2px solid var(--encre);margin-block-start:4px;padding-block-start:4px}
+.mention{color:var(--doux);font-size:11px}
+.banniere{background:var(--vert);color:var(--sur-vert);border-radius:12px;padding:16px}
+.banniere small{opacity:.9}
+.grille{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.produit{background:var(--surface);border:1px solid var(--trait);border-radius:10px;overflow:hidden;position:relative}
+.photo{aspect-ratio:1;background:linear-gradient(135deg,var(--creux),var(--trait))}
+.produit div.t{padding:8px 10px}
+.produit s{color:var(--doux);font-size:12px}
+.badge{position:absolute;top:8px;inset-inline-start:8px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--safran);color:#3D2A00}
+.badge.r{background:var(--encre);color:var(--fond)}
+.rupture .photo{opacity:.45}
+.pied{padding:10px 16px;background:var(--surface);border-block-start:1px solid var(--trait)}
+.note{max-width:760px;margin:20px auto 0;color:var(--doux);font-size:13px}
+</style>
+</head>
+<body>
+<div class="outils">
+  <h1 data-fr="Hanout — maquettes de l'étape 0" data-ar="حانوت — نماذج المرحلة 0"></h1>
+  <button class="bascule" id="bLang">العربية</button>
+  <button class="bascule" id="bTheme" data-fr="Thème sombre" data-ar="الوضع الداكن"></button>
+</div>
+
+<div class="planche">
+
+<!-- 1. ACCUEIL -->
+<figure><figcaption data-fr="1. Accueil" data-ar="1. الرئيسية"></figcaption>
+<div class="tel">
+  <div class="haut"><b data-fr="Bonjour, Ali" data-ar="مرحبا، علي"></b><button class="lang">ع / Fr</button></div>
+  <div class="corps">
+    <div class="chiffres">
+      <div class="carte"><small data-fr="Ventes du jour" data-ar="مبيعات اليوم"></small><strong class="num" data-fr="48 500 DA" data-ar="48 500 د.ج"></strong></div>
+      <div class="carte"><small data-fr="À confirmer" data-ar="للتأكيد"></small><strong class="num">6</strong></div>
+      <div class="carte"><small data-fr="Colis en cours" data-ar="طرود في الطريق"></small><strong class="num">14</strong></div>
+      <div class="carte alerte"><small data-fr="Stock bas" data-ar="مخزون منخفض"></small><strong class="num">3</strong></div>
+    </div>
+    <h2 data-fr="Modules" data-ar="الأقسام"></h2>
+    <div class="modules">
+      <div class="carte"><small data-fr="Stock" data-ar="المخزون"></small><strong class="num">212</strong></div>
+      <div class="carte"><small data-fr="Caisse" data-ar="الصندوق"></small><strong class="num">17</strong></div>
+      <div class="carte"><small data-fr="Factures" data-ar="الفواتير"></small><strong class="num">4 <span class="etat e-safran" data-fr="devis" data-ar="عروض"></span></strong></div>
+      <div class="carte"><small data-fr="Commandes" data-ar="الطلبات"></small><strong class="num">20</strong></div>
+      <div class="carte"><small data-fr="Boutique" data-ar="المتجر"></small><span class="etat e-vert" data-fr="En ligne" data-ar="متصل"></span></div>
+      <div class="carte"><small data-fr="Clients" data-ar="الزبائن"></small><strong class="num">138</strong></div>
+    </div>
+    <div class="carte">
+      <small data-fr="Ventes sur 7 jours" data-ar="مبيعات 7 أيام"></small>
+      <strong class="num" data-fr="312 000 DA" data-ar="312 000 د.ج"></strong>
+      <div class="barres"><span style="height:40%"></span><span style="height:65%"></span><span style="height:30%"></span><span style="height:80%"></span><span style="height:55%"></span><span style="height:100%"></span><span style="height:70%"></span></div>
+    </div>
+    <h2 data-fr="À faire" data-ar="مهام اليوم"></h2>
+    <div class="ligne"><div class="g"><b data-fr="6 commandes à appeler" data-ar="6 طلبات للاتصال"></b><small data-fr="La plus ancienne : il y a 3 h" data-ar="الأقدم: منذ 3 ساعات"></small></div><span class="fleche">›</span></div>
+    <div class="ligne"><div class="g"><b data-fr="3 produits à réapprovisionner" data-ar="3 منتجات للتموين"></b></div><span class="fleche">›</span></div>
+  </div>
+  <div class="nav">
+    <div class="ici"><i></i><span data-fr="Accueil" data-ar="الرئيسية"></span></div>
+    <div><i></i><span data-fr="Caisse" data-ar="الصندوق"></span></div>
+    <div class="scan"><i></i><span data-fr="Scan" data-ar="مسح"></span></div>
+    <div><i></i><span data-fr="Stock" data-ar="المخزون"></span></div>
+    <div><i></i><span data-fr="Plus" data-ar="المزيد"></span></div>
+  </div>
+</div></figure>
+
+<!-- 2. COMMANDES -->
+<figure><figcaption data-fr="2. Commandes" data-ar="2. الطلبات"></figcaption>
+<div class="tel">
+  <div class="haut"><b data-fr="Commandes" data-ar="الطلبات"></b><button class="lang">ع / Fr</button></div>
+  <div class="corps">
+    <div class="filtres">
+      <span class="puce on" data-fr="À confirmer · 6" data-ar="للتأكيد · 6"></span>
+      <span class="puce" data-fr="Confirmées · 4" data-ar="مؤكدة · 4"></span>
+      <span class="puce" data-fr="Expédiées · 14" data-ar="مرسلة · 14"></span>
+      <span class="puce" data-fr="Toutes" data-ar="الكل"></span>
+    </div>
+    <div class="ligne"><div class="g"><b data-fr="Samira B. · Oran" data-ar="سميرة ب. · وهران"></b>
+      <small class="num" data-fr="Ticket K7M4 · 2 articles · 7 400 DA" data-ar="تذكرة K7M4 · منتجان · 7 400 د.ج"></small>
+      <span class="etat e-safran" data-fr="À confirmer · 1 appel" data-ar="للتأكيد · اتصال واحد"></span></div><span class="fleche">›</span></div>
+    <div class="ligne"><div class="g"><b data-fr="Yacine M. · Sétif" data-ar="ياسين م. · سطيف"></b>
+      <small class="num" data-fr="Ticket P2X9 · 1 article · 3 200 DA" data-ar="تذكرة P2X9 · منتج واحد · 3 200 د.ج"></small>
+      <span class="etat e-safran" data-fr="À confirmer" data-ar="للتأكيد"></span>
+      <span class="etat e-terre" data-fr="2 retours avec ce numéro" data-ar="مرتجعان بهذا الرقم"></span></div><span class="fleche">›</span></div>
+    <div class="ligne"><div class="g"><b data-fr="Nadia K. · Alger" data-ar="نادية ك. · الجزائر"></b>
+      <small class="num" data-fr="N° 0142 · 3 articles · 12 500 DA" data-ar="رقم 0142 · 3 منتجات · 12 500 د.ج"></small>
+      <span class="etat e-bleu" data-fr="Expédiée · Yalidine" data-ar="مرسلة · ياليدين"></span></div><span class="fleche">›</span></div>
+    <div class="ligne"><div class="g"><b data-fr="Karim S. · Bou Saâda" data-ar="كريم س. · بوسعادة"></b>
+      <small class="num" data-fr="N° 0139 · 1 article · 5 900 DA" data-ar="رقم 0139 · منتج واحد · 5 900 د.ج"></small>
+      <span class="etat e-vert" data-fr="Livrée" data-ar="تم التسليم"></span></div><span class="fleche">›</span></div>
+    <div style="flex:1"></div>
+    <button class="principal" data-fr="+ Nouvelle commande" data-ar="+ طلب جديد"></button>
+  </div>
+  <div class="nav">
+    <div><i></i><span data-fr="Accueil" data-ar="الرئيسية"></span></div>
+    <div><i></i><span data-fr="Caisse" data-ar="الصندوق"></span></div>
+    <div class="scan"><i></i><span data-fr="Scan" data-ar="مسح"></span></div>
+    <div><i></i><span data-fr="Stock" data-ar="المخزون"></span></div>
+    <div class="ici"><i></i><span data-fr="Plus" data-ar="المزيد"></span></div>
+  </div>
+</div></figure>
+
+<!-- 3. SCAN -->
+<figure><figcaption data-fr="3. Scan" data-ar="3. المسح"></figcaption>
+<div class="tel">
+  <div class="haut"><b data-fr="Scanner" data-ar="مسح الرمز"></b><button class="lang">ع / Fr</button></div>
+  <div class="corps">
+    <div class="filtres">
+      <span class="puce on" data-fr="Chercher" data-ar="بحث"></span>
+      <span class="puce" data-fr="Vendre" data-ar="بيع"></span>
+      <span class="puce" data-fr="Inventaire" data-ar="جرد"></span>
+      <span class="puce" data-fr="Préparer un colis" data-ar="تحضير طرد"></span>
+    </div>
+    <div class="camera">
+      <button class="torche" aria-label="Lampe">☀</button>
+      <div class="cadre"></div>
+      <p data-fr="Placez le code-barres dans le cadre" data-ar="ضع الرمز داخل الإطار"></p>
+    </div>
+    <div class="ligne"><div class="g"><b data-fr="Chemise lin — M, bleu" data-ar="قميص كتان — M، أزرق"></b>
+      <small class="num" data-fr="6130001234567 · 3 700 DA" data-ar="6130001234567 · 3 700 د.ج"></small>
+      <span class="etat e-safran" data-fr="Stock : 2" data-ar="المخزون: 2"></span></div><span class="fleche">›</span></div>
+    <button class="second" style="flex:none" data-fr="Saisir le code à la main" data-ar="إدخال الرمز يدويا"></button>
+  </div>
+  <div class="nav">
+    <div><i></i><span data-fr="Accueil" data-ar="الرئيسية"></span></div>
+    <div><i></i><span data-fr="Caisse" data-ar="الصندوق"></span></div>
+    <div class="scan ici"><i></i><span data-fr="Scan" data-ar="مسح"></span></div>
+    <div><i></i><span data-fr="Stock" data-ar="المخزون"></span></div>
+    <div><i></i><span data-fr="Plus" data-ar="المزيد"></span></div>
+  </div>
+</div></figure>
+
+<!-- 4. FACTURE -->
+<figure><figcaption data-fr="4. Facture" data-ar="4. الفاتورة"></figcaption>
+<div class="tel">
+  <div class="haut"><b data-fr="Facture" data-ar="فاتورة"></b><span class="etat e-vert" data-fr="Émise" data-ar="صادرة"></span><button class="lang">ع / Fr</button></div>
+  <div class="corps">
+    <div class="papier">
+      <div class="deux">
+        <div><h3 data-fr="Facture" data-ar="فاتورة"></h3><div class="num" data-fr="N° 2026-000142" data-ar="رقم 000142-2026"></div><div class="num">15/11/2026</div></div>
+        <div><b data-fr="Magasin Ali" data-ar="متجر علي"></b><div class="mention" data-fr="Personne physique · Oran" data-ar="شخص طبيعي · وهران"></div><div class="mention num">RC · NIF · NIS · AI</div></div>
+      </div>
+      <div><span class="mention" data-fr="Client" data-ar="الزبون"></span><div><b data-fr="Nadia K." data-ar="نادية ك."></b> · <span data-fr="Alger" data-ar="الجزائر"></span></div></div>
+      <table>
+        <tr><th data-fr="Désignation" data-ar="البيان"></th><th data-fr="Qté" data-ar="الكمية"></th><th data-fr="P.U. HT" data-ar="السعر"></th><th data-fr="Total HT" data-ar="المجموع"></th></tr>
+        <tr><td data-fr="Chemise lin M" data-ar="قميص كتان M"></td><td class="num">2</td><td class="num">3&nbsp;700</td><td class="num">7&nbsp;400</td></tr>
+        <tr><td data-fr="Foulard soie" data-ar="وشاح حرير"></td><td class="num">1</td><td class="num">4&nbsp;600</td><td class="num">4&nbsp;600</td></tr>
+      </table>
+      <div class="totaux num">
+        <div><span data-fr="Total HT" data-ar="المجموع خارج الرسم"></span><span>12&nbsp;000</span></div>
+        <div><span data-fr="TVA (taux réglable)" data-ar="الرسم على القيمة المضافة"></span><span>…</span></div>
+        <div><span data-fr="Droit de timbre" data-ar="حق الطابع"></span><span>…</span></div>
+        <div class="ttc"><span data-fr="Total TTC" data-ar="المجموع الكلي"></span><span data-fr="… DA" data-ar="… د.ج"></span></div>
+      </div>
+      <div class="mention" data-fr="Arrêtée à la somme de : … dinars. Payée en espèces le 15/11/2026." data-ar="أوقفت هذه الفاتورة عند مبلغ: … دينار. دفعت نقدا يوم 15/11/2026."></div>
+    </div>
+    <div class="filtres">
+      <span class="puce" data-fr="‹ Devis D-0087" data-ar="‹ عرض D-0087"></span>
+      <span class="puce" data-fr="Commande 0142" data-ar="طلب 0142"></span>
+      <span class="puce" data-fr="Colis" data-ar="الطرد"></span>
+      <span class="puce" data-fr="Stock" data-ar="المخزون"></span>
+    </div>
+    <button class="principal" data-fr="Télécharger le PDF" data-ar="تحميل PDF"></button>
+    <div class="rang">
+      <button class="second" data-fr="WhatsApp" data-ar="واتساب"></button>
+      <button class="second" data-fr="Créer un avoir" data-ar="إنشاء إشعار دائن"></button>
+    </div>
+  </div>
+</div></figure>
+
+<!-- 5. BOUTIQUE -->
+<figure><figcaption data-fr="5. Boutique en ligne (modèle Vitrine)" data-ar="5. المتجر الإلكتروني (نموذج الواجهة)"></figcaption>
+<div class="tel">
+  <div class="haut"><b data-fr="Magasin Ali" data-ar="متجر علي"></b><button class="lang">ع / Fr</button></div>
+  <div class="corps">
+    <div class="banniere"><b style="font-size:18px" data-fr="Nouvelle collection d'automne" data-ar="تشكيلة الخريف الجديدة"></b><br>
+      <small data-fr="Livraison dans les 69 wilayas · Paiement à la livraison" data-ar="التوصيل إلى 69 ولاية · الدفع عند الاستلام"></small></div>
+    <div class="grille">
+      <div class="produit"><span class="badge" data-fr="Plus que 2" data-ar="بقي 2 فقط"></span><div class="photo"></div>
+        <div class="t"><div data-fr="Chemise lin" data-ar="قميص كتان"></div><b class="num" data-fr="3 700 DA" data-ar="3 700 د.ج"></b> <s class="num">4&nbsp;500</s></div></div>
+      <div class="produit"><span class="badge" data-fr="Nouveau" data-ar="جديد"></span><div class="photo"></div>
+        <div class="t"><div data-fr="Foulard soie" data-ar="وشاح حرير"></div><b class="num" data-fr="4 600 DA" data-ar="4 600 د.ج"></b></div></div>
+      <div class="produit rupture"><span class="badge r" data-fr="Rupture de stock" data-ar="نفد المخزون"></span><div class="photo"></div>
+        <div class="t"><div data-fr="Veste en jean" data-ar="سترة جينز"></div><b class="num" data-fr="6 900 DA" data-ar="6 900 د.ج"></b></div></div>
+      <div class="produit"><div class="photo"></div>
+        <div class="t"><div data-fr="Sac en cuir" data-ar="حقيبة جلدية"></div><b class="num" data-fr="8 200 DA" data-ar="8 200 د.ج"></b></div></div>
+    </div>
+    <div class="mention" data-fr="Vendeur : Magasin Ali, Oran · RC et NIF affichés ici · Conditions de livraison et de retour" data-ar="البائع: متجر علي، وهران · السجل التجاري والرقم الجبائي هنا · شروط التوصيل والإرجاع"></div>
+  </div>
+  <div class="pied"><button class="principal" data-fr="Voir le panier · 1 article · 3 700 DA" data-ar="عرض السلة · منتج واحد · 3 700 د.ج"></button></div>
+</div></figure>
+
+</div>
+
+<p class="note" data-fr="Maquettes statiques : elles montrent la disposition, les couleurs et les deux langues, pas le fonctionnement. Les montants de TVA et de timbre sont laissés vides car ils dépendent de réglages. Les icônes définitives remplaceront les carrés de la barre du bas."
+   data-ar="نماذج ثابتة: تعرض التصميم والألوان واللغتين فقط، وليس طريقة العمل. مبالغ الرسم والطابع فارغة لأنها تتبع الإعدادات. الأيقونات النهائية ستعوض المربعات في الشريط السفلي."></p>
+
+<script>
+var racine=document.documentElement, langue='fr';
+function appliquer(){
+  racine.lang=langue; racine.dir=langue==='ar'?'rtl':'ltr';
+  document.querySelectorAll('[data-fr]').forEach(function(e){e.textContent=e.getAttribute('data-'+langue).replace(/(\d) (?=\d)/g,'$1\u00A0')});
+  document.getElementById('bLang').textContent=langue==='ar'?'Français':'العربية';
+}
+function changerLangue(){langue=langue==='fr'?'ar':'fr';appliquer()}
+document.getElementById('bLang').onclick=changerLangue;
+document.querySelectorAll('.lang').forEach(function(b){b.onclick=changerLangue});
+document.getElementById('bTheme').onclick=function(){
+  racine.dataset.theme=racine.dataset.theme==='dark'?'light':'dark';
+};
+appliquer();
+</script>
+</body>
+</html>

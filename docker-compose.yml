@@ -1,0 +1,27 @@
+# Base et application sur un seul serveur. Caddy (HTTPS), les sauvegardes et la mise à jour
+# sans coupure seront ajoutés à l'étape 8. Les secrets viennent du fichier .env, jamais de ce fichier.
+services:
+  base:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_MOT_DE_PASSE:?à définir dans .env}
+    volumes:
+      - donnees_base:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      retries: 6
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      base:
+        condition: service_healthy
+    env_file: .env
+    ports:
+      - "127.0.0.1:3000:3000"
+
+volumes:
+  donnees_base:

@@ -5,7 +5,7 @@ Proposition à valider. Les noms sont en français pour rester lisibles par vous
 
 ## Conventions
 
-- Chaque table a un `id` UUID (version 7), `cree_le`, `modifie_le`.
+- Chaque table a un `id` UUID aléatoire (version 4, non devinable), `cree_le`, `modifie_le`.
 - Chaque table d'un commerçant a `commercant_id`, avec la RLS **activée et forcée**. Les clés étrangères incluent `commercant_id`, pour qu'une ligne ne puisse jamais pointer vers celle d'un autre commerçant.
 - Montants : `bigint` en centimes de dinar. Taux : entiers en centièmes de pour cent (1900 = 19 %).
 - 🔒 = champ chiffré en AES-256-GCM par l'application. `_hmac` = empreinte pour la recherche exacte.

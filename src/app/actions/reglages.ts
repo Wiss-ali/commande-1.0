@@ -77,7 +77,7 @@ export const activer2fa = action(async (f) => {
   if (!codes) return { erreur: 'code_invalide' };
   const { ip } = await infoRequete();
   await avecCommercant(s.commercant.id, (trx) => journaliser(trx, { commercantId: s.commercant.id, acteurType: 'utilisateur', acteurId: s.utilisateur.id, action: 'double_auth.activee', ip }));
-  revalidatePath('/reglages/securite');
+  // Pas de rechargement ici : les codes de secours doivent rester à l'écran jusqu'à ce que l'utilisateur continue.
   return { ok: true, codes };
 });
 

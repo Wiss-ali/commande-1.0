@@ -2,6 +2,24 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 15/11/2026 — Étape 1 (socle) terminée
+
+- Le propriétaire a validé la liste de l'étape 1 et choisi le **téléphone** comme identifiant de connexion.
+- Code écrit et testé : voir `docs/etape-1/02-bilan.md` (fait, pas fait, à essayer, schéma des liens).
+- Résultat des vérifications (`npm run verifier`) : types corrects, 43 tests unitaires et d'intégration, construction, 10 parcours de bout en bout. `npm audit` : aucune faille connue.
+- Choix techniques à connaître pour la suite :
+  - Quatre rôles PostgreSQL : `hanout_proprietaire` (migrations), `hanout_app` (données d'un commerçant, RLS), `hanout_auth` (comptes, sessions, invitations), `hanout_plateforme` (administration).
+  - La connexion « app » ne s'utilise que par `avecCommercant(id, fn)` dans `src/lib/bd.ts`.
+  - Le rôle `hanout_app` n'a pas le droit de lire les mots de passe ni les secrets : toujours nommer les colonnes, jamais `selectAll()` sur `utilisateurs`, `sessions`, `invitations`.
+  - Chaque nouvelle table d'un commerçant doit avoir `commercant_id`, la RLS forcée et une règle pour `hanout_app` : le test `tests/integration/isolation.test.ts` les parcourt toutes et échoue sinon.
+  - Pages : `pageUtilisateur(droit, module)`. Actions serveur : `exigerUtilisateur` ou `exigerEcriture`, enveloppées par `action()` ou `actionSimple()` de `src/lib/actions.ts`.
+  - Tout texte passe par `messages/fr.json` et `messages/ar.json` ; un test vérifie que les clés sont identiques et que l'arabe est bien en arabe.
+  - Montants : `formaterMontant` (espaces insécables). Chiffres et téléphones : classe CSS `chiffres`.
+  - Next.js 16 : `src/proxy.ts` remplace `middleware.ts`. TypeScript 7 fonctionne avec Next.js 16.
+  - Après une action serveur avec `revalidatePath`, un composant client peut être remplacé : ne pas y garder un résultat à afficher (cause du défaut des codes de secours).
+- Environnement de travail : PostgreSQL 16 local, à relancer avec `pg_ctlcluster 16 main start` après un redémarrage du conteneur. Le fichier `.env` local n'est pas dans le dépôt : le recréer depuis `.env.example`, puis `npm run db:roles` et `npm run db:migrer`.
+- Docker : fichiers écrits, non testés (service indisponible ici).
+
 ## 15/11/2026 — Étape 0 validée, recherche de l'étape 1
 
 - Le propriétaire a répondu « ok pour tout ». Décisions enregistrées :

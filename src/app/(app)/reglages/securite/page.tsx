@@ -13,6 +13,7 @@ import { pageUtilisateur } from '@/lib/web';
 export default async function Securite() {
   const s = await pageUtilisateur();
   const t = await getTranslations('securite');
+  const tc = await getTranslations('commun');
   const appareils = await avecCommercant(s.commercant.id, (trx) =>
     trx.selectFrom('sessions').select(['id', 'appareil', 'vue_le']).where('utilisateur_id', '=', s.utilisateur.id).where('expire_le', '>', new Date()).orderBy('vue_le', 'desc').execute());
   return (
@@ -39,7 +40,7 @@ export default async function Securite() {
           ) : (
             <>
               <p className="text-sm text-doux">{t('a2fInactive')}</p>
-              <Activation2fa preparer={preparer2fa} activer={activer2fa} />
+              <Activation2fa preparer={preparer2fa} activer={activer2fa} suite={{ href: '/reglages/securite', libelle: tc('continuer') }} />
             </>
           )}
         </Carte>

@@ -6,6 +6,7 @@ import { avecCommercant, bd, fermerBD } from '../../src/lib/bd.ts';
 import { inviterEmploye } from '../../src/lib/invitations.ts';
 import { journaliser } from '../../src/lib/journal.ts';
 import { creerSession } from '../../src/lib/sessions.ts';
+import { compter, creerProduit, ouvrirInventaire, trouverOuCreerCategorie } from '../../src/lib/stock.ts';
 import { creerAdmin, creerCommercant, sqlProprietaire, telephone } from '../outils.ts';
 
 type C = Awaited<ReturnType<typeof creerCommercant>>;
@@ -20,6 +21,16 @@ beforeAll(async () => {
     await inviterEmploye({ commercantId: c.commercantId, parUtilisateur: c.proprietaireId, nom: 'Employé', telephone: telephone(), role: 'vendeur' });
     await creerSession({ utilisateurId: c.proprietaireId, commercantId: c.commercantId }, { complete: true, appareil: 'test' });
     await avecCommercant(c.commercantId, (trx) => journaliser(trx, { commercantId: c.commercantId, acteurType: 'utilisateur', acteurId: c.proprietaireId, action: 'test' }));
+    // Une ligne dans chaque table du stock : catégorie, produit, variante, stock, mouvement, photo, inventaire.
+    await avecCommercant(c.commercantId, async (trx) => {
+      const ctx = { commercantId: c.commercantId, utilisateurId: c.proprietaireId };
+      const categorieId = await trouverOuCreerCategorie(trx, ctx, 'Divers');
+      const p = await creerProduit(trx, ctx, { nomFr: 'Produit', nomAr: '', categorieId, variantes: [{ libelle: '', codeBarres: 'ISOLE', prixAchat: 100, prixVente: 200, seuil: 0, stockInitial: 3 }] });
+      if (!p.ok) throw new Error(p.raison);
+      await trx.insertInto('photos_produit').values({ commercant_id: c.commercantId, produit_id: p.id }).execute();
+      const variante = await trx.selectFrom('variantes').select('id').where('produit_id', '=', p.id).executeTakeFirstOrThrow();
+      await compter(trx, ctx, await ouvrirInventaire(trx, ctx), variante.id, { ajouter: 1 });
+    });
   }
   const r = await sqlProprietaire<{ table_name: string }>(
     `SELECT table_name FROM information_schema.columns WHERE table_schema = 'public' AND column_name = 'commercant_id' ORDER BY 1`,
@@ -30,7 +41,7 @@ afterAll(fermerBD);
 
 describe('configuration de la base', () => {
   it('chaque table d\'un commerçant a la RLS activée, forcée, et une règle pour le rôle de l\'application', async () => {
-    expect(tablesCommercant).toEqual(expect.arrayContaining(['utilisateurs', 'sessions', 'invitations', 'journal_actions']));
+    expect(tablesCommercant).toEqual(expect.arrayContaining(['utilisateurs', 'sessions', 'invitations', 'journal_actions', 'categories', 'produits', 'variantes', 'stocks', 'mouvements_stock', 'photos_produit', 'inventaires', 'lignes_inventaire']));
     for (const table of [...tablesCommercant, 'commercants']) {
       const t = await sqlProprietaire<{ relrowsecurity: boolean; relforcerowsecurity: boolean }>(
         'SELECT relrowsecurity, relforcerowsecurity FROM pg_class WHERE oid = $1::regclass', [table]);

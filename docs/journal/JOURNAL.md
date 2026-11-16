@@ -2,6 +2,28 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 16/11/2026 — Étape 2 (produits, stock, scan) terminée
+
+- Décisions du propriétaire :
+  - **Pas de double authentification imposée aux commerçants** : trop compliquée pour eux. Elle reste proposée dans Réglages › Sécurité (c'était déjà le cas : facultative). Elle reste obligatoire pour l'administrateur de la plateforme, comme le demande le cahier des charges.
+  - **« Tu peux faire les recherches et lancer sans me demander »** : la recherche avant chaque module est toujours faite et écrite, mais on n'attend plus la validation de la liste avant de coder. L'arrêt en fin d'étape reste.
+- Recherche : `docs/etape-2/01-recherche-stock.md`. Bilan : `docs/etape-2/02-bilan.md`.
+- Vérifications (`npm run verifier`) : 75 tests unitaires et d'intégration, 22 parcours de bout en bout, `npm audit` sans faille.
+- Choix techniques à connaître pour la suite :
+  - Migration `0002_stock` : `categories`, `produits`, `variantes`, `stocks`, `mouvements_stock`, `photos_produit`, `inventaires`, `lignes_inventaire`.
+  - **Le stock ne change que par `ajouterMouvement` (`src/lib/stock.ts`).** Le rôle `hanout_app` n'a que la lecture sur `stocks` ; un déclencheur `SECURITY DEFINER` applique chaque mouvement. Comme la RLS est forcée, ce déclencheur a sa propre règle (`declencheur`) limitée au commerçant de la transaction.
+  - Types de mouvement prêts pour les étapes suivantes : `vente` (−), `retour` (+), `reservation` (+ sur la quantité réservée), `liberation` (−). Expédier un article réservé = `liberation` puis `vente` dans la même transaction.
+  - Ne jamais insérer un mouvement avec `ON CONFLICT DO NOTHING` sans raison : l'idempotence passe par la colonne `cle` (index unique) et le contrôle fait dans `ajouterMouvement`.
+  - Une erreur de la base annule toute la transaction : les fonctions contrôlent avant d'écrire et renvoient une raison (`Refus`, aussi clé de traduction sous `erreurs`). `refusDepuisErreur` traduit les contraintes quand deux actions se croisent.
+  - Montants en arabe : `formaterMontant` isole le nombre (U+2066…U+2069). Dans un test, comparer avec ces caractères.
+  - Scan : `src/components/Scanner.tsx` (`onCode`). Le fichier WebAssembly est copié dans `public/wasm` par `scripts/copier-wasm.ts` (avant `dev` et `build`), la CSP autorise `wasm-unsafe-eval`. Réutilisable tel quel pour la caisse et les colis.
+  - Photos : réduites dans le navigateur, revérifiées et réécrites en WebP par `sharp`, rangées dans `DOSSIER_FICHIERS` (hors base), servies par `/photos/[id]` après contrôle de la session.
+  - Excel : lecteur et écrivain maison dans `src/lib/tableur.ts` (`fflate`), sans la bibliothèque `xlsx` (faille connue). `ecrireXlsx` servira aux exports de l'étape 5.
+  - Une page `notFound()` répond 200 avec l'écran « introuvable » (affichage progressif de Next.js) : dans un test, vérifier le contenu, pas le code HTTP.
+  - Tests de bout en bout : fausse caméra de Chromium, image créée dans `tests/e2e/preparation.ts`. `tests/e2e/stock.spec.ts` crée ses propres commerçants avec `tests/outils.ts`.
+- Environnement : après un redémarrage du conteneur, relancer `pg_ctlcluster 16 main start`. Le mot de passe local de `postgres` a été mis à `postgres` (`su postgres -c "psql -c \"ALTER USER postgres PASSWORD 'postgres'\""`).
+- Branche de travail : `claude/adoring-ptolemy-sn6zzz`. `main` n'a pas été mis à jour pendant cette session (pas d'autorisation de pousser dessus).
+
 ## 15/11/2026 — Correction : les tests changeaient les mots de passe de la base de développement
 
 - Les rôles PostgreSQL sont communs à toutes les bases d'un serveur. Les tests recréaient les rôles avec leurs propres mots de passe, ce qui cassait la connexion de la base de développement.

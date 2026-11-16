@@ -28,12 +28,14 @@ npm run verifier   # types, tests unitaires et d'isolation, construction, tests 
 
 Les tests utilisent une base séparée (`hanout_test`), recréée à chaque lancement.
 
+Les photos des produits sont rangées dans le dossier `DOSSIER_FICHIERS` (par défaut `./donnees`), à sauvegarder avec la base.
+
 ## Organisation
 
 | Dossier | Contenu |
 |---|---|
 | `db/migrations` | Changements de la base, versionnés et réversibles (`.up.sql` / `.down.sql`) |
-| `src/lib` | Cœur serveur : base et RLS, chiffrement, comptes, invitations, droits, formats |
+| `src/lib` | Cœur serveur : base et RLS, chiffrement, comptes, invitations, droits, formats, stock, codes-barres, tableur, photos |
 | `src/app` | Écrans et actions serveur (`(app)` commerçant, `(public)` sans connexion, `admin`) |
 | `messages` | Tous les textes : `fr.json` et `ar.json` |
 | `tests` | `unit`, `integration` (isolation entre commerçants), `e2e` (parcours sur téléphone) |

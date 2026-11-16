@@ -14,7 +14,8 @@ factures, commandes, boutique en ligne). Le travail se fait par étapes, sur plu
 
 - Le propriétaire parle français. Lui répondre en français, simplement : il n'est pas développeur.
 - Avancer par étapes (0 à 8). S'arrêter à la fin de chaque étape et attendre sa validation.
-- Avant chaque module : recherche web avec sources, liste « indispensable / utile / plus tard », validation, puis code.
+- Avant chaque module : recherche web avec sources et liste « indispensable / utile / plus tard », écrites dans `docs/etape-N/`. Depuis le 16/11/2026, le propriétaire autorise à coder ensuite sans attendre sa validation de la liste.
+- Pas de double authentification imposée aux commerçants (seulement proposée). Elle reste obligatoire pour l'administrateur de la plateforme.
 - Aucune règle fiscale ou légale écrite en dur : tout taux ou mention est un réglage.
 - Ne jamais coder de paiement par carte. Ne jamais recevoir ni stocker un numéro de carte.
 - Aucun texte d'interface écrit en dur : tout passe par les fichiers de traduction (français et arabe).

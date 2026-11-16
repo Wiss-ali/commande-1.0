@@ -35,19 +35,16 @@ async function effacerFichiers(commercantId: string, photoId: string): Promise<v
   await Promise.all([true, false].map((petite) => rm(chemin(commercantId, photoId, petite), { force: true })));
 }
 
-/** Remplace la photo d'un produit. Renvoie false si le fichier n'est pas une image acceptée ou si le produit est inconnu. */
-export async function enregistrerPhoto(trx: Trx, ctx: Contexte, produitId: string, octets: Uint8Array): Promise<boolean> {
-  const images = await preparerPhoto(octets);
-  if (!images) return false;
-  const produit = await trx.selectFrom('produits').select('id').where('id', '=', produitId).executeTakeFirst();
-  if (!produit) return false;
+export type Images = NonNullable<Awaited<ReturnType<typeof preparerPhoto>>>;
+
+/** Remplace la photo d'un produit par des images déjà vérifiées par `preparerPhoto`. */
+export async function enregistrerPhoto(trx: Trx, ctx: Contexte, produitId: string, images: Images): Promise<void> {
   const anciennes = await trx.deleteFrom('photos_produit').where('produit_id', '=', produitId).returning('id').execute();
   const { id } = await trx.insertInto('photos_produit').values({ commercant_id: ctx.commercantId, produit_id: produitId }).returning('id').executeTakeFirstOrThrow();
   await mkdir(join(racine(), ctx.commercantId), { recursive: true });
   await writeFile(chemin(ctx.commercantId, id, false), images.grande);
   await writeFile(chemin(ctx.commercantId, id, true), images.petite);
   for (const a of anciennes) await effacerFichiers(ctx.commercantId, a.id);
-  return true;
 }
 
 export async function supprimerPhoto(trx: Trx, ctx: Contexte, produitId: string): Promise<void> {

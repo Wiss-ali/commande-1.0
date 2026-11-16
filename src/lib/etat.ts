@@ -10,4 +10,6 @@ export interface Etat {
   /** Activation de la double authentification : QR code (image) et clé à saisir à la main. */
   qr?: string;
   cle?: string;
+  /** Nombre lié au message de réussite (par exemple le nombre de corrections d'un inventaire). */
+  nombre?: number;
 }

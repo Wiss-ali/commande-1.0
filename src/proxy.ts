@@ -7,7 +7,7 @@ export function proxy(requete: NextRequest) {
   const https = (process.env.URL_APP ?? '').startsWith('https://');
   const csp = [
     `default-src 'self'`,
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${dev ? ` 'unsafe-eval'` : ''}`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval'${dev ? ` 'unsafe-eval'` : ''}`,
     dev ? `style-src 'self' 'unsafe-inline'` : `style-src 'self' 'nonce-${nonce}'`,
     `img-src 'self' blob: data:`,
     `font-src 'self'`,
@@ -41,5 +41,5 @@ export function proxy(requete: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|icones/|manifest.webmanifest).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|icones/|wasm/|photos/|manifest.webmanifest).*)'],
 };

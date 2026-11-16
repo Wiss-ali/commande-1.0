@@ -7,7 +7,9 @@
     "node": ">=22"
   },
   "scripts": {
+    "predev": "tsx scripts/copier-wasm.ts",
     "dev": "next dev",
+    "prebuild": "tsx scripts/copier-wasm.ts",
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",

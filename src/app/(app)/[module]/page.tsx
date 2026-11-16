@@ -11,13 +11,12 @@ import { pageUtilisateur } from '@/lib/web';
 // Page d'attente des modules pas encore construits. Chaque module la remplacera par son propre dossier.
 export default async function ModuleAVenir({ params }: { params: Promise<{ module: string }> }) {
   const { module } = await params;
-  const estScan = module === 'scan';
-  if (!estScan && !MODULES.includes(module as NomModule)) notFound();
-  const cle = (estScan ? 'stock' : module) as NomModule;
+  if (!MODULES.includes(module as NomModule)) notFound();
+  const cle = module as NomModule;
   await pageUtilisateur(DROIT_MODULE[cle], cle);
   const t = await getTranslations('aVenir');
   const tm = await getTranslations('modules');
-  const nom = tm(estScan ? 'scan' : cle);
+  const nom = tm(cle);
   return (
     <>
       <EnTete titre={nom} />

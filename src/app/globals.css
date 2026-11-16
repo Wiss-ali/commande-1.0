@@ -122,3 +122,85 @@ body {
     transition: none !important;
   }
 }
+
+/* Étiquettes code-barres : planche A4 (3 par rangée) ou rouleau d'imprimante à étiquettes (50 × 30 mm). */
+.etiquettes-planche {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.etiquettes-rouleau {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.etiquette {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  overflow: hidden;
+  border: 1px dashed var(--trait);
+  border-radius: 4px;
+  background: #fff;
+  color: #000;
+  padding: 6px;
+  text-align: center;
+  break-inside: avoid;
+}
+.etiquettes-rouleau .etiquette {
+  width: 50mm;
+  height: 30mm;
+}
+.etiquette img {
+  max-width: 100%;
+  max-height: 16mm;
+}
+.etiquette-nom {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.etiquette-prix {
+  font-size: 12px;
+  font-weight: 700;
+}
+@page {
+  margin: 8mm;
+}
+@page rouleau {
+  size: 50mm 30mm;
+  margin: 0;
+}
+@media print {
+  html,
+  body {
+    background: #fff;
+  }
+  nav {
+    display: none !important;
+  }
+  .etiquettes-planche {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2mm;
+  }
+  .etiquettes-planche .etiquette {
+    height: 33mm;
+    border-color: #bbb;
+  }
+  .etiquettes-rouleau {
+    gap: 0;
+  }
+  .etiquettes-rouleau .etiquette {
+    page: rouleau;
+    border: 0;
+    border-radius: 0;
+    break-after: page;
+  }
+}

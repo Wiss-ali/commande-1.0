@@ -38,6 +38,7 @@ export interface Utilisateurs {
   mot_de_passe: string;
   role: Role;
   langue: Generated<Langue>;
+  gere_produits: Generated<boolean>;
   totp_secret_chiffre: string | null;
   totp_actif: Generated<boolean>;
   codes_secours: Generated<string[]>;
@@ -85,6 +86,7 @@ export interface Invitations {
   nom: string | null;
   telephone: string | null;
   role: Role | null;
+  gere_produits: Generated<boolean>;
   expire_le: ColumnType<Date, Date | string, Date | string>;
   utilisee_le: HorodatageNul;
   annulee_le: HorodatageNul;

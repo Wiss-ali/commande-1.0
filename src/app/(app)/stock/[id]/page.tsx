@@ -11,7 +11,7 @@ import { Page } from '@/components/Page';
 import { PastilleStock } from '@/components/PastilleStock';
 import { Carte, Champ, classeBouton, Message, Pastille, TitreSection } from '@/components/ui';
 import { avecCommercant } from '@/lib/bd';
-import { peut } from '@/lib/droits';
+import { autorise, peut } from '@/lib/droits';
 import { formaterMontant, nomLocal } from '@/lib/formats';
 import { etatVariante, lireProduit, listerMouvements } from '@/lib/stock';
 import type { Langue } from '@/lib/types-bd';
@@ -35,6 +35,7 @@ export default async function Produit({ params, searchParams }: { params: Promis
   }));
   if (!produit) notFound();
   const gere = peut(s.utilisateur.role, 'stock.corriger');
+  const fiche = autorise(s.utilisateur, 'produits.gerer');
   const voitAchat = peut(s.utilisateur.role, 'rapports');
   const ecrit = s.commercant.etat === 'actif' && !produit.archive;
   const { erreur: demandee } = await searchParams;
@@ -78,7 +79,7 @@ export default async function Produit({ params, searchParams }: { params: Promis
               <div><dt className="text-doux">{t('codeBarres')}</dt><dd className="chiffres font-semibold">{v.code_barres ?? '—'}</dd></div>
               <div><dt className="text-doux">{t('seuil')}</dt><dd className="chiffres font-semibold">{v.seuil_alerte}</dd></div>
             </dl>
-            {gere && ecrit && !v.code_barres ? (
+            {fiche && ecrit && !v.code_barres ? (
               <form action={donnerCodeInterne}>
                 <input type="hidden" name="variante" value={v.id} />
                 <button type="submit" className={classeBouton.secondaire}>{t('creerCode')}</button>
@@ -124,18 +125,18 @@ export default async function Produit({ params, searchParams }: { params: Promis
           </Carte>
         ))}
 
-        {gere && s.commercant.etat === 'actif' ? (
+        {fiche && s.commercant.etat === 'actif' ? (
           <div className="flex flex-wrap gap-2">
             {produit.archive ? null : <Link href={`/stock/${id}/modifier`} className={classeBouton.secondaire}><Pencil aria-hidden className="size-4" />{t('modifier')}</Link>}
             {produit.archive ? null : <Link href={`/stock/etiquettes?produit=${id}`} className={classeBouton.secondaire}><Tags aria-hidden className="size-4" />{t('etiquettes')}</Link>}
-            <form action={basculerArchive}>
+            {gere ? <form action={basculerArchive}>
               <input type="hidden" name="id" value={id} />
               <input type="hidden" name="archiver" value={produit.archive ? '0' : '1'} />
               <button type="submit" className={produit.archive ? classeBouton.secondaire : classeBouton.danger}>
                 {produit.archive ? <ArchiveRestore aria-hidden className="size-4" /> : <Archive aria-hidden className="size-4" />}
                 {t(produit.archive ? 'retablir' : 'archiver')}
               </button>
-            </form>
+            </form> : null}
           </div>
         ) : null}
 

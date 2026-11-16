@@ -148,7 +148,11 @@
     "expire": "Expire le {date}",
     "annulerInvitation": "Annuler",
     "videTitre": "Aucun employé pour l'instant",
-    "videTexte": "Créez un lien d'invitation ci-dessus pour ajouter votre premier employé."
+    "videTexte": "Créez un lien d'invitation ci-dessus pour ajouter votre premier employé.",
+    "droitProduits": "Ce vendeur peut ajouter et modifier les produits (il ne voit jamais le prix d'achat). Sans effet pour un préparateur.",
+    "gereProduits": "Gère les produits",
+    "accorderProduits": "Autoriser à gérer les produits",
+    "retirerProduits": "Retirer la gestion des produits"
   },
   "modulesReglages": {
     "titre": "Modules",
@@ -295,8 +299,7 @@
     "historiqueAide": "Toutes les entrées et sorties",
     "rupture": "Rupture",
     "bas": "Stock bas",
-    "enStock": "En stock",
-    "videTexteVendeur": "Ajoutez le premier produit du magasin."
+    "enStock": "En stock"
   },
   "produit": {
     "nouveauTitre": "Nouveau produit",

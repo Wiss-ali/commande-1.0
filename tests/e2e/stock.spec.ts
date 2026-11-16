@@ -257,11 +257,23 @@ test('import depuis Excel : aperçu, lignes fausses signalées, pas de doublon',
   await expect(nadia.locator('p[role=alert]')).toContainText('Ce fichier ne peut pas être lu');
 });
 
-test('le vendeur voit le stock et fait une entrée, sans prix d\'achat ni correction', async ({ browser }) => {
+test('le vendeur : droits accordés par la propriétaire, jamais de prix d\'achat ni de correction', async ({ browser }) => {
   karim = await ouvrir(browser);
   await connecter(karim, telKarim, MDP_VENDEUR);
   await karim.goto('/stock');
-  // Il peut ajouter un produit, mais sans prix d'achat ; modifier une fiche reste réservé au propriétaire.
+  // Sans le droit accordé par la propriétaire, il n'ajoute ni ne modifie aucun produit.
+  await expect(karim.getByRole('link', { name: 'Ajouter un produit' })).toHaveCount(0);
+  for (const chemin of ['/stock/nouveau', `${adresseCafe}/modifier`]) {
+    await karim.goto(chemin);
+    await expect(karim).toHaveURL(/\/acces-refuse$/);
+  }
+  // La propriétaire lui accorde la gestion des produits depuis l'écran Équipe.
+  await nadia.goto('/reglages/equipe');
+  await nadia.getByText('Actions').click();
+  await nadia.getByRole('button', { name: 'Autoriser à gérer les produits' }).click();
+  await expect(nadia.getByText('Gère les produits', { exact: true })).toBeVisible();
+  await sansDebordement(nadia);
+  await karim.goto('/stock');
   await karim.getByRole('link', { name: 'Ajouter un produit' }).click();
   await expect(karim.getByLabel("Prix d'achat (DA)")).toHaveCount(0);
   await karim.getByLabel('Nom en français').fill('Stylo bleu');
@@ -271,7 +283,13 @@ test('le vendeur voit le stock et fait une entrée, sans prix d\'achat ni correc
   await karim.getByRole('button', { name: 'Créer le produit' }).click();
   await expect(karim.getByRole('heading', { name: 'Stylo bleu' })).toBeVisible();
   await expect(stockAffiche(karim)).toHaveText('50');
-  await expect(karim.getByRole('link', { name: 'Modifier' })).toHaveCount(0);
+  // Il modifie un prix de vente ; le prix d'achat, qu'il ne voit pas, reste intact (vérifié plus bas côté propriétaire).
+  await karim.goto(`${adresseCafe}/modifier`);
+  await expect(karim.getByLabel("Prix d'achat (DA)")).toHaveCount(0);
+  await karim.getByLabel('Prix de vente (DA)').fill('260');
+  await karim.getByRole('button', { name: 'Enregistrer' }).click();
+  await expect(karim.getByText('260 DA')).toBeVisible();
+  await expect(karim.getByRole('button', { name: 'Archiver' })).toHaveCount(0);
   await karim.goto('/stock');
   await expect(karim.getByText('Valeur du stock')).toHaveCount(0);
   await expect(karim.getByRole('link', { name: /Importer/ })).toHaveCount(0);
@@ -279,7 +297,6 @@ test('le vendeur voit le stock et fait une entrée, sans prix d\'achat ni correc
   await expect(karim.getByText("Prix d'achat")).toHaveCount(0);
   await expect(karim.getByText('190 DA')).toHaveCount(0);
   await expect(karim.getByText('Sortie : casse, perte, erreur')).toHaveCount(0);
-  await expect(karim.getByRole('link', { name: 'Modifier' })).toHaveCount(0);
   await expect(karim.getByRole('button', { name: 'Archiver' })).toHaveCount(0);
   await karim.getByText('Entrée de stock').click();
   await expect(karim.getByLabel("Nouveau prix d'achat (DA)")).toHaveCount(0);
@@ -287,7 +304,7 @@ test('le vendeur voit le stock et fait une entrée, sans prix d\'achat ni correc
   await karim.getByRole('button', { name: 'Ajouter au stock' }).click();
   await expect(stockAffiche(karim)).toHaveText('20');
   await expect(karim.getByText(/^Karim ·/)).toBeVisible();
-  for (const chemin of [`${adresseCafe}/modifier`, '/stock/import']) {
+  for (const chemin of ['/stock/import']) {
     await karim.goto(chemin);
     await expect(karim).toHaveURL(/\/acces-refuse$/);
   }

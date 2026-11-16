@@ -51,8 +51,8 @@ const schemaVariantes = z
 export const enregistrerProduit = action(async (f) => {
   const id = texte(f, 'id', 40);
   if (id && !UUID.test(id)) return { erreur: 'introuvable' };
-  // Le vendeur peut ajouter un produit ; seul le propriétaire modifie une fiche (et donc un prix).
-  const s = await exigerEcriture(id ? 'stock.corriger' : 'produits.creer', 'stock');
+  // Le propriétaire, ou le vendeur à qui il a accordé ce droit.
+  const s = await exigerEcriture('produits.gerer', 'stock');
   const voitAchat = peut(s.utilisateur.role, 'rapports');
   let brut: unknown;
   try {
@@ -87,6 +87,11 @@ export const enregistrerProduit = action(async (f) => {
     const categorieId = nouvelle ? await trouverOuCreerCategorie(trx, ctx, nouvelle) : UUID.test(choisie) ? choisie : null;
     const saisie = { nomFr: texte(f, 'nomFr', 120), nomAr: texte(f, 'nomAr', 120), categorieId, variantes };
     let produitId = id;
+    if (id && !voitAchat) {
+      // Le vendeur ne voit pas les prix d'achat : ceux des variantes existantes sont gardés tels quels.
+      const actuels = new Map((await trx.selectFrom('variantes').select(['id', 'prix_achat']).where('produit_id', '=', id).execute()).map((v) => [v.id, Number(v.prix_achat)]));
+      for (const v of variantes) v.prixAchat = (v.id && actuels.get(v.id)) || 0;
+    }
     if (id) {
       const fait = await modifierProduit(trx, ctx, id, saisie);
       if (!fait.ok) return fait;
@@ -152,7 +157,7 @@ export const mouvementStock = action(async (f) => {
 
 /** Donne un code interne (à imprimer) à un article qui n'a pas de code-barres. */
 export const donnerCodeInterne = actionSimple(async (f) => {
-  const s = await exigerEcriture('stock.corriger', 'stock');
+  const s = await exigerEcriture('produits.gerer', 'stock');
   const id = texte(f, 'variante', 40);
   if (!UUID.test(id)) return;
   await avecCommercant(s.commercant.id, async (trx) => {

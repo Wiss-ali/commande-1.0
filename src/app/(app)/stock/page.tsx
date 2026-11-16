@@ -6,7 +6,7 @@ import { Page } from '@/components/Page';
 import { PastilleStock } from '@/components/PastilleStock';
 import { classeBouton, EtatVide, LigneLien, TitreSection } from '@/components/ui';
 import { avecCommercant } from '@/lib/bd';
-import { peut } from '@/lib/droits';
+import { autorise, peut } from '@/lib/droits';
 import { formaterMontant, nomLocal } from '@/lib/formats';
 import { etatProduit, listerProduits, resumeStock, type FiltreStock } from '@/lib/stock';
 import type { Langue } from '@/lib/types-bd';
@@ -24,7 +24,7 @@ export default async function Stock({ searchParams }: { searchParams: Promise<{ 
   const filtre = FILTRES.find((f) => f === params.filtre) ?? 'tous';
   const page = Math.min(Math.max(Number(params.page) || 1, 1), 100);
   const gere = peut(s.utilisateur.role, 'stock.corriger');
-  const cree = peut(s.utilisateur.role, 'produits.creer');
+  const cree = autorise(s.utilisateur, 'produits.gerer');
 
   const { resume, produits } = await avecCommercant(s.commercant.id, async (trx) => ({
     resume: await resumeStock(trx),
@@ -45,7 +45,7 @@ export default async function Stock({ searchParams }: { searchParams: Promise<{ 
       <EnTete titre={t('titre')} />
       <Page>
         {vide ? (
-          <EtatVide titre={t('videTitre')} texte={t(gere ? 'videTexte' : cree ? 'videTexteVendeur' : 'videTexteEmploye')}>
+          <EtatVide titre={t('videTitre')} texte={t(gere ? 'videTexte' : 'videTexteEmploye')}>
             {cree ? (
               <div className="mt-2 flex w-full flex-col gap-2">
                 <Link href="/stock/nouveau" className={classeBouton.principal}><Plus aria-hidden className="size-5" />{t('ajouter')}</Link>

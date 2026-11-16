@@ -148,7 +148,11 @@
     "expire": "تنتهي يوم {date}",
     "annulerInvitation": "إلغاء",
     "videTitre": "لا يوجد موظفون حاليا",
-    "videTexte": "أنشئ رابط دعوة في الأعلى لإضافة أول موظف."
+    "videTexte": "أنشئ رابط دعوة في الأعلى لإضافة أول موظف.",
+    "droitProduits": "يمكن لهذا البائع إضافة المنتجات وتعديلها (لا يرى سعر الشراء أبدا). لا أثر له على المحضّر.",
+    "gereProduits": "يدير المنتجات",
+    "accorderProduits": "السماح بإدارة المنتجات",
+    "retirerProduits": "سحب إدارة المنتجات"
   },
   "modulesReglages": {
     "titre": "الأقسام",
@@ -295,8 +299,7 @@
     "historiqueAide": "كل ما دخل وخرج",
     "rupture": "نفد",
     "bas": "مخزون منخفض",
-    "enStock": "متوفر",
-    "videTexteVendeur": "أضف أول منتج في المحل."
+    "enStock": "متوفر"
   },
   "produit": {
     "nouveauTitre": "منتج جديد",

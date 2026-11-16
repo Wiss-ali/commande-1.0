@@ -9,7 +9,7 @@ export interface SessionUtilisateur {
   type: 'utilisateur';
   id: string;
   complete: boolean; // faux tant que le code de double authentification n'est pas saisi
-  utilisateur: { id: string; nom: string; role: Role; langue: Langue; totpActif: boolean };
+  utilisateur: { id: string; nom: string; role: Role; langue: Langue; totpActif: boolean; gereProduits: boolean };
   commercant: { id: string; nom: string; etat: EtatCommercant; modules: Modules };
 }
 export interface SessionAdmin {
@@ -54,7 +54,7 @@ export async function trouverSession(jeton: string): Promise<Session | null> {
     .leftJoin('administrateurs as a', 'a.id', 's.administrateur_id')
     .select([
       's.id', 's.mfa_ok', 's.vue_le', 's.utilisateur_id', 's.administrateur_id',
-      'u.nom as u_nom', 'u.role', 'u.langue', 'u.totp_actif as u_totp', 'u.desactive', 'u.supprime_le',
+      'u.nom as u_nom', 'u.role', 'u.langue', 'u.totp_actif as u_totp', 'u.gere_produits', 'u.desactive', 'u.supprime_le',
       'c.id as c_id', 'c.nom as c_nom', 'c.etat', 'c.modules',
       'a.identifiant', 'a.totp_actif as a_totp',
     ])
@@ -78,7 +78,7 @@ export async function trouverSession(jeton: string): Promise<Session | null> {
       type: 'utilisateur',
       id: s.id,
       complete: s.mfa_ok,
-      utilisateur: { id: s.utilisateur_id, nom: s.u_nom, role: s.role, langue: s.langue, totpActif: !!s.u_totp },
+      utilisateur: { id: s.utilisateur_id, nom: s.u_nom, role: s.role, langue: s.langue, totpActif: !!s.u_totp, gereProduits: !!s.gere_produits },
       commercant: { id: s.c_id, nom: s.c_nom ?? '', etat: s.etat, modules: s.modules },
     };
   }

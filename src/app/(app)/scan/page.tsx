@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { EnTete } from '@/components/EnTete';
 import { Page } from '@/components/Page';
 import { ScanRecherche } from '@/components/ScanRecherche';
-import { peut } from '@/lib/droits';
+import { autorise } from '@/lib/droits';
 import { pageUtilisateur } from '@/lib/web';
 
 export default async function Scan() {
@@ -12,7 +12,7 @@ export default async function Scan() {
     <>
       <EnTete titre={t('titre')} />
       <Page>
-        <ScanRecherche peutCreer={peut(s.utilisateur.role, 'produits.creer') && s.commercant.etat === 'actif'} />
+        <ScanRecherche peutCreer={autorise(s.utilisateur, 'produits.gerer') && s.commercant.etat === 'actif'} />
       </Page>
     </>
   );

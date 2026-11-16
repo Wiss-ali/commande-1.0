@@ -6,7 +6,7 @@ Dernière mise à jour : 17/11/2026, après les réponses du propriétaire sur l
 
 - **Étape 0 : validée.**
 - **Étape 1 (socle) : terminée.** Le propriétaire a demandé de continuer ; seule remarque : pas de double authentification imposée aux commerçants (elle était déjà facultative). Bilan : `docs/etape-1/02-bilan.md`.
-- **Étape 2 (produits, stock, scan) : terminée et testée, en attente de la validation du propriétaire.** Bilan : `docs/etape-2/02-bilan.md`.
+- **Étape 2 (produits, stock, scan) : validée le 17/11/2026.** Bilan : `docs/etape-2/02-bilan.md`.
 - Prochaine étape : **étape 3, caisse, factures PDF, choix « Envoi » ou « Vente directe »**, avec en plus la clôture de caisse.
 - Branche de travail : `claude/adoring-ptolemy-sn6zzz`. `main` est en retard : il s'arrête à la fin de l'étape 1 (le propriétaire voulait `main` identique ; à refaire quand il le confirme).
 
@@ -17,7 +17,7 @@ Dernière mise à jour : 17/11/2026, après les réponses du propriétaire sur l
 
 ## Prochaine action
 
-1. Obtenir le « validé » de l'étape 2.
+1. Étape 3 en cours.
 2. Étape 3 : recherche (caisse, ticket, facture, mentions du décret 05-468, droit de timbre, TVA, PDF en arabe par Chromium), liste, puis code.
 3. À l'étape 3 : brancher `Scanner` dans la caisse, écrire la vente avec `ajouterMouvement` (type `vente`), laisser passer une vente quand le stock connu manque et la signaler (décision du 17/11/2026), ajouter le taux de TVA par produit, remplacer la page d'attente `src/app/(app)/[module]/page.tsx` pour `caisse` et `factures`.
 
@@ -35,8 +35,7 @@ npm run verifier                     # tout doit passer avant de continuer
 
 ## Questions ouvertes pour le propriétaire
 
-- Aucune. Réponses du 17/11/2026 (détail dans le journal) : mot de passe du commerçant à 8 caractères ; le vendeur peut ajouter un produit sans prix d'achat, le propriétaire seul modifie les prix ; à la caisse, une vente passe même si le stock connu est à zéro, et elle est signalée.
-- L'étape 2 n'a pas encore reçu de « validé » explicite : le demander avant de commencer l'étape 3.
+- Aucune. Décisions du 17/11/2026 (détail dans le journal) : mot de passe du commerçant à 8 caractères ; le commerçant choisit pour chaque vendeur s'il peut gérer les produits ; à la caisse, une vente passe même si le stock connu est à zéro, et elle est signalée.
 
 ## Points à vérifier plus tard (sources officielles non joignables)
 

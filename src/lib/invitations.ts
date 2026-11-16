@@ -72,7 +72,7 @@ export async function reinitialiserProprietaire(p: { adminId: string; commercant
 }
 
 /** Propriétaire : invite un employé. Vérifie la limite d'employés de la formule. */
-export async function inviterEmploye(p: { commercantId: string; parUtilisateur: string; nom: string; telephone: string; role: Exclude<Role, 'proprietaire'> }) {
+export async function inviterEmploye(p: { commercantId: string; parUtilisateur: string; nom: string; telephone: string; role: Exclude<Role, 'proprietaire'>; gereProduits?: boolean }) {
   if (await telephonePris(p.telephone)) return { ok: false as const, raison: 'telephone_pris' as const };
   const { jeton, hash } = nouveauJeton();
   const expire = await expiration();
@@ -90,7 +90,7 @@ export async function inviterEmploye(p: { commercantId: string; parUtilisateur: 
       .where('telephone', '=', p.telephone).where('utilisee_le', 'is', null).where('annulee_le', 'is', null).execute();
     const inv = await trx.insertInto('invitations').values({
       jeton_hash: hash, type: 'employe', commercant_id: p.commercantId, nom: p.nom, telephone: p.telephone,
-      role: p.role, expire_le: expire, cree_par_utilisateur: p.parUtilisateur,
+      role: p.role, gere_produits: p.role === 'vendeur' && !!p.gereProduits, expire_le: expire, cree_par_utilisateur: p.parUtilisateur,
     }).returning('id').executeTakeFirstOrThrow();
     await journaliser(trx, { commercantId: p.commercantId, acteurType: 'utilisateur', acteurId: p.parUtilisateur, action: 'employe.invite', objetType: 'invitation', objetId: inv.id, details: { role: p.role } });
     return { ok: true as const, jeton, expire };
@@ -153,8 +153,8 @@ export async function accepterInvitation(jeton: string, a: Acceptation): Promise
   const hash = hacherJeton(jeton);
   const r = await bd('auth').transaction().execute(async (trx): Promise<ResultatAcceptation> => {
     // Verrou sur la ligne : deux envois simultanés ne peuvent pas utiliser le lien deux fois.
-    const q = await sql<{ id: string; type: TypeInvitation; commercant_id: string; utilisateur_id: string | null; nom: string | null; telephone: string | null; role: Role | null }>`
-      SELECT i.id, i.type, i.commercant_id, i.utilisateur_id, i.nom, i.telephone, i.role
+    const q = await sql<{ id: string; type: TypeInvitation; commercant_id: string; utilisateur_id: string | null; nom: string | null; telephone: string | null; role: Role | null; gere_produits: boolean }>`
+      SELECT i.id, i.type, i.commercant_id, i.utilisateur_id, i.nom, i.telephone, i.role, i.gere_produits
       FROM invitations i JOIN commercants c ON c.id = i.commercant_id
       WHERE i.jeton_hash = ${hash} AND i.utilisee_le IS NULL AND i.annulee_le IS NULL AND i.expire_le > now()
         AND c.etat IN ('actif', 'lecture_seule')
@@ -183,7 +183,7 @@ export async function accepterInvitation(jeton: string, a: Acceptation): Promise
       const pris = await trx.selectFrom('utilisateurs').select('id').where('telephone', '=', inv.telephone).executeTakeFirst();
       if (pris) return { ok: false, raison: 'telephone_pris' };
       const u = await trx.insertInto('utilisateurs')
-        .values({ commercant_id: inv.commercant_id, nom, telephone: inv.telephone, mot_de_passe: hache, role: inv.role! })
+        .values({ commercant_id: inv.commercant_id, nom, telephone: inv.telephone, mot_de_passe: hache, role: inv.role!, gere_produits: inv.role === 'vendeur' && inv.gere_produits })
         .returning('id').executeTakeFirstOrThrow();
       utilisateurId = u.id;
     }

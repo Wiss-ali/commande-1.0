@@ -47,7 +47,7 @@ Terminée le 16/11/2026. En attente de la validation du propriétaire.
 
 - **Vrai téléphone** : le scan est testé avec une fausse caméra sur Chromium. Il reste à l'essayer sur un Android et un iPhone réels (il faut le HTTPS, donc un vrai serveur ou un tunnel).
 - **Scan en caisse et pour préparer un colis** : le composant est prêt, il sera branché aux étapes 3 et 4.
-- **Droits** (décidé le 17/11/2026) : le vendeur peut ajouter un produit, sans prix d'achat. Modifier un prix, archiver, importer et corriger le stock restent au propriétaire.
+- **Droits** (décidé le 17/11/2026) : le commerçant choisit pour chaque vendeur s'il peut ajouter et modifier les produits (jamais le prix d'achat). Archiver, importer et corriger le stock restent au propriétaire.
 - **Une seule photo par produit** dans les écrans ; la base en accepte plusieurs (utile à la boutique, étape 6).
 - **Taux de TVA par produit** : ajouté à l'étape 3, avec les factures.
 - **Catégories** : créées depuis la fiche produit ou l'import ; pas encore d'écran pour les renommer ou les supprimer.
@@ -63,7 +63,7 @@ Terminée le 16/11/2026. En attente de la validation du propriétaire.
 4. Commencer un inventaire, scanner quelques articles, changer une quantité à la main, valider.
 5. Créer un code pour un produit sans code-barres et imprimer une planche d'étiquettes ; scanner l'étiquette imprimée.
 6. Télécharger le modèle Excel, y mettre dix produits, l'importer. L'importer une seconde fois : rien ne doit être créé en double.
-7. Se connecter comme vendeur : il peut ajouter un produit, mais ne voit pas le prix d'achat et ne peut pas modifier une fiche.
+7. Inviter un vendeur avec et sans la case « peut ajouter et modifier les produits » ; vérifier ce que chacun voit. Il ne doit jamais voir le prix d'achat.
 8. Passer en arabe et vérifier les noms, les montants et le sens de lecture.
 
 ## Liens entre les éléments construits

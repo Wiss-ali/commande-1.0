@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { annulerInvitation, basculerBlocage, changerRole, inviter, lienMotDePasse, supprimerEmploye } from '@/app/actions/equipe';
+import { annulerInvitation, basculerBlocage, basculerProduits, changerRole, inviter, lienMotDePasse, supprimerEmploye } from '@/app/actions/equipe';
 import { EnTete } from '@/components/EnTete';
 import { Formulaire } from '@/components/Formulaire';
 import { Page } from '@/components/Page';
@@ -15,7 +15,7 @@ export default async function Equipe() {
   const tr = await getTranslations('roles');
   const jours = await reglage('invitation_jours');
   const { membres, attente } = await avecCommercant(s.commercant.id, async (trx) => ({
-    membres: await trx.selectFrom('utilisateurs').select(['id', 'nom', 'telephone', 'role', 'desactive']).where('supprime_le', 'is', null).orderBy('cree_le').execute(),
+    membres: await trx.selectFrom('utilisateurs').select(['id', 'nom', 'telephone', 'role', 'desactive', 'gere_produits']).where('supprime_le', 'is', null).orderBy('cree_le').execute(),
     attente: await trx.selectFrom('invitations').select(['id', 'nom', 'telephone', 'role', 'expire_le'])
       .where('type', '=', 'employe').where('utilisee_le', 'is', null).where('annulee_le', 'is', null).where('expire_le', '>', new Date()).orderBy('cree_le', 'desc').execute(),
   }));
@@ -39,6 +39,10 @@ export default async function Equipe() {
                 </label>
               ))}
             </fieldset>
+            <label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-lg border border-trait px-3 py-2.5">
+              <input type="checkbox" name="gereProduits" className="mt-0.5 size-5 accent-vert" />
+              <span className="text-sm">{t('droitProduits')}</span>
+            </label>
           </Formulaire>
         </Carte>
 
@@ -72,6 +76,7 @@ export default async function Equipe() {
               <div className="flex flex-wrap items-center gap-2">
                 <p className="font-semibold">{m.nom}{m.id === s.utilisateur.id ? ` (${t('vous')})` : ''}</p>
                 <Pastille ton={m.role === 'proprietaire' ? 'vert' : 'bleu'}>{tr(m.role)}</Pastille>
+                {m.role === 'vendeur' && m.gere_produits ? <Pastille ton="neutre">{t('gereProduits')}</Pastille> : null}
                 {m.desactive ? <Pastille ton="terre">{t('bloque')}</Pastille> : null}
               </div>
               <p className="chiffres text-sm text-doux">{formaterTelephone(m.telephone ?? '')}</p>
@@ -85,6 +90,13 @@ export default async function Equipe() {
                         <input type="hidden" name="role" value={m.role === 'vendeur' ? 'preparateur' : 'vendeur'} />
                         <button type="submit" className={classeBouton.secondaire}>{t(m.role === 'vendeur' ? 'passerPreparateur' : 'passerVendeur')}</button>
                       </form>
+                      {m.role === 'vendeur' ? (
+                        <form action={basculerProduits}>
+                          <input type="hidden" name="id" value={m.id} />
+                          <input type="hidden" name="accorder" value={m.gere_produits ? '0' : '1'} />
+                          <button type="submit" className={classeBouton.secondaire}>{t(m.gere_produits ? 'retirerProduits' : 'accorderProduits')}</button>
+                        </form>
+                      ) : null}
                       <form action={basculerBlocage}>
                         <input type="hidden" name="id" value={m.id} />
                         <input type="hidden" name="bloquer" value={m.desactive ? '0' : '1'} />

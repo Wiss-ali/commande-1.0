@@ -17,7 +17,7 @@ export const inviter = action(async (f) => {
   const role = f.get('role') === 'preparateur' ? 'preparateur' : 'vendeur';
   if (!nom) return { erreur: 'champ_requis' };
   if (!telephone) return { erreur: 'telephone_invalide' };
-  const r = await inviterEmploye({ commercantId: s.commercant.id, parUtilisateur: s.utilisateur.id, nom, telephone, role });
+  const r = await inviterEmploye({ commercantId: s.commercant.id, parUtilisateur: s.utilisateur.id, nom, telephone, role, gereProduits: f.get('gereProduits') === 'on' });
   if (!r.ok) return { erreur: r.raison };
   revalidatePath('/reglages/equipe');
   return { ok: true, lien: adresseLien(r.jeton) };
@@ -52,6 +52,13 @@ export const changerRole = actionSimple(async (f) => {
   const role = f.get('role') === 'preparateur' ? 'preparateur' : 'vendeur';
   await surEmploye(f, `employe.role.${role}`, async (trx, id) => {
     await trx.updateTable('utilisateurs').set({ role }).where('id', '=', id).execute();
+  });
+});
+
+export const basculerProduits = actionSimple(async (f) => {
+  const accorder = f.get('accorder') === '1';
+  await surEmploye(f, accorder ? 'employe.produits.accorde' : 'employe.produits.retire', async (trx, id) => {
+    await trx.updateTable('utilisateurs').set({ gere_produits: accorder }).where('id', '=', id).where('role', '=', 'vendeur').execute();
   });
 });
 

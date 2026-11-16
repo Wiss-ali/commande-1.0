@@ -2,6 +2,19 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 17/11/2026 — Étape 2 validée ; droit « gérer les produits » choisi par le commerçant
+
+- Le propriétaire a répondu « oui » pour l'étape 3 : **étape 2 validée**.
+- Sa demande : laisser le commerçant décider, quand il invite un vendeur, s'il lui donne le droit sur les produits. Fait :
+  - migration `0004_droit_produits` : colonne `gere_produits` sur `utilisateurs` et `invitations` ;
+  - case à cocher dans l'invitation d'un employé, bouton « Autoriser / Retirer » dans Réglages › Équipe (journalisé) ;
+  - droit `produits.gerer` = ajouter **et** modifier une fiche (nom, prix de vente, code, variantes, photo). Le propriétaire l'a toujours ; un vendeur seulement si accordé ; jamais un préparateur ;
+  - le vendeur ne voit ni ne saisit jamais le prix d'achat : à la modification, les prix d'achat existants sont gardés tels quels ;
+  - archiver, importer, sortir du stock et valider un inventaire restent au propriétaire (`stock.corriger`).
+- Dans le code : `autorise(s.utilisateur, droit)` (`src/lib/droits.ts`) tient compte de ce droit personnel ; `peut(role, droit)` ne regarde que le rôle. `exigerUtilisateur` utilise `autorise`.
+- Ceci remplace le choix noté dans l'entrée suivante (« le vendeur peut ajouter un produit »).
+- Vérifications : 75 tests, 22 parcours de bout en bout.
+
 ## 17/11/2026 — Réponses du propriétaire après l'étape 2
 
 - **Mot de passe du commerçant : 8 caractères au minimum** (au lieu de 15). Migration `0003_mot_de_passe_proprietaire` ; la liste des mots de passe trop courants et le blocage après 5 échecs restent. L'administrateur garde 15 caractères et la double authentification.

@@ -4,7 +4,7 @@ import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
 import { config } from './config';
-import { peut, type Droit } from './droits';
+import { autorise, type Droit } from './droits';
 import { tronquerIp } from './journal';
 import { creerSession, supprimerSession, trouverSession, type SessionAdmin, type SessionUtilisateur } from './sessions';
 import type { NomModule } from './types-bd';
@@ -48,7 +48,7 @@ export async function exigerUtilisateur(droit?: Droit, module?: NomModule): Prom
   const s = await sessionUtilisateur();
   if (!s) redirect('/connexion');
   if (!s.complete) redirect('/connexion/code');
-  if (droit && !peut(s.utilisateur.role, droit)) throw new Interdit();
+  if (droit && !autorise(s.utilisateur, droit)) throw new Interdit();
   if (module && !s.commercant.modules[module]) throw new Interdit();
   return s;
 }

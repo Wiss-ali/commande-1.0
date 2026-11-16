@@ -6,7 +6,7 @@ import { EnTete } from '@/components/EnTete';
 import { Page } from '@/components/Page';
 import { Carte, classeBouton, EtatVide, Message } from '@/components/ui';
 import { avecCommercant } from '@/lib/bd';
-import { peut } from '@/lib/droits';
+import { autorise } from '@/lib/droits';
 import { codeEnImage } from '@/lib/etiquettes';
 import { formaterMontant, nomLocal } from '@/lib/formats';
 import type { Langue } from '@/lib/types-bd';
@@ -45,7 +45,7 @@ export default async function Etiquettes({ searchParams }: { searchParams: Promi
     }
     return requete.orderBy('p.nom_fr').orderBy('p.nom_ar').orderBy('v.ordre').limit(MAX_ARTICLES).execute();
   });
-  const gere = peut(s.utilisateur.role, 'stock.corriger') && s.commercant.etat === 'actif';
+  const gere = autorise(s.utilisateur, 'produits.gerer') && s.commercant.etat === 'actif';
 
   if (imprimer) {
     const etiquettes: { cle: string; nom: string; libelle: string; prix: string; image: string }[] = [];

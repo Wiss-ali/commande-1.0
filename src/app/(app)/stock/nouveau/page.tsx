@@ -11,7 +11,7 @@ import type { Langue } from '@/lib/types-bd';
 import { pageUtilisateur } from '@/lib/web';
 
 export default async function NouveauProduit({ searchParams }: { searchParams: Promise<{ code?: string }> }) {
-  const s = await pageUtilisateur('produits.creer', 'stock');
+  const s = await pageUtilisateur('produits.gerer', 'stock');
   const t = await getTranslations('produit');
   const langue = (await getLocale()) as Langue;
   // Arrivée depuis le scan d'un code inconnu : le code est déjà rempli.

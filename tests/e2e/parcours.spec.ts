@@ -199,8 +199,14 @@ test('le propriétaire invite un préparateur, qui ne voit que ce que son rôle 
     await expect(samir).toHaveURL(/\/acces-refuse$/);
   }
   await expect(samir.getByRole('heading', { name: 'Accès refusé' })).toBeVisible();
+  // Il voit le stock, mais ne peut ni créer un produit ni importer.
   await samir.goto('/stock');
-  await expect(samir.getByText('Ce module arrive bientôt')).toBeVisible();
+  await expect(samir.getByText("Le propriétaire du magasin n'a pas encore ajouté de produit.")).toBeVisible();
+  await expect(samir.getByRole('link', { name: 'Ajouter un produit' })).toHaveCount(0);
+  for (const chemin of ['/stock/nouveau', '/stock/import']) {
+    await samir.goto(chemin);
+    await expect(samir).toHaveURL(/\/acces-refuse$/);
+  }
   await samir.goto('/reglages/securite');
   await expect(samir.getByRole('heading', { name: 'Sécurité' })).toBeVisible();
 });

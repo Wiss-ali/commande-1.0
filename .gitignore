@@ -8,3 +8,4 @@ playwright-report/
 next-env.d.ts
 public/wasm/
 donnees/
+.cache-tests/

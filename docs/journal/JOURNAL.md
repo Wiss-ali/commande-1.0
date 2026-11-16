@@ -2,6 +2,14 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 17/11/2026 — Réponses du propriétaire après l'étape 2
+
+- **Mot de passe du commerçant : 8 caractères au minimum** (au lieu de 15). Migration `0003_mot_de_passe_proprietaire` ; la liste des mots de passe trop courants et le blocage après 5 échecs restent. L'administrateur garde 15 caractères et la double authentification.
+- **Qui crée les produits** : le propriétaire a laissé le choix (« vois ce qui est le mieux fait en Algérie »). Les logiciels de caisse algériens distinguent caissier, gérant et administrateur, et la création d'un article depuis la caisse est une fonction attendue ([Zoom Algérie](https://zoomalgerie.com/logiciel-caisse-pos-algerie/)). Choix appliqué : **le vendeur peut ajouter un produit, sans voir ni saisir le prix d'achat** (droit `produits.creer`). **Modifier une fiche ou un prix, archiver, importer, sortir du stock et valider un inventaire restent réservés au propriétaire** (droit `stock.corriger`), pour qu'un employé ne puisse pas baisser un prix. Le préparateur ne crée pas de produit.
+- **Vente d'un produit que l'application croit épuisé (étape 3)** : le propriétaire est d'accord pour **laisser passer la vente et la signaler**, afin de ne jamais bloquer un client au comptoir. À prévoir à l'étape 3 : aujourd'hui la base interdit un stock négatif (contrainte `stock_insuffisant`) ; il faudra enregistrer la vente, sortir ce qui reste en stock, et garder l'écart comme alerte « stock à vérifier » pour le propriétaire.
+- Rôles confirmés au propriétaire : l'administrateur crée et gère les commerçants et leurs abonnements, il n'entre pas leur stock ; chaque commerçant gère son magasin et invite ses employés.
+- Vérifications : 75 tests, 22 parcours de bout en bout.
+
 ## 16/11/2026 — Étape 2 (produits, stock, scan) terminée
 
 - Décisions du propriétaire :

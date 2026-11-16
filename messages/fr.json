@@ -295,7 +295,8 @@
     "historiqueAide": "Toutes les entrées et sorties",
     "rupture": "Rupture",
     "bas": "Stock bas",
-    "enStock": "En stock"
+    "enStock": "En stock",
+    "videTexteVendeur": "Ajoutez le premier produit du magasin."
   },
   "produit": {
     "nouveauTitre": "Nouveau produit",

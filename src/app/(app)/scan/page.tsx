@@ -12,7 +12,7 @@ export default async function Scan() {
     <>
       <EnTete titre={t('titre')} />
       <Page>
-        <ScanRecherche peutCreer={peut(s.utilisateur.role, 'stock.corriger') && s.commercant.etat === 'actif'} />
+        <ScanRecherche peutCreer={peut(s.utilisateur.role, 'produits.creer') && s.commercant.etat === 'actif'} />
       </Page>
     </>
   );

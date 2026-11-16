@@ -53,7 +53,7 @@ describe('invitation d\'un commerçant', () => {
     const tel = telephone();
     const inv = await inviterCommercant({ adminId: admin.id, nomCommercant: 'Mdp', nom: 'Ali', telephone: tel });
     if (!inv.ok) throw new Error();
-    expect(await accepterInvitation(inv.jeton, { motDePasse: 'douze lettres' })).toEqual({ ok: false, raison: 'mdp_trop_court' });
+    expect(await accepterInvitation(inv.jeton, { motDePasse: 'sept ca' })).toEqual({ ok: false, raison: 'mdp_trop_court' });
     expect(await accepterInvitation(inv.jeton, { motDePasse: 'motdepassemotdepasse' })).toEqual({ ok: false, raison: 'mdp_trop_courant' });
     expect((await lireInvitation(inv.jeton)).valide).toBe(true); // le lien reste utilisable après un refus
     expect((await accepterInvitation(inv.jeton, { motDePasse: MDP })).ok).toBe(true);
@@ -106,7 +106,7 @@ describe('équipe', () => {
     expect((await reinitialiserEmploye({ commercantId: autre.commercantId, parUtilisateur: autre.proprietaireId, utilisateurId: acc.utilisateurId })).ok).toBe(false);
     // L'administrateur, lui, peut réinitialiser un propriétaire.
     const lienAdmin = await reinitialiserProprietaire({ adminId: admin.id, commercantId: c.commercantId });
-    expect(lienAdmin.ok && (await accepterInvitation(lienAdmin.jeton, { motDePasse: 'trop court' }))).toEqual({ ok: false, raison: 'mdp_trop_court' });
+    expect(lienAdmin.ok && (await accepterInvitation(lienAdmin.jeton, { motDePasse: 'court' }))).toEqual({ ok: false, raison: 'mdp_trop_court' });
   });
 });
 

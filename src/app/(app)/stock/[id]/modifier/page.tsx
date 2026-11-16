@@ -24,6 +24,7 @@ export default async function ModifierProduit({ params }: { params: Promise<{ id
       <EnTete titre={t('modifierTitre')} retour={`/stock/${id}`} />
       <Page>
         <FormulaireProduit
+          voitAchat
           produit={{ id, nomFr: produit.nom_fr, nomAr: produit.nom_ar, categorieId: produit.categorie_id, photo: produit.photo_id ? `/photos/${produit.photo_id}?t=p` : null }}
           variantes={produit.variantes.map((v) => ({
             id: v.id, libelle: v.libelle, code: v.code_barres ?? '', prixAchat: montantPourSaisie(v.prix_achat), prixVente: montantPourSaisie(v.prix_vente),

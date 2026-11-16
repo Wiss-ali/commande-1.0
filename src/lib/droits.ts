@@ -4,14 +4,15 @@ import type { NomModule, Role } from './types-bd.ts';
 export type Droit =
   | 'vendre' // caisse, commandes, factures, clients
   | 'preparer' // colis, scan, inventaire, consulter le stock
-  | 'stock.corriger' // créer et modifier les produits, corriger le stock, valider un inventaire, prix d'achat
+  | 'produits.creer' // ajouter un produit (sans prix d'achat pour le vendeur)
+  | 'stock.corriger' // modifier ou archiver un produit, importer, corriger le stock, valider un inventaire, prix d'achat
   | 'rapports' // marge, rapports, prix d'achat
   | 'reglages' // informations légales, modules, boutique, abonnement
   | 'equipe'; // inviter, changer un rôle, bloquer, supprimer
 
 const DROITS: Record<Role, ReadonlySet<Droit>> = {
-  proprietaire: new Set<Droit>(['vendre', 'preparer', 'stock.corriger', 'rapports', 'reglages', 'equipe']),
-  vendeur: new Set<Droit>(['vendre', 'preparer']),
+  proprietaire: new Set<Droit>(['vendre', 'preparer', 'produits.creer', 'stock.corriger', 'rapports', 'reglages', 'equipe']),
+  vendeur: new Set<Droit>(['vendre', 'preparer', 'produits.creer']),
   preparateur: new Set<Droit>(['preparer']),
 };
 

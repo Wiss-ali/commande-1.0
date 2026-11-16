@@ -2,7 +2,7 @@
 import { bd } from './bd.ts';
 
 const DEFAUTS = {
-  mdp_min_proprietaire: 15,
+  mdp_min_proprietaire: 8,
   mdp_min_employe: 8,
   mdp_min_administrateur: 15,
   session_jours_utilisateur: 30,

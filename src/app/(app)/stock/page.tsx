@@ -24,6 +24,7 @@ export default async function Stock({ searchParams }: { searchParams: Promise<{ 
   const filtre = FILTRES.find((f) => f === params.filtre) ?? 'tous';
   const page = Math.min(Math.max(Number(params.page) || 1, 1), 100);
   const gere = peut(s.utilisateur.role, 'stock.corriger');
+  const cree = peut(s.utilisateur.role, 'produits.creer');
 
   const { resume, produits } = await avecCommercant(s.commercant.id, async (trx) => ({
     resume: await resumeStock(trx),
@@ -44,17 +45,17 @@ export default async function Stock({ searchParams }: { searchParams: Promise<{ 
       <EnTete titre={t('titre')} />
       <Page>
         {vide ? (
-          <EtatVide titre={t('videTitre')} texte={t(gere ? 'videTexte' : 'videTexteEmploye')}>
-            {gere ? (
+          <EtatVide titre={t('videTitre')} texte={t(gere ? 'videTexte' : cree ? 'videTexteVendeur' : 'videTexteEmploye')}>
+            {cree ? (
               <div className="mt-2 flex w-full flex-col gap-2">
                 <Link href="/stock/nouveau" className={classeBouton.principal}><Plus aria-hidden className="size-5" />{t('ajouter')}</Link>
-                <Link href="/stock/import" className={classeBouton.secondaire}><FileSpreadsheet aria-hidden className="size-5" />{t('importer')}</Link>
+                {gere ? <Link href="/stock/import" className={classeBouton.secondaire}><FileSpreadsheet aria-hidden className="size-5" />{t('importer')}</Link> : null}
               </div>
             ) : null}
           </EtatVide>
         ) : (
           <>
-            {gere ? <Link href="/stock/nouveau" className={classeBouton.principal}><Plus aria-hidden className="size-5" />{t('ajouter')}</Link> : null}
+            {cree ? <Link href="/stock/nouveau" className={classeBouton.principal}><Plus aria-hidden className="size-5" />{t('ajouter')}</Link> : null}
             <form action="/stock" role="search" className="flex gap-2">
               {filtre !== 'tous' ? <input type="hidden" name="filtre" value={filtre} /> : null}
               <input type="search" name="q" defaultValue={q} aria-label={t('chercher')} placeholder={t('chercher')} maxLength={80} className="min-h-12 min-w-0 flex-1 rounded-lg border border-trait bg-surface px-3 text-base text-encre placeholder:text-doux" />

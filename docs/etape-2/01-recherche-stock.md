@@ -60,7 +60,7 @@ la liste ci-dessous a donc été appliquée telle quelle. Tout reste modifiable.
 - Inventaire sans connexion.
 - Export du stock en Excel (avec les exports pour le comptable, étape 5).
 
-## 5. Choix à confirmer par le propriétaire
+## 5. Choix soumis au propriétaire (tranchés le 17/11/2026, voir le journal)
 
 1. **Qui crée et modifie les produits ?** Aujourd'hui : le propriétaire seulement. Le vendeur et le préparateur peuvent faire une entrée de stock et compter l'inventaire, mais pas changer un prix ni corriger le stock.
 2. **Stock à zéro** : une sortie est refusée s'il n'y a pas assez de stock. Pour la caisse (étape 3), il faudra décider si on peut vendre un produit que l'application croit épuisé.

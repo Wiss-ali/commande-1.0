@@ -1,6 +1,6 @@
 # État du projet
 
-Dernière mise à jour : 16/11/2026, fin de l'étape 2.
+Dernière mise à jour : 17/11/2026, après les réponses du propriétaire sur l'étape 2.
 
 ## Où on en est
 
@@ -17,9 +17,9 @@ Dernière mise à jour : 16/11/2026, fin de l'étape 2.
 
 ## Prochaine action
 
-1. Obtenir la validation de l'étape 2 et les réponses aux questions ouvertes.
+1. Obtenir le « validé » de l'étape 2.
 2. Étape 3 : recherche (caisse, ticket, facture, mentions du décret 05-468, droit de timbre, TVA, PDF en arabe par Chromium), liste, puis code.
-3. À l'étape 3 : brancher `Scanner` dans la caisse, écrire la vente avec `ajouterMouvement` (type `vente`), ajouter le taux de TVA par produit, remplacer la page d'attente `src/app/(app)/[module]/page.tsx` pour `caisse` et `factures`.
+3. À l'étape 3 : brancher `Scanner` dans la caisse, écrire la vente avec `ajouterMouvement` (type `vente`), laisser passer une vente quand le stock connu manque et la signaler (décision du 17/11/2026), ajouter le taux de TVA par produit, remplacer la page d'attente `src/app/(app)/[module]/page.tsx` pour `caisse` et `factures`.
 
 ## Pour reprendre le travail dans un nouveau conteneur
 
@@ -35,9 +35,8 @@ npm run verifier                     # tout doit passer avant de continuer
 
 ## Questions ouvertes pour le propriétaire
 
-1. **Qui crée et modifie les produits ?** Aujourd'hui le propriétaire seulement. Faut-il l'ouvrir au vendeur (sans le prix d'achat) ?
-2. **Vendre un produit que l'application croit épuisé** : aujourd'hui une sortie est refusée s'il n'y a pas assez de stock. Pour la caisse (étape 3) : refuser la vente, ou la laisser passer en la signalant ?
-3. **Mot de passe du propriétaire** : 15 caractères au minimum sans double authentification (recommandation NIST). C'est un réglage : à garder, ou à réduire pour simplifier ?
+- Aucune. Réponses du 17/11/2026 (détail dans le journal) : mot de passe du commerçant à 8 caractères ; le vendeur peut ajouter un produit sans prix d'achat, le propriétaire seul modifie les prix ; à la caisse, une vente passe même si le stock connu est à zéro, et elle est signalée.
+- L'étape 2 n'a pas encore reçu de « validé » explicite : le demander avant de commencer l'étape 3.
 
 ## Points à vérifier plus tard (sources officielles non joignables)
 

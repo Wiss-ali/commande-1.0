@@ -104,7 +104,7 @@ test('le commerçant accepte son invitation et arrive sur son espace', async ({ 
   await ali.goto(lienAli);
   await expect(ali.getByRole('heading', { name: 'Créez votre espace' })).toBeVisible();
   await expect(ali.getByText('0550 12 34 56').or(ali.getByText('0550 11 22 33'))).toBeVisible();
-  await ali.getByLabel('Choisissez un mot de passe').fill('trop court');
+  await ali.getByLabel('Choisissez un mot de passe').fill('court');
   await ali.getByRole('button', { name: 'Créer mon compte' }).click();
   await expect(ali.locator('p[role=alert]')).toHaveText('Mot de passe trop court.');
   await ali.getByLabel('Choisissez un mot de passe').fill(MDP_ALI);

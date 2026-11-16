@@ -24,12 +24,14 @@ interface Props {
   produit?: { id: string; nomFr: string; nomAr: string; categorieId: string | null; photo: string | null };
   variantes: VarianteSaisie[];
   categories: { id: string; nom: string }[];
+  /** Faux pour le vendeur : il ne voit ni ne saisit le prix d'achat. */
+  voitAchat: boolean;
 }
 
 const VIDE: VarianteSaisie = { libelle: '', code: '', prixAchat: '', prixVente: '', seuil: '', stock: '' };
 const NOUVELLE = '__nouvelle';
 
-export function FormulaireProduit({ produit, variantes: initiales, categories }: Props) {
+export function FormulaireProduit({ produit, variantes: initiales, categories, voitAchat }: Props) {
   const t = useTranslations('produit');
   const [lignes, setLignes] = useState(() => initiales.map((v, i) => ({ ...v, cle: i })));
   const [prochaine, setProchaine] = useState(initiales.length);
@@ -88,7 +90,7 @@ export function FormulaireProduit({ produit, variantes: initiales, categories }:
             ) : null}
             <div className="grid grid-cols-2 gap-3">
               <Champ libelle={t('prixVente')} value={v.prixVente} onChange={(e) => changer(v.cle, 'prixVente', e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" />
-              <Champ libelle={t('prixAchat')} value={v.prixAchat} onChange={(e) => changer(v.cle, 'prixAchat', e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" />
+              {voitAchat ? <Champ libelle={t('prixAchat')} value={v.prixAchat} onChange={(e) => changer(v.cle, 'prixAchat', e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" /> : null}
             </div>
             <div className="flex items-end gap-2">
               <div className="min-w-0 flex-1">

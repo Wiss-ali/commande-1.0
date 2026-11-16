@@ -49,9 +49,11 @@ const schemaVariantes = z
   .max(50);
 
 export const enregistrerProduit = action(async (f) => {
-  const s = await exigerEcriture('stock.corriger', 'stock');
   const id = texte(f, 'id', 40);
   if (id && !UUID.test(id)) return { erreur: 'introuvable' };
+  // Le vendeur peut ajouter un produit ; seul le propriétaire modifie une fiche (et donc un prix).
+  const s = await exigerEcriture(id ? 'stock.corriger' : 'produits.creer', 'stock');
+  const voitAchat = peut(s.utilisateur.role, 'rapports');
   let brut: unknown;
   try {
     brut = JSON.parse(String(f.get('variantes') ?? ''));
@@ -63,7 +65,7 @@ export const enregistrerProduit = action(async (f) => {
   const variantes: SaisieVariante[] = [];
   for (const v of lu.data) {
     const prixVente = analyserMontant(v.prixVente);
-    const prixAchat = v.prixAchat.trim() ? analyserMontant(v.prixAchat) : 0;
+    const prixAchat = voitAchat && v.prixAchat.trim() ? analyserMontant(v.prixAchat) : 0;
     if (prixVente === null || prixAchat === null) return { erreur: v.prixVente.trim() ? 'montant_invalide' : 'prix_requis' };
     const seuil = v.seuil.trim() ? analyserQuantite(v.seuil) : 0;
     const stockInitial = v.stock.trim() ? analyserQuantite(v.stock) : 0;

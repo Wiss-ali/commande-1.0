@@ -295,7 +295,8 @@
     "historiqueAide": "كل ما دخل وخرج",
     "rupture": "نفد",
     "bas": "مخزون منخفض",
-    "enStock": "متوفر"
+    "enStock": "متوفر",
+    "videTexteVendeur": "أضف أول منتج في المحل."
   },
   "produit": {
     "nouveauTitre": "منتج جديد",

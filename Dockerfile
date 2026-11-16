@@ -10,6 +10,7 @@ FROM node:22-slim
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=construction /app ./
+RUN mkdir -p /donnees && chown node:node /donnees
 USER node
 EXPOSE 3000
 # Applique les migrations en attente, puis démarre.

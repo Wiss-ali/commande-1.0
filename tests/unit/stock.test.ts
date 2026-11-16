@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { cleControle, codeInterne, normaliserCode, symbologie } from '../../src/lib/codes-barres.ts';
 import { codeEnImage } from '../../src/lib/etiquettes.ts';
 import { analyserMontant, analyserQuantite, montantPourSaisie, nomLocal } from '../../src/lib/formats.ts';
-import { analyserTableau } from '../../src/lib/import-produits.ts';
+import { analyserTableau, COLONNES } from '../../src/lib/import-produits.ts';
 import { preparerPhoto } from '../../src/lib/photos.ts';
 import { etatProduit, etatVariante } from '../../src/lib/stock.ts';
 import { ecrireXlsx, lireCsv, lireTableur, lireXlsx, TableurIllisible } from '../../src/lib/tableur.ts';
@@ -122,6 +122,13 @@ describe('lecture d\'un fichier Excel ou CSV', () => {
     const doublons = analyserTableau([['Nom', 'Prix', 'Code'], ['A', '1', 'X1'], ['B', '2', 'X1'], ['C', '3', ''], ['C', '4', '']]);
     expect(doublons.groupes.map((g) => g.nomFr)).toEqual(['A']);
     expect(doublons.erreurs).toEqual([{ ligne: 3, raison: 'code_barres_double' }, { ligne: 4, raison: 'variante_libelle' }, { ligne: 5, raison: 'variante_libelle' }]);
+  });
+
+  it('reconnaît les titres du modèle à télécharger, en français comme en arabe', () => {
+    for (const langue of ['fr', 'ar']) {
+      const titres = Object.values(JSON.parse(readFileSync(`messages/${langue}.json`, 'utf8')).import.colonne) as string[];
+      expect(analyserTableau([titres, ['Produit', 'منتج', '', '', '', '1', '2', '3', '4']]).reconnues, langue).toHaveLength(COLONNES.length);
+    }
   });
 
   it('lit un CSV avec point-virgule, guillemets et ancien codage Windows', () => {

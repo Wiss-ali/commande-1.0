@@ -73,7 +73,7 @@ describe('double authentification', () => {
 describe('formats', () => {
   it('écrit les montants en dinars avec des espaces insécables', () => {
     expect(formaterMontant(1_250_000, 'fr')).toBe('12 500 DA');
-    expect(formaterMontant(1_250_000, 'ar')).toBe('12 500 د.ج');
+    expect(formaterMontant(1_250_000, 'ar')).toBe('\u206612 500\u2069 د.ج'); // nombre isolé : jamais affiché à l'envers
     expect(formaterMontant(150, 'fr')).toBe('1,50 DA');
     expect(formaterMontant(0, 'fr')).toBe('0 DA');
     expect(formaterMontant(-99_900, 'fr')).toBe('-999 DA');

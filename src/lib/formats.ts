@@ -15,7 +15,10 @@ export function formaterMontant(centimes: number | bigint, langue: Langue): stri
   const entier = (abs / 100n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, INSECABLE);
   const reste = abs % 100n;
   const decimales = reste === 0n ? '' : `,${reste.toString().padStart(2, '0')}`;
-  return `${negatif ? '-' : ''}${entier}${decimales}${INSECABLE}${langue === 'ar' ? 'د.ج' : 'DA'}`;
+  const nombre = `${negatif ? '-' : ''}${entier}${decimales}`;
+  // En arabe, le nombre est isolé (U+2066 … U+2069) pour rester écrit de gauche à droite :
+  // l'espace insécable seule ne suffit pas, les groupes de chiffres s'affichent sinon à l'envers (« 200 1 »).
+  return langue === 'ar' ? `\u2066${nombre}\u2069${INSECABLE}د.ج` : `${nombre}${INSECABLE}DA`;
 }
 
 /** Nombre entier avec séparateur de milliers insécable. */

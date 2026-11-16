@@ -20,8 +20,14 @@ services:
       base:
         condition: service_healthy
     env_file: .env
+    environment:
+      DOSSIER_FICHIERS: /donnees
+    volumes:
+      # Photos des produits : à sauvegarder avec la base.
+      - donnees_fichiers:/donnees
     ports:
       - "127.0.0.1:3000:3000"
 
 volumes:
   donnees_base:
+  donnees_fichiers:

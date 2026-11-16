@@ -9,7 +9,7 @@ import type { Contexte } from './stock.ts';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const MAX_OCTETS_PHOTO = 3_000_000;
 
-const racine = () => resolve(process.env.DOSSIER_FICHIERS || './donnees');
+const racine = () => resolve(/* turbopackIgnore: true */ process.env.DOSSIER_FICHIERS || './donnees');
 function chemin(commercantId: string, photoId: string, petite: boolean): string {
   if (!UUID.test(commercantId) || !UUID.test(photoId)) throw new Error('Identifiant de photo invalide');
   return join(racine(), commercantId, `${photoId}${petite ? '-p' : ''}.webp`);

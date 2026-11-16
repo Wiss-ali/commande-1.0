@@ -352,8 +352,12 @@ test('tous les écrans du stock en arabe, de droite à gauche, en thème sombre'
   }
   // Le nom arabe du produit et le montant en dinars sont affichés dans la langue de l'écran.
   await nadia.goto('/stock');
-  await expect(nadia.getByRole('link', { name: /قهوة مطحونة/ })).toContainText('270 د.ج');
+  await expect(nadia.getByRole('link', { name: /قهوة مطحونة/ })).toContainText(/270\u2069\u00a0د\.ج/);
   await expect(nadia.getByRole('link', { name: /مخزون منخفض/ }).first()).toBeVisible();
+  // Un montant à plusieurs groupes de chiffres reste dans le bon ordre en arabe : le « 1 » est à gauche du « 200 ».
+  const savon = nadia.getByRole('link', { name: /Savon/ });
+  await expect(savon).toContainText(/1\u00a0200/);
+  await savon.screenshot({ path: `${CAPTURES}/montant-ar.png` });
   await nadia.goto('/');
   await expect(nadia.getByText(/تنبيهات: \d/)).toBeVisible();
   await nadia.goto('/plus');

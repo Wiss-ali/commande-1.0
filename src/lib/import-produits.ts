@@ -21,8 +21,10 @@ const TITRES: Record<Colonne, string[]> = {
   seuil: ['seuil d\'alerte', 'seuil', 'alerte', 'stock minimum', 'stock min', 'حد التنبيه'],
 };
 
+// Les accents latins sont retirés, puis le texte est recomposé (NFC) : sans cela, certaines lettres arabes
+// (« ئ » dans « الفئة ») resteraient décomposées et ne seraient plus reconnues.
 const simplifier = (s: string) =>
-  s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\(.*?\)/g, '').replace(/[’`]/g, "'").replace(/[_*:]/g, ' ').replace(/\s+/g, ' ').trim();
+  s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').normalize('NFC').toLowerCase().replace(/\(.*?\)/g, '').replace(/[’`]/g, "'").replace(/[_*:]/g, ' ').replace(/\s+/g, ' ').trim();
 
 export interface GroupeImporte {
   /** Numéros des lignes du fichier (la première ligne porte le numéro 1). */

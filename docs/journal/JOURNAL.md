@@ -2,6 +2,11 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 17/11/2026 — Demande : modules choisis par l'administrateur (reportée à l'étape 7)
+
+- Le propriétaire veut pouvoir donner un compte avec seulement certains modules (ex. caisse et factures). Aujourd'hui, c'est le commerçant qui choisit ses modules.
+- Proposition faite (à discuter à l'étape 7, module abonnements) : modules par formule, réglables par commerçant ; fiche produit toujours disponible. Notée dans `ETAT.md`, question 6.
+
 ## 17/11/2026 — Vérification et réponses reportées à la fin
 
 - Le propriétaire vérifiera tout à la fin du projet, et répondra aux questions ouvertes à la fin aussi.

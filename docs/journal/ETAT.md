@@ -46,6 +46,7 @@ d'installation et serveur de test préparés à l'étape 8 ; 4 → plus tard ; 5
 3. **Comment le propriétaire essaie l'application** : il n'a pas Docker, et l'aperçu de la session précédente ne s'est pas affiché chez lui. Lui proposer : (a) un pas-à-pas pour installer sur son ordinateur (Windows ou Mac), ou (b) avancer une partie de l'étape 8 pour mettre un petit serveur de test en ligne, à essayer sur son vrai téléphone (scan, installation sur l'écran d'accueil). Lui demander son choix.
 4. **Argent reversé par le transporteur** : aujourd'hui, « Livré et payé » marque la facture payée. Faut-il suivre aussi le jour où le transporteur vous reverse l'argent (versements groupés) ?
 5. **Sécurité des dépendances** : `picomatch` a une alerte sans correction publiée (outils de développement seulement) ; à mettre à jour dès que possible.
+6. **Modules par abonnement (à discuter à l'étape 7, demandé par le propriétaire)** : l'administrateur doit pouvoir choisir les modules d'un compte (ex. caisse + factures seulement). Proposition faite : chaque formule contient une liste de modules, réglable aussi commerçant par commerçant ; le commerçant n'allume que ce que sa formule contient ; la fiche produit reste toujours disponible (sinon la caisse n'a rien à vendre). Boutique : option payante ou comprise ? À trancher à l'étape 7.
 
 ## Magasin de démonstration
 

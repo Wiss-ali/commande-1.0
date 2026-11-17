@@ -1,13 +1,14 @@
 # État du projet
 
-Dernière mise à jour : 17/11/2026, après les réponses du propriétaire sur l'étape 2.
+Dernière mise à jour : 17/11/2026, fin de l'étape 3.
 
 ## Où on en est
 
 - **Étape 0 : validée.**
 - **Étape 1 (socle) : terminée.** Le propriétaire a demandé de continuer ; seule remarque : pas de double authentification imposée aux commerçants (elle était déjà facultative). Bilan : `docs/etape-1/02-bilan.md`.
 - **Étape 2 (produits, stock, scan) : validée le 17/11/2026.** Bilan : `docs/etape-2/02-bilan.md`.
-- Prochaine étape : **étape 3, caisse, factures PDF, choix « Envoi » ou « Vente directe »**, avec en plus la clôture de caisse.
+- **Étape 3 (caisse, factures, documents) : terminée et testée, en attente de la validation du propriétaire.** Bilan : `docs/etape-3/02-bilan.md`.
+- Prochaine étape : **étape 4, commandes à livrer et suivi des colis** (avec l'écran Clients).
 - Branche de travail : `claude/adoring-ptolemy-sn6zzz`. `main` est en retard : il s'arrête à la fin de l'étape 1 (le propriétaire voulait `main` identique ; à refaire quand il le confirme).
 
 ## Façon de travailler (décidée par le propriétaire le 16/11/2026)
@@ -17,9 +18,9 @@ Dernière mise à jour : 17/11/2026, après les réponses du propriétaire sur l
 
 ## Prochaine action
 
-1. Étape 3 en cours.
-2. Étape 3 : recherche (caisse, ticket, facture, mentions du décret 05-468, droit de timbre, TVA, PDF en arabe par Chromium), liste, puis code.
-3. À l'étape 3 : brancher `Scanner` dans la caisse, écrire la vente avec `ajouterMouvement` (type `vente`), laisser passer une vente quand le stock connu manque et la signaler (décision du 17/11/2026), ajouter le taux de TVA par produit, remplacer la page d'attente `src/app/(app)/[module]/page.tsx` pour `caisse` et `factures`.
+1. Obtenir la validation de l'étape 3.
+2. Étape 4 : recherche (transporteurs algériens, frais par wilaya, point relais, statuts d'un colis, liste officielle des 69 wilayas et des communes), liste, puis code.
+3. À l'étape 4 : construire la commande à partir d'une facture « Envoi » (stock déjà réservé, voir le journal), le colis, les tentatives d'appel, l'alerte sur un téléphone qui a déjà des retours, l'écran Clients ; remplacer la page d'attente `src/app/(app)/[module]/page.tsx` pour `commandes` et `clients`.
 
 ## Pour reprendre le travail dans un nouveau conteneur
 
@@ -35,7 +36,8 @@ npm run verifier                     # tout doit passer avant de continuer
 
 ## Questions ouvertes pour le propriétaire
 
-- Aucune. Décisions du 17/11/2026 (détail dans le journal) : mot de passe du commerçant à 8 caractères ; le commerçant choisit pour chaque vendeur s'il peut gérer les produits ; à la caisse, une vente passe même si le stock connu est à zéro, et elle est signalée.
+1. **Barème du droit de timbre et taux de TVA** : à faire confirmer par un comptable, puis à saisir (timbre : Administration › Réglages fiscaux ; TVA : Réglages › Facturation de chaque commerçant). Tant que c'est vide, aucune taxe n'est ajoutée.
+2. **Avoir partiel** (annuler une seule ligne d'une facture) : utile tout de suite, ou plus tard ?
 
 ## Points à vérifier plus tard (sources officielles non joignables)
 
@@ -45,6 +47,8 @@ npm run verifier                     # tout doit passer avant de continuer
 - Paramètres Argon2id sur la page OWASP ; numérotation exacte des wilayas 59 à 69 et communes.
 - Texte exact de l'article 10 du Code de commerce (inventaire annuel) ; état actuel de l'obligation du code-barres ; arrêté sur l'affichage des prix.
 - Essai du scan sur de vrais téléphones (Android et iPhone), en HTTPS.
+- Mentions complètes de la facture (cachet, signature, capital social), règles de l'avoir, timbre sur les tickets de caisse : à confirmer avec un comptable.
+- Production des PDF dans l'image Docker (Chromium installé par le Dockerfile, non testé).
 
 ## Où trouver quoi
 
@@ -55,5 +59,7 @@ npm run verifier                     # tout doit passer avant de continuer
 | `docs/etape-1/` | Recherche et bilan du socle |
 | `docs/etape-2/01-recherche-stock.md` | Recherche et liste des fonctions de l'étape 2 |
 | `docs/etape-2/02-bilan.md` | Bilan de l'étape 2 : fait, pas fait, à essayer, liens |
+| `docs/etape-3/01-recherche-caisse-factures.md` | Recherche et liste des fonctions de l'étape 3 |
+| `docs/etape-3/02-bilan.md` | Bilan de l'étape 3 : fait, pas fait, à essayer, liens |
 | `README.md` | Lancer, vérifier, organisation du code |
 | `docs/journal/JOURNAL.md` | Historique daté |

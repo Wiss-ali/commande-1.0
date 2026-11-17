@@ -299,6 +299,32 @@ test("suspendre un commerçant coupe l'accès de toute son équipe", async () =>
   await expect(admin.getByText('Actif', { exact: true })).toBeVisible();
 });
 
+test("l'administrateur saisit le barème du droit de timbre : aucune valeur n'est écrite dans le code", async () => {
+  await admin.goto('/admin');
+  await admin.getByRole('link', { name: /Réglages fiscaux/ }).click();
+  await expect(admin.getByLabel("Exonéré jusqu'à (DA)")).toHaveValue(''); // vide au départ : aucun timbre
+  await admin.getByLabel('DA par tranche de 100 DA').first().fill('abc');
+  await admin.getByRole('button', { name: 'Enregistrer' }).click();
+  await expect(admin.locator('p[role=alert]')).toContainText('Prix invalide');
+  await admin.getByLabel("Exonéré jusqu'à (DA)").fill('300');
+  await admin.getByLabel("Jusqu'à (DA)").first().fill('30000');
+  await admin.getByLabel('DA par tranche de 100 DA').first().fill('1');
+  await admin.getByLabel('DA par tranche de 100 DA').nth(1).fill('1,5');
+  await admin.getByLabel('Montant minimum (DA)').fill('5');
+  await admin.getByRole('button', { name: 'Enregistrer' }).click();
+  await expect(admin.getByText('Modifications enregistrées.')).toBeVisible();
+  await sansDebordement(admin);
+  await admin.reload();
+  await expect(admin.getByLabel("Jusqu'à (DA)").first()).toHaveValue('30000');
+  await expect(admin.getByLabel('DA par tranche de 100 DA').nth(1)).toHaveValue('1,50');
+  // Remis à vide pour la suite des tests.
+  for (const champ of ["Exonéré jusqu'à (DA)", 'Montant minimum (DA)']) await admin.getByLabel(champ).fill('');
+  for (const i of [0, 1]) await admin.getByLabel('DA par tranche de 100 DA').nth(i).fill('');
+  await admin.getByLabel("Jusqu'à (DA)").first().fill('');
+  await admin.getByRole('button', { name: 'Enregistrer' }).click();
+  await expect(admin.getByText('Modifications enregistrées.')).toBeVisible();
+});
+
 test('aucune erreur de script ni violation de la politique de sécurité pendant tout le parcours', async () => {
   expect(problemes).toEqual([]);
 });

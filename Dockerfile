@@ -10,6 +10,9 @@ FROM node:22-slim
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=construction /app ./
+# Chromium sert à produire les PDF (factures, tickets), en français et en arabe.
+RUN apt-get update && apt-get install -y --no-install-recommends chromium && rm -rf /var/lib/apt/lists/*
+ENV CHEMIN_CHROMIUM=/usr/bin/chromium
 RUN mkdir -p /donnees && chown node:node /donnees
 USER node
 EXPOSE 3000

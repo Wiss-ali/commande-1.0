@@ -2,6 +2,27 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 17/11/2026 — Étape 3 (caisse, factures, documents) terminée
+
+- Recherche : `docs/etape-3/01-recherche-caisse-factures.md`. Bilan : `docs/etape-3/02-bilan.md`.
+- Vérifications (`npm run verifier`) : 97 tests unitaires et d'intégration, 36 parcours de bout en bout, `npm audit` sans faille.
+- Choix techniques à connaître pour la suite :
+  - Migration `0005_documents` : `clients`, `sessions_caisse`, `compteurs_documents`, `documents`, `lignes_document`, `liens_documents`, `ecarts_stock` ; colonnes `commercants.reglages_documents` et `produits.taux_tva`.
+  - **Tout document passe par `creerDocument` (`src/lib/documents.ts`)** : numéro, lignes, stock et liens dans la même transaction. `vendreEnCaisse`, `transformer`, `creerAvoir`, `encaisserFacture` s'appuient dessus.
+  - **Prix de vente = prix TTC.** `calculerLigne` (`src/lib/fiscal.ts`) en déduit le hors taxe. Montants négatifs pour un avoir.
+  - Aucune règle fiscale dans le code : TVA dans `commercants.reglages_documents` (schéma Zod `schemaReglagesDocuments`), barème du timbre dans `reglages_plateforme` (clé `timbre`, vide au départ), lu par `reglageBrut`.
+  - Numérotation : `prochainNumero` fait un `INSERT … ON CONFLICT DO UPDATE` sur le compteur, dans la transaction du document. Année prise à l'heure d'Alger.
+  - Documents figés : déclencheurs `document_fige` et `ligne_document_figee`. Les lignes ne s'ajoutent que dans la transaction qui crée le document (colonne `transaction_creation`).
+  - Stock : une vente sort `min(quantité, stock libre)` et écrit le manque dans `ecarts_stock` (décision du 17/11). Un « Envoi » fait une `reservation` et refuse s'il n'y a pas assez de stock libre. `stock_sorti` évite de sortir deux fois le stock dans une chaîne (bon de livraison puis facture).
+  - **Pour l'étape 4** : une facture `mode_vente = 'envoi'` porte les réservations (mouvements liés par `document_id`). L'expédition devra faire `liberation` puis `vente` ; la livraison, l'encaissement (`encaisserFacture`) ; le retour, un avoir ou un mouvement `retour`.
+  - Caisse : toute somme encaissée en espèces porte `session_caisse_id` (caisse ouverte d'elle-même à la première vente). `resumeCaisse` additionne les documents de la journée.
+  - PDF : `src/lib/pdf.ts` écrit une page HTML (textes de `messages/*.json`, espace `pdf`) et lance le « headless shell » de Chromium en ligne de commande. Le Chromium complet de l'environnement se bloque avec `--print-to-pdf` ; le headless shell fonctionne. Variable `CHEMIN_CHROMIUM` pour forcer un chemin.
+  - Dans un PDF arabe : les montants gardent le sens de la langue (classe `m`), les textes libres sont isolés par `<bdi>`.
+  - Caisse hors connexion : file dans `localStorage` (`hanout.ventes.<commerçant>`), chaque vente a sa clé d'idempotence ; elle n'est retirée de la file qu'après une réponse du serveur.
+  - Piège Tailwind rencontré : ajouter `w-auto` après une classe qui contient `w-full` ne la remplace pas. Écrire les classes complètes.
+  - Droits : vendre, facturer, clôturer = `vendre` ; annuler par un avoir = `stock.corriger` (propriétaire) ; réglages de facturation = `reglages`.
+- Reste à faire signalé dans le bilan : avoir partiel, expiration automatique des devis, écran Clients, suivi des colis (étape 4).
+
 ## 17/11/2026 — Étape 2 validée ; droit « gérer les produits » choisi par le commerçant
 
 - Le propriétaire a répondu « oui » pour l'étape 3 : **étape 2 validée**.

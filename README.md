@@ -8,7 +8,7 @@ et boutique en ligne, en français et en arabe. Multi-commerçants, vendue par a
 
 ## Lancer en développement
 
-Il faut Node.js 22 et PostgreSQL (16 ou plus).
+Il faut Node.js 22, PostgreSQL (16 ou plus) et Chromium (pour les PDF).
 
 ```bash
 cp .env.example .env          # puis remplacer les mots de passe et créer les clés (voir le fichier)
@@ -35,7 +35,7 @@ Les photos des produits sont rangées dans le dossier `DOSSIER_FICHIERS` (par d�
 | Dossier | Contenu |
 |---|---|
 | `db/migrations` | Changements de la base, versionnés et réversibles (`.up.sql` / `.down.sql`) |
-| `src/lib` | Cœur serveur : base et RLS, chiffrement, comptes, invitations, droits, formats, stock, codes-barres, tableur, photos |
+| `src/lib` | Cœur serveur : base et RLS, chiffrement, comptes, invitations, droits, formats, stock, codes-barres, tableur, photos, documents, calculs fiscaux, PDF |
 | `src/app` | Écrans et actions serveur (`(app)` commerçant, `(public)` sans connexion, `admin`) |
 | `messages` | Tous les textes : `fr.json` et `ar.json` |
 | `tests` | `unit`, `integration` (isolation entre commerçants), `e2e` (parcours sur téléphone) |

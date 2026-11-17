@@ -5,6 +5,7 @@ import { FormulaireProduit } from '@/components/FormulaireProduit';
 import { Page } from '@/components/Page';
 import { avecCommercant } from '@/lib/bd';
 import { peut } from '@/lib/droits';
+import { formaterTaux, lireReglagesDocuments } from '@/lib/fiscal';
 import { montantPourSaisie, nomLocal } from '@/lib/formats';
 import { lireProduit, listerCategories } from '@/lib/stock';
 import type { Langue } from '@/lib/types-bd';
@@ -19,7 +20,12 @@ export default async function ModifierProduit({ params }: { params: Promise<{ id
   const t = await getTranslations('produit');
   const voitAchat = peut(s.utilisateur.role, 'rapports');
   const langue = (await getLocale()) as Langue;
-  const { produit, categories } = await avecCommercant(s.commercant.id, async (trx) => ({ produit: await lireProduit(trx, id), categories: await listerCategories(trx) }));
+  const { produit, categories, taux, reglages } = await avecCommercant(s.commercant.id, async (trx) => ({
+    produit: await lireProduit(trx, id),
+    categories: await listerCategories(trx),
+    taux: (await trx.selectFrom('produits').select('taux_tva').where('id', '=', id).executeTakeFirst())?.taux_tva ?? null,
+    reglages: lireReglagesDocuments((await trx.selectFrom('commercants').select('reglages_documents').executeTakeFirstOrThrow()).reglages_documents),
+  }));
   if (!produit || produit.archive) notFound();
   return (
     <>
@@ -27,6 +33,7 @@ export default async function ModifierProduit({ params }: { params: Promise<{ id
       <Page>
         <FormulaireProduit
           voitAchat={voitAchat}
+          tva={reglages.assujettiTva ? { taux: taux === null ? '' : String(taux / 100).replace('.', ','), defaut: formaterTaux(reglages.tauxDefaut) } : undefined}
           produit={{ id, nomFr: produit.nom_fr, nomAr: produit.nom_ar, categorieId: produit.categorie_id, photo: produit.photo_id ? `/photos/${produit.photo_id}?t=p` : null }}
           variantes={produit.variantes.map((v) => ({
             id: v.id, libelle: v.libelle, code: v.code_barres ?? '', prixAchat: voitAchat ? montantPourSaisie(v.prix_achat) : '', prixVente: montantPourSaisie(v.prix_vente),

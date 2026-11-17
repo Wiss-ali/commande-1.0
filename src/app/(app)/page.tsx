@@ -40,7 +40,7 @@ export default async function Accueil() {
                   <span className="font-semibold">{tm(m)}</span>
                   {m === 'stock' && stock ? (
                     alertes ? <Pastille ton="safran">{t('alertes', { n: alertes })}</Pastille> : <Pastille ton="vert">{t('produits', { n: stock.produits })}</Pastille>
-                  ) : (
+                  ) : m === 'caisse' || m === 'factures' ? null : (
                     <Pastille ton="neutre">{t('bientot')}</Pastille>
                   )}
                 </Link>

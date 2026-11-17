@@ -118,7 +118,7 @@ export interface LimitesDebit {
 export interface ReglagesPlateforme {
   cle: string;
   valeur: ColumnType<unknown, string, string>;
-  modifie_le: Generated<Date>;
+  modifie_le: ColumnType<Date, Date | undefined, Date>;
 }
 
 export interface Categories {

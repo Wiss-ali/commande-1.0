@@ -5,10 +5,12 @@ import { redirect } from 'next/navigation';
 import { action, actionSimple, secret, texte } from '@/lib/actions';
 import { bd } from '@/lib/bd';
 import { activerTotp, connecterAdmin, preparerTotp, verifierCode } from '@/lib/comptes';
-import { normaliserTelephone } from '@/lib/formats';
+import { schemaBaremeTimbre } from '@/lib/fiscal';
+import { analyserMontant, normaliserTelephone } from '@/lib/formats';
 import { inviterCommercant, reinitialiserProprietaire, reinviterCommercant } from '@/lib/invitations';
 import { journaliser } from '@/lib/journal';
 import { qrEnImage } from '@/lib/qr';
+import { oublierReglages } from '@/lib/reglages-plateforme';
 import { adresseTotp } from '@/lib/totp';
 import { adresseLien, exigerAdmin, fermerSession, infoRequete, ouvrirSession, sessionAdmin } from '@/lib/web';
 
@@ -107,5 +109,31 @@ export const changerMaxEmployes = action(async (f) => {
     await trx.updateTable('commercants').set({ max_employes: max }).where('id', '=', id).execute();
     await journaliser(trx, { commercantId: id, acteurType: 'administrateur', acteurId: s.administrateur.id, action: 'commercant.max_employes', details: { max } });
   });
+  return { ok: true };
+});
+
+/** Barème du droit de timbre, commun à tous les commerçants. Laisser le tableau vide : aucun timbre. */
+export const enregistrerTimbre = action(async (f) => {
+  const s = await exigerAdmin();
+  const montant = (nom: string) => (texte(f, nom, 20) ? analyserMontant(texte(f, nom, 20)) : undefined);
+  const tranches: { jusqua: number | null; parCent: number }[] = [];
+  for (const i of [1, 2, 3, 4]) {
+    const parCent = montant(`parCent${i}`);
+    const jusqua = montant(`jusqua${i}`);
+    if (parCent === undefined && jusqua === undefined) continue;
+    if (parCent === null || parCent === undefined || jusqua === null) return { erreur: 'montant_invalide' };
+    tranches.push({ jusqua: jusqua || null, parCent });
+  }
+  const exonere = montant('exonere');
+  const minimum = montant('minimum');
+  const plafond = montant('plafond');
+  if (exonere === null || minimum === null || plafond === null) return { erreur: 'montant_invalide' };
+  const lu = schemaBaremeTimbre.safeParse({ exonereJusqua: exonere ?? 0, tranches, minimum: minimum ?? 0, plafond: plafond || null });
+  if (!lu.success) return { erreur: 'montant_invalide' };
+  const { ip } = await infoRequete();
+  await bd('plateforme').updateTable('reglages_plateforme').set({ valeur: JSON.stringify(lu.data), modifie_le: new Date() }).where('cle', '=', 'timbre').execute();
+  await journaliser(bd('plateforme'), { commercantId: null, acteurType: 'administrateur', acteurId: s.administrateur.id, action: 'timbre.modifie', details: { tranches: lu.data.tranches.length }, ip });
+  oublierReglages();
+  revalidatePath('/admin/reglages');
   return { ok: true };
 });

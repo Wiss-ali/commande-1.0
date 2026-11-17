@@ -26,12 +26,14 @@ interface Props {
   categories: { id: string; nom: string }[];
   /** Faux pour le vendeur : il ne voit ni ne saisit le prix d'achat. */
   voitAchat: boolean;
+  /** Présent quand le commerçant facture la TVA : taux du produit (vide = taux par défaut). */
+  tva?: { taux: string; defaut: string };
 }
 
 const VIDE: VarianteSaisie = { libelle: '', code: '', prixAchat: '', prixVente: '', seuil: '', stock: '' };
 const NOUVELLE = '__nouvelle';
 
-export function FormulaireProduit({ produit, variantes: initiales, categories, voitAchat }: Props) {
+export function FormulaireProduit({ produit, variantes: initiales, categories, voitAchat, tva }: Props) {
   const t = useTranslations('produit');
   const [lignes, setLignes] = useState(() => initiales.map((v, i) => ({ ...v, cle: i })));
   const [prochaine, setProchaine] = useState(initiales.length);
@@ -66,6 +68,7 @@ export function FormulaireProduit({ produit, variantes: initiales, categories, v
             </select>
           </label>
           {categorie === NOUVELLE ? <Champ libelle={t('nomCategorie')} name="nouvelleCategorie" maxLength={60} autoComplete="off" /> : null}
+          {tva ? <Champ libelle={t('tauxTva')} name="tauxTva" defaultValue={tva.taux} inputMode="decimal" dir="ltr" maxLength={6} autoComplete="off" aide={t('tauxTvaAide', { taux: tva.defaut })} /> : null}
           <ChampPhoto actuelle={produit?.photo ?? null} />
         </Carte>
 

@@ -5,6 +5,7 @@ import { Page } from '@/components/Page';
 import { avecCommercant } from '@/lib/bd';
 import { normaliserCode } from '@/lib/codes-barres';
 import { peut } from '@/lib/droits';
+import { formaterTaux, lireReglagesDocuments } from '@/lib/fiscal';
 import { nomLocal } from '@/lib/formats';
 import { listerCategories } from '@/lib/stock';
 import type { Langue } from '@/lib/types-bd';
@@ -16,13 +17,17 @@ export default async function NouveauProduit({ searchParams }: { searchParams: P
   const langue = (await getLocale()) as Langue;
   // Arrivée depuis le scan d'un code inconnu : le code est déjà rempli.
   const code = normaliserCode((await searchParams).code ?? '') ?? '';
-  const categories = await avecCommercant(s.commercant.id, listerCategories);
+  const { categories, reglages } = await avecCommercant(s.commercant.id, async (trx) => ({
+    categories: await listerCategories(trx),
+    reglages: lireReglagesDocuments((await trx.selectFrom('commercants').select('reglages_documents').executeTakeFirstOrThrow()).reglages_documents),
+  }));
   return (
     <>
       <EnTete titre={t('nouveauTitre')} retour="/stock" />
       <Page>
         <FormulaireProduit
           voitAchat={peut(s.utilisateur.role, 'rapports')}
+          tva={reglages.assujettiTva ? { taux: '', defaut: formaterTaux(reglages.tauxDefaut) } : undefined}
           variantes={[{ libelle: '', code, prixAchat: '', prixVente: '', seuil: '', stock: '' }]}
           categories={categories.map((c) => ({ id: c.id, nom: nomLocal(c, langue) }))}
         />

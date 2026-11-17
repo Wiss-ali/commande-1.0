@@ -8,6 +8,7 @@ import { action, actionSimple, texte } from '@/lib/actions';
 import { avecCommercant } from '@/lib/bd';
 import { codeInterne } from '@/lib/codes-barres';
 import { peut } from '@/lib/droits';
+import { analyserTaux } from '@/lib/fiscal';
 import { analyserMontant, analyserQuantite } from '@/lib/formats';
 import { importerProduits, type BilanImport, type Colonne } from '@/lib/import-produits';
 import { journaliser } from '@/lib/journal';
@@ -79,6 +80,10 @@ export const enregistrerProduit = action(async (f) => {
     images = await preparerPhoto(new Uint8Array(await photo.arrayBuffer()));
     if (!images) return { erreur: 'photo_invalide' };
   }
+  // Taux de TVA du produit : absent du formulaire si le commerçant ne facture pas la TVA.
+  const tauxSaisi = f.has('tauxTva') ? texte(f, 'tauxTva', 10) : null;
+  const taux = tauxSaisi ? analyserTaux(tauxSaisi) : undefined;
+  if (taux === null) return { erreur: 'taux_invalide' };
   const ctx = ctxDe(s);
   const { ip } = await infoRequete();
   const r = await chez(s, async (trx) => {
@@ -100,6 +105,7 @@ export const enregistrerProduit = action(async (f) => {
       if (!fait.ok) return fait;
       produitId = fait.id;
     }
+    if (tauxSaisi !== null) await trx.updateTable('produits').set({ taux_tva: taux ?? null }).where('id', '=', produitId).execute();
     if (images) await enregistrerPhoto(trx, ctx, produitId, images);
     else if (f.get('retirerPhoto') === '1') await supprimerPhoto(trx, ctx, produitId);
     await journaliser(trx, { commercantId: ctx.commercantId, acteurType: 'utilisateur', acteurId: ctx.utilisateurId, action: id ? 'produit.modifie' : 'produit.cree', objetType: 'produit', objetId: produitId, ip });

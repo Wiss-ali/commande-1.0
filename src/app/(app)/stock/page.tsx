@@ -8,6 +8,8 @@ import { classeBouton, EtatVide, LigneLien, TitreSection } from '@/components/ui
 import { avecCommercant } from '@/lib/bd';
 import { autorise, peut } from '@/lib/droits';
 import { formaterMontant, nomLocal } from '@/lib/formats';
+import { marquerEcart } from '@/app/actions/ventes';
+import { listerEcarts, numeroTexte } from '@/lib/documents';
 import { etatProduit, listerProduits, resumeStock, type FiltreStock } from '@/lib/stock';
 import type { Langue } from '@/lib/types-bd';
 import { pageUtilisateur } from '@/lib/web';
@@ -26,7 +28,8 @@ export default async function Stock({ searchParams }: { searchParams: Promise<{ 
   const gere = peut(s.utilisateur.role, 'stock.corriger');
   const cree = autorise(s.utilisateur, 'produits.gerer');
 
-  const { resume, produits } = await avecCommercant(s.commercant.id, async (trx) => ({
+  const { resume, produits, ecarts } = await avecCommercant(s.commercant.id, async (trx) => ({
+    ecarts: gere ? await listerEcarts(trx) : [],
     resume: await resumeStock(trx),
     produits: await listerProduits(trx, { recherche: q, filtre, langue, limite: PAR_PAGE * page + 1 }),
   }));
@@ -55,6 +58,26 @@ export default async function Stock({ searchParams }: { searchParams: Promise<{ 
           </EtatVide>
         ) : (
           <>
+            {ecarts.length ? (
+              <section className="flex flex-col gap-2 rounded-xl border border-safran bg-safran-pale p-3 text-sur-safran">
+                <h2 className="font-semibold">{t('aVerifierTitre', { n: ecarts.length })}</h2>
+                <p className="text-sm">{t('aVerifierTexte')}</p>
+                <ul className="flex flex-col gap-2">
+                  {ecarts.slice(0, 10).map((e) => (
+                    <li key={e.id} className="flex items-center gap-2 rounded-lg bg-surface p-2 text-encre">
+                      <Link href={`/stock/${e.produit_id}`} className="min-w-0 flex-1 text-sm">
+                        <span className="block truncate font-semibold underline">{nomLocal(e, langue)}{e.libelle ? ` · ${e.libelle}` : ''}</span>
+                        <span className="text-doux">{t('aVerifierLigne', { n: e.quantite })} <span className="chiffres">{numeroTexte(e)}</span></span>
+                      </Link>
+                      <form action={marquerEcart}>
+                        <input type="hidden" name="id" value={e.id} />
+                        <button type="submit" className={classeBouton.secondaire}>{t('verifie')}</button>
+                      </form>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
             {cree ? <Link href="/stock/nouveau" className={classeBouton.principal}><Plus aria-hidden className="size-5" />{t('ajouter')}</Link> : null}
             <form action="/stock" role="search" className="flex gap-2">
               {filtre !== 'tous' ? <input type="hidden" name="filtre" value={filtre} /> : null}

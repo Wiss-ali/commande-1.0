@@ -35,6 +35,7 @@ export default async function AdminAccueil() {
             <Champ libelle={t('telephoneProprietaire')} name="telephone" type="tel" inputMode="tel" dir="ltr" placeholder="0550 12 34 56" autoComplete="off" required />
           </Formulaire>
         </Carte>
+        <LigneLien href="/admin/reglages" titre={t('reglages')} aide={t('reglagesAide')} />
         <TitreSection>{t('commercants')}</TitreSection>
         {rows.length ? (
           <div className="flex flex-col gap-2">

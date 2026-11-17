@@ -227,6 +227,7 @@ export interface Clients {
   telephone_chiffre: string | null;
   telephone_hmac: string | null;
   details_chiffre: string | null;
+  supprime_le: HorodatageNul;
   cree_le: Generated<Date>;
   modifie_le: Generated<Date>;
 }

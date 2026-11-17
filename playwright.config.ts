@@ -6,7 +6,7 @@ import { envTest } from './tests/env-test.ts';
 const PORT = 3100;
 // Base de test séparée, recréée à chaque lancement (tests/e2e/preparation.ts).
 // DOMAINE_BOUTIQUES : chaque boutique répond aussi sur « nom.boutiques.test » (essai de l'adresse en sous-domaine).
-export const envE2E = { ...envTest(`http://localhost:${PORT}`), ADMIN_MOT_DE_PASSE: 'administrateur de test 2026', DOMAINE_BOUTIQUES: 'boutiques.test' };
+export const envE2E = { ...envTest(`http://localhost:${PORT}`), ADMIN_MOT_DE_PASSE: 'administrateur de test 2026', DOMAINE_BOUTIQUES: 'boutiques.test', ETAT_JETON: 'jeton-etat-de-test-2026' };
 Object.assign(process.env, envE2E);
 
 const chromium = '/opt/pw-browsers/chromium';

@@ -14,6 +14,7 @@ const DEFAUTS = {
   lecture_seule_jours: 90,
   rappel_jours_1: 7,
   rappel_jours_2: 1,
+  conservation_ans: 10,
 } as const;
 export type CleReglage = keyof typeof DEFAUTS;
 

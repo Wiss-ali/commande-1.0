@@ -147,3 +147,20 @@ describe('export pour le comptable', () => {
     expect(strFromU8(fichiers['fichierClients.csv']!)).toContain('Client;05');
   }, 60_000);
 });
+
+describe('données personnelles', () => {
+  it('suppression à la demande du client : nom, téléphone et adresses effacés, factures conservées', async () => {
+    const { supprimerDonneesClient, lireClient } = await import('../../src/lib/clients.ts');
+    const client = await chez(A, (trx) => trx.selectFrom('clients').select('id').where('telephone_hmac', 'is not', null).executeTakeFirstOrThrow());
+    const avant = (await chez(A, (trx) => lireClient(trx, client.id)))!;
+    expect(await chez(A, (trx) => supprimerDonneesClient(trx, client.id))).toBe(true);
+    expect(await chez(A, (trx) => supprimerDonneesClient(trx, client.id))).toBe(false);
+    const apres = (await chez(A, (trx) => lireClient(trx, client.id)))!;
+    expect(apres).toMatchObject({ nom: '—', telephone: null });
+    expect(apres.supprimeLe).not.toBeNull();
+    expect(apres.documents.length).toBe(avant.documents.length);
+    const adresses = await chez(A, (trx) => trx.selectFrom('commandes').select('adresse_chiffre').where('client_id', '=', client.id).execute());
+    expect(adresses.every((a) => a.adresse_chiffre === null)).toBe(true);
+    expect(await chez(B, (trx) => supprimerDonneesClient(trx, client.id))).toBe(false);
+  });
+});

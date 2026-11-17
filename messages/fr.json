@@ -867,7 +867,9 @@
     "lecture": "Durée de la lecture seule (jours)",
     "lectureAide": "90 jours par défaut, puis le compte est archivé. Rien n'est supprimé.",
     "rappel1": "Premier rappel (jours avant)",
-    "rappel2": "Second rappel (jours avant)"
+    "rappel2": "Second rappel (jours avant)",
+    "conservation": "Durée de conservation des documents (années)",
+    "conservationAide": "10 ans par défaut, à faire confirmer par un comptable. Aucun document n'est supprimé automatiquement."
   },
   "commandes": {
     "titre": "Commandes",
@@ -983,7 +985,12 @@
     "resume": "{achats, plural, =0 {Aucune facture} one {# facture} other {# factures}} · {commandes, plural, =0 {aucune commande} one {# commande} other {# commandes}} : {livrees} livrée(s), {retournees} retournée(s), {annulees} annulée(s).",
     "commandes": "Commandes",
     "documents": "Documents",
-    "aucunDocument": "Aucun document."
+    "aucunDocument": "Aucun document.",
+    "donneesSupprimees": "Données personnelles supprimées le {date} à la demande du client. Les factures déjà émises gardent leur copie (documents comptables).",
+    "supprimerTitre": "Supprimer les données de ce client",
+    "supprimerBouton": "Supprimer ses données",
+    "supprimerTexte": "À faire seulement si le client le demande. Son nom, son téléphone et ses adresses sont effacés. Ses factures restent conservées telles quelles, comme la loi l'exige pour les documents comptables.",
+    "supprimerConfirmer": "Le client a demandé la suppression de ses données"
   },
   "livraison": {
     "titre": "Livraison",

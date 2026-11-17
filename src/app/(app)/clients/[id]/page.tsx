@@ -5,7 +5,10 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { EnTete } from '@/components/EnTete';
 import { Page } from '@/components/Page';
 import { PastilleCommande } from '@/components/PastilleCommande';
-import { Carte, classeBouton, Pastille, TitreSection } from '@/components/ui';
+import { Formulaire } from '@/components/Formulaire';
+import { Carte, classeBouton, Message, Pastille, TitreSection } from '@/components/ui';
+import { effacerClient } from '@/app/actions/clients';
+import { autorise } from '@/lib/droits';
 import { avecCommercant } from '@/lib/bd';
 import { lireClient } from '@/lib/clients';
 import { listerCommandes } from '@/lib/commandes';
@@ -39,6 +42,7 @@ export default async function Client({ params }: { params: Promise<{ id: string 
           <p className="text-lg font-bold">{c.nom}</p>
           {c.telephone ? <p className="chiffres text-lg" dir="ltr">{formaterTelephone(c.telephone)}</p> : null}
           <p className="text-sm text-doux">{t('depuis')} <span className="chiffres">{formaterDate(c.creeLe)}</span></p>
+          {c.supprimeLe ? <Message ton="info">{t('donneesSupprimees', { date: formaterDate(c.supprimeLe) })}</Message> : null}
           {c.telephone ? (
             <div className="grid grid-cols-2 gap-2 pt-1">
               <a href={`tel:${c.telephone}`} className={classeBouton.secondaire}><Phone aria-hidden className="size-4" />{tc('appeler')}</a>
@@ -67,6 +71,19 @@ export default async function Client({ params }: { params: Promise<{ id: string 
               ))}
             </ul>
           </>
+        ) : null}
+
+        {!c.supprimeLe && autorise(s.utilisateur, 'reglages') && s.commercant.etat === 'actif' ? (
+          <details className="rounded-xl border border-trait bg-surface">
+            <summary className="flex min-h-12 cursor-pointer items-center px-4 font-semibold text-terre">{t('supprimerTitre')}</summary>
+            <div className="p-4 pt-0">
+              <Formulaire action={effacerClient} bouton={t('supprimerBouton')} style="danger">
+                <input type="hidden" name="id" value={c.id} />
+                <p className="text-sm text-doux">{t('supprimerTexte')}</p>
+                <label className="flex min-h-11 cursor-pointer items-center gap-3"><input type="checkbox" name="confirmer" required className="size-5 accent-vert" /><span className="text-sm">{t('supprimerConfirmer')}</span></label>
+              </Formulaire>
+            </div>
+          </details>
         ) : null}
 
         <TitreSection>{t('documents')}</TitreSection>

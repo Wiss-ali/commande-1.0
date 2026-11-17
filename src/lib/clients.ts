@@ -47,13 +47,14 @@ export interface FicheClient {
   annulees: number;
   /** Retours sur les colis arrivés au bout (livrés ou retournés), en pour cent ; null s'il n'y en a pas. */
   tauxRetour: number | null;
+  supprimeLe: Date | null;
   documents: { id: string; type: TypeDocument; annee: number; numero: number; total: number; emisLe: Date; annule: boolean }[];
 }
 
 export async function lireClient(trx: Trx, id: string): Promise<FicheClient | null> {
   const c = await trx
     .selectFrom('clients as cl')
-    .select(['cl.id', 'cl.nom', 'cl.telephone_chiffre', 'cl.cree_le'])
+    .select(['cl.id', 'cl.nom', 'cl.telephone_chiffre', 'cl.cree_le', 'cl.supprime_le'])
     .select(depense.as('depense'))
     .where('cl.id', '=', id)
     .executeTakeFirst();
@@ -78,11 +79,24 @@ export async function lireClient(trx: Trx, id: string): Promise<FicheClient | nu
     .execute();
   const arrives = s.livrees + s.retournees;
   return {
-    id: c.id, nom: c.nom, telephone: dechiffrerOuNul(c.telephone_chiffre, `clients.telephone:${c.id}`), creeLe: c.cree_le,
+    id: c.id, nom: c.nom, telephone: dechiffrerOuNul(c.telephone_chiffre, `clients.telephone:${c.id}`), creeLe: c.cree_le, supprimeLe: c.supprime_le,
     depense: Number(c.depense),
     achats: docs.filter((d) => d.type === 'facture' && !d.annule).length,
     commandes: s.total, livrees: s.livrees, retournees: s.retournees, annulees: s.annulees,
     tauxRetour: arrives ? Math.round((s.retournees * 100) / arrives) : null,
     documents: docs.map((d) => ({ id: d.id, type: d.type, annee: d.annee, numero: d.numero, total: Number(d.total), emisLe: d.emis_le, annule: !!d.annule })),
   };
+}
+
+/**
+ * Supprime les données personnelles d'un client à sa demande (loi 18-07) : nom remplacé, téléphone, empreinte,
+ * détails et adresses de livraison effacés. Les factures et documents émis gardent leur copie figée de l'acheteur :
+ * ce sont des documents comptables, conservés pendant la durée légale réglée par l'administrateur.
+ */
+export async function supprimerDonneesClient(trx: Trx, id: string): Promise<boolean> {
+  const r = await trx.updateTable('clients').set({ nom: '—', telephone_chiffre: null, telephone_hmac: null, details_chiffre: null, supprime_le: new Date() })
+    .where('id', '=', id).where('supprime_le', 'is', null).executeTakeFirst();
+  if (!r.numUpdatedRows) return false;
+  await trx.updateTable('commandes').set({ adresse_chiffre: null }).where('client_id', '=', id).execute();
+  return true;
 }

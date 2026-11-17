@@ -235,7 +235,7 @@ export const enregistrerDelais = action(async (f) => {
     const v = texte(f, nom, 4);
     return /^\d{1,4}$/.test(v) && Number(v) >= min && Number(v) <= max ? Number(v) : null;
   };
-  const valeurs = { delai_grace_jours: lire('grace', 0, 60), lecture_seule_jours: lire('lecture', 1, 3650), rappel_jours_1: lire('rappel1', 1, 60), rappel_jours_2: lire('rappel2', 0, 60) };
+  const valeurs = { delai_grace_jours: lire('grace', 0, 60), lecture_seule_jours: lire('lecture', 1, 3650), rappel_jours_1: lire('rappel1', 1, 60), rappel_jours_2: lire('rappel2', 0, 60), conservation_ans: lire('conservation', 1, 50) };
   if (Object.values(valeurs).some((v) => v === null)) return { erreur: 'champ_requis' };
   await bd('plateforme').transaction().execute(async (trx) => {
     for (const [cle, valeur] of Object.entries(valeurs)) {

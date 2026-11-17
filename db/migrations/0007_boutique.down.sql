@@ -1,0 +1,11 @@
+DROP TABLE abonnements_push, notifications_vues, notifications, demandes, boutiques;
+DELETE FROM historique_commande WHERE evenement = 'expiree';
+ALTER TABLE historique_commande DROP CONSTRAINT historique_commande_evenement_check;
+ALTER TABLE historique_commande ADD CONSTRAINT historique_commande_evenement_check CHECK (evenement IN ('creee', 'appel_sans_reponse', 'statut', 'modifiee'));
+DROP INDEX commandes_reservation;
+ALTER TABLE commandes DROP COLUMN reservation_jusqua, DROP COLUMN ticket_hash;
+REVOKE UPDATE (sous_domaine) ON commercants FROM hanout_app;
+ALTER TABLE commercants DROP CONSTRAINT sous_domaine_format;
+ALTER TABLE produits DROP COLUMN nouveau;
+DELETE FROM photos_produit WHERE produit_id IS NULL;
+ALTER TABLE photos_produit ALTER COLUMN produit_id SET NOT NULL;

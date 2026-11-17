@@ -119,9 +119,11 @@ export interface SaisieCommande {
   /** Désignation de la ligne des frais sur les documents (« Livraison »), dans la langue du commerçant. */
   libelleLivraison: string;
   origine?: 'manuel' | 'boutique';
+  /** Ticket de la boutique : statut « nouvelle », réservation limitée dans le temps, lien privé (empreinte). */
+  ticket?: { hash: string; reservationJusqua: Date };
 }
 
-async function historiser(trx: Trx, ctx: Contexte, commandeId: string, evenement: 'creee' | 'appel_sans_reponse' | 'statut' | 'modifiee', ancien?: StatutCommande, nouveau?: StatutCommande) {
+async function historiser(trx: Trx, ctx: Contexte, commandeId: string, evenement: 'creee' | 'appel_sans_reponse' | 'statut' | 'modifiee' | 'expiree', ancien?: StatutCommande, nouveau?: StatutCommande) {
   await trx
     .insertInto('historique_commande')
     .values({ commercant_id: ctx.commercantId, commande_id: commandeId, evenement, ancien_statut: ancien ?? null, nouveau_statut: nouveau ?? null, auteur: ctx.utilisateurId })
@@ -166,13 +168,14 @@ export async function creerCommande(trx: Trx, ctx: Contexte, s: SaisieCommande):
     .insertInto('commandes')
     .values({
       id, commercant_id: ctx.commercantId, annee, numero: await prochainNumero(trx, ctx.commercantId, 'commande', annee),
-      statut: 'a_confirmer', origine: s.origine ?? 'manuel', devis_id: d.id, client_id: devis.client_id!,
+      statut: s.ticket ? 'nouvelle' : 'a_confirmer', origine: s.origine ?? 'manuel', devis_id: d.id, client_id: devis.client_id!,
+      ticket_hash: s.ticket?.hash ?? null, reservation_jusqua: s.ticket?.reservationJusqua ?? null,
       livraison: s.livraison, wilaya_code: wilaya.code, commune,
       adresse_chiffre: adresse ? chiffrer(adresse, `commandes.adresse:${id}`) : null,
       frais_livraison: frais, note: (s.note ?? '').trim().slice(0, 500), cle: s.cle, cree_par: ctx.utilisateurId,
     })
     .execute();
-  await historiser(trx, ctx, id, 'creee', undefined, 'a_confirmer');
+  await historiser(trx, ctx, id, 'creee', undefined, s.ticket ? 'nouvelle' : 'a_confirmer');
   return { ok: true, id };
 }
 
@@ -193,7 +196,7 @@ export async function noterAppel(trx: Trx, ctx: Contexte, id: string): Promise<R
   if (!c) return { ok: false, raison: 'introuvable' };
   if (!A_CONFIRMER.includes(c.statut)) return { ok: false, raison: 'statut_invalide' };
   const tentatives = c.tentatives_appel + 1;
-  await trx.updateTable('commandes').set({ tentatives_appel: tentatives, dernier_appel_le: new Date() }).where('id', '=', id).execute();
+  await trx.updateTable('commandes').set({ tentatives_appel: tentatives, dernier_appel_le: new Date(), statut: 'a_confirmer' }).where('id', '=', id).execute();
   await historiser(trx, ctx, id, 'appel_sans_reponse');
   return { ok: true, tentatives };
 }
@@ -482,4 +485,26 @@ export async function commandeDuDocument(trx: Trx, documentId: string): Promise<
       .where((eb) => eb.or([eb('devis_id', '=', documentId), eb('facture_id', '=', documentId), eb('avoir_id', '=', documentId)]))
       .executeTakeFirst()) ?? null
   );
+}
+
+/**
+ * Tickets de la boutique non confirmés à temps : le devis passe « expiré », le stock réservé est libéré,
+ * la commande est annulée. Appelé avant chaque lecture qui dépend du stock disponible, et par la tâche périodique.
+ */
+export async function expirerTickets(trx: Trx, ctx: Contexte): Promise<number> {
+  const perimees = await trx
+    .selectFrom('commandes')
+    .select(['id', 'devis_id'])
+    .where('statut', '=', 'nouvelle')
+    .where('reservation_jusqua', '<', new Date())
+    .forUpdate()
+    .skipLocked()
+    .execute();
+  for (const c of perimees) {
+    await trx.updateTable('documents').set({ etat: 'expire' }).where('id', '=', c.devis_id).where('etat', '=', 'en_attente').execute();
+    await libererReservations(trx, ctx, c.devis_id);
+    await trx.updateTable('commandes').set({ statut: 'annulee' }).where('id', '=', c.id).execute();
+    await historiser(trx, ctx, c.id, 'expiree', 'nouvelle', 'annulee');
+  }
+  return perimees.length;
 }

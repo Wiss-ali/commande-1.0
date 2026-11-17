@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { avecCommercant, bd, fermerBD } from '../../src/lib/bd.ts';
 import { inviterEmploye } from '../../src/lib/invitations.ts';
 import { journaliser } from '../../src/lib/journal.ts';
+import { demander, enregistrerAbonnement, enregistrerReglages, marquerVues, REGLAGES_DEFAUT } from '../../src/lib/boutique.ts';
 import { ajouterTransporteur, creerCommande, enregistrerFrais } from '../../src/lib/commandes.ts';
 import { creerAvoir, vendreEnCaisse } from '../../src/lib/documents.ts';
 import { creerSession } from '../../src/lib/sessions.ts';
@@ -44,6 +45,12 @@ beforeAll(async () => {
         lignes: [{ varianteId: variante.id, quantite: 1 }], cle: crypto.randomUUID(), libelleLivraison: 'Livraison',
       });
       if (!cmd.ok) throw new Error(cmd.raison);
+      // Boutique : réglages, demande, notification, consultation, abonnement du téléphone.
+      await enregistrerReglages(trx, ctx, REGLAGES_DEFAUT);
+      await demander(trx, ctx, 'site_personnalise', { nom: 'X', telephone: '0550000000' });
+      await trx.insertInto('notifications').values({ commercant_id: c.commercantId, type: 'commande_boutique', commande_id: cmd.id }).execute();
+      await marquerVues(trx, ctx);
+      await enregistrerAbonnement(trx, ctx, { endpoint: `https://fcm.googleapis.com/fcm/send/${c.commercantId}`, keys: { p256dh: 'x', auth: 'y' } });
     });
   }
   const r = await sqlProprietaire<{ table_name: string }>(
@@ -55,7 +62,7 @@ afterAll(fermerBD);
 
 describe('configuration de la base', () => {
   it('chaque table d\'un commerçant a la RLS activée, forcée, et une règle pour le rôle de l\'application', async () => {
-    expect(tablesCommercant).toEqual(expect.arrayContaining(['utilisateurs', 'sessions', 'invitations', 'journal_actions', 'categories', 'produits', 'variantes', 'stocks', 'mouvements_stock', 'photos_produit', 'inventaires', 'lignes_inventaire', 'clients', 'sessions_caisse', 'compteurs_documents', 'documents', 'lignes_document', 'liens_documents', 'ecarts_stock', 'transporteurs', 'frais_livraison', 'commandes', 'historique_commande']));
+    expect(tablesCommercant).toEqual(expect.arrayContaining(['utilisateurs', 'sessions', 'invitations', 'journal_actions', 'categories', 'produits', 'variantes', 'stocks', 'mouvements_stock', 'photos_produit', 'inventaires', 'lignes_inventaire', 'clients', 'sessions_caisse', 'compteurs_documents', 'documents', 'lignes_document', 'liens_documents', 'ecarts_stock', 'transporteurs', 'frais_livraison', 'commandes', 'historique_commande', 'boutiques', 'demandes', 'notifications', 'notifications_vues', 'abonnements_push']));
     for (const table of [...tablesCommercant, 'commercants']) {
       const t = await sqlProprietaire<{ relrowsecurity: boolean; relforcerowsecurity: boolean }>(
         'SELECT relrowsecurity, relforcerowsecurity FROM pg_class WHERE oid = $1::regclass', [table]);

@@ -137,6 +137,7 @@ export interface Produits {
   categorie_id: string | null;
   taux_tva: number | null;
   visible_boutique: Generated<boolean>;
+  nouveau: Generated<boolean>;
   archive_le: HorodatageNul;
   cree_le: Generated<Date>;
   modifie_le: Generated<Date>;
@@ -189,7 +190,7 @@ export interface MouvementsStock {
 export interface PhotosProduit {
   id: Generated<string>;
   commercant_id: string;
-  produit_id: string;
+  produit_id: string | null;
   ordre: Generated<number>;
   cree_le: Generated<Date>;
 }
@@ -379,9 +380,11 @@ export interface Commandes {
   cree_par: string;
   cree_le: Generated<Date>;
   modifie_le: Generated<Date>;
+  ticket_hash: string | null;
+  reservation_jusqua: HorodatageNul;
 }
 
-export type EvenementCommande = 'creee' | 'appel_sans_reponse' | 'statut' | 'modifiee';
+export type EvenementCommande = 'creee' | 'appel_sans_reponse' | 'statut' | 'modifiee' | 'expiree';
 
 export interface HistoriqueCommande {
   id: Generated<string>;
@@ -394,7 +397,75 @@ export interface HistoriqueCommande {
   le: Generated<Date>;
 }
 
+export type ModeleBoutique = 'vitrine' | 'catalogue' | 'grandes_photos' | 'produit_unique';
+
+export interface Boutiques {
+  commercant_id: string;
+  en_ligne: Generated<boolean>;
+  modele: Generated<ModeleBoutique>;
+  produit_unique_id: string | null;
+  couleur: Generated<string>;
+  logo_id: string | null;
+  banniere_id: string | null;
+  accueil_fr: Generated<string>;
+  accueil_ar: Generated<string>;
+  livraison_fr: Generated<string>;
+  livraison_ar: Generated<string>;
+  retour_fr: Generated<string>;
+  retour_ar: Generated<string>;
+  sections: ColumnType<string[], string | undefined, string>;
+  reseaux: ColumnType<Record<string, string>, string | undefined, string>;
+  whatsapp: string | null;
+  ruptures: Generated<'visible' | 'masque'>;
+  plus_que: Generated<number>;
+  reservation_heures: Generated<number>;
+  modifie_le: Generated<Date>;
+}
+
+export type TypeDemande = 'paiement_carte' | 'site_personnalise';
+
+export interface Demandes {
+  id: Generated<string>;
+  commercant_id: string;
+  type: TypeDemande;
+  nom: string;
+  telephone: string;
+  message: Generated<string>;
+  etat: Generated<'nouvelle' | 'traitee' | 'refusee'>;
+  note_admin: Generated<string>;
+  cree_le: Generated<Date>;
+  traitee_le: HorodatageNul;
+}
+
+export interface Notifications {
+  id: Generated<string>;
+  commercant_id: string;
+  type: 'commande_boutique';
+  commande_id: string | null;
+  cree_le: Generated<Date>;
+}
+
+export interface NotificationsVues {
+  commercant_id: string;
+  utilisateur_id: string;
+  vu_le: Horodatage;
+}
+
+export interface AbonnementsPush {
+  id: Generated<string>;
+  commercant_id: string;
+  utilisateur_id: string;
+  point_hmac: string;
+  abonnement_chiffre: string;
+  cree_le: Generated<Date>;
+}
+
 export interface BD {
+  boutiques: Boutiques;
+  demandes: Demandes;
+  notifications: Notifications;
+  notifications_vues: NotificationsVues;
+  abonnements_push: AbonnementsPush;
   wilayas: Wilayas;
   communes: Communes;
   transporteurs: Transporteurs;

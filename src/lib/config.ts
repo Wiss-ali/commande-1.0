@@ -10,6 +10,12 @@ const schema = z.object({
   CLES_CHIFFREMENT: z.string().min(1),
   CLE_CHIFFREMENT_ACTIVE: z.string().regex(/^\d+$/),
   CLE_HMAC: z.string().min(1),
+  // Domaine des boutiques (« mondomaine.dz » : chaque boutique a « nom.mondomaine.dz »). Vide : adresse /b/nom seulement.
+  DOMAINE_BOUTIQUES: z.string().regex(/^[a-z0-9.-]+$/).optional(),
+  // Clés VAPID des notifications sur le téléphone (npm run push:cles). Absentes : notifications dans l'application seulement.
+  VAPID_PUBLIQUE: z.string().optional(),
+  VAPID_PRIVEE: z.string().optional(),
+  VAPID_CONTACT: z.string().optional(),
 });
 
 export type Config = z.infer<typeof schema> & { https: boolean };

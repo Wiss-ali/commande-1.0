@@ -2,6 +2,11 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 17/11/2026 — Magasin de démonstration ; changement de conversation
+
+- Ajouté `scripts/demo.ts` (`npm run demo`) : un magasin rempli pour essayer sans rien saisir.
+- L'aperçu lancé dans la session ne s'est pas affiché chez le propriétaire, qui n'a pas Docker. Il continue dans une nouvelle conversation. La question « comment essayer » est notée dans `ETAT.md`.
+
 ## 17/11/2026 — Étape 3 (caisse, factures, documents) terminée
 
 - Recherche : `docs/etape-3/01-recherche-caisse-factures.md`. Bilan : `docs/etape-3/02-bilan.md`.

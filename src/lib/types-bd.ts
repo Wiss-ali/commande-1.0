@@ -26,6 +26,7 @@ export interface Commercants {
   nif_chiffre: string | null;
   nis_chiffre: string | null;
   ai_chiffre: string | null;
+  reglages_documents: ColumnType<unknown, string | undefined, string>;
   cree_le: Generated<Date>;
   modifie_le: Generated<Date>;
 }
@@ -134,6 +135,7 @@ export interface Produits {
   nom_fr: Generated<string>;
   nom_ar: Generated<string>;
   categorie_id: string | null;
+  taux_tva: number | null;
   visible_boutique: Generated<boolean>;
   archive_le: HorodatageNul;
   cree_le: Generated<Date>;
@@ -215,7 +217,112 @@ export interface LignesInventaire {
   modifie_le: Generated<Date>;
 }
 
+export interface Clients {
+  id: Generated<string>;
+  commercant_id: string;
+  nom: string;
+  telephone_chiffre: string | null;
+  telephone_hmac: string | null;
+  details_chiffre: string | null;
+  cree_le: Generated<Date>;
+  modifie_le: Generated<Date>;
+}
+
+export interface SessionsCaisse {
+  id: Generated<string>;
+  commercant_id: string;
+  ouverte_par: string;
+  ouverte_le: Generated<Date>;
+  fond_ouverture: ColumnType<string, number | undefined, number>;
+  fermee_par: string | null;
+  fermee_le: HorodatageNul;
+  especes_attendues: ColumnType<string | null, number | null | undefined, number | null>;
+  especes_comptees: ColumnType<string | null, number | null | undefined, number | null>;
+  note: Generated<string>;
+}
+
+export interface CompteursDocuments {
+  commercant_id: string;
+  type: string;
+  annee: number;
+  dernier: Generated<number>;
+}
+
+export type TypeDocument = 'devis' | 'proforma' | 'bon_commande' | 'bon_livraison' | 'facture' | 'avoir' | 'recu' | 'ticket';
+export type EtatDocument = 'emis' | 'en_attente' | 'transforme' | 'refuse' | 'expire';
+export type ModePaiement = 'especes' | 'a_la_livraison';
+
+type Montant = ColumnType<string, number, number>;
+
+export interface Documents {
+  id: string;
+  commercant_id: string;
+  type: TypeDocument;
+  annee: number;
+  numero: number;
+  etat: EtatDocument;
+  origine: 'caisse' | 'manuel' | 'boutique';
+  mode_vente: 'directe' | 'envoi' | null;
+  client_id: string | null;
+  vendeur_chiffre: string;
+  acheteur_chiffre: string | null;
+  total_ht: Montant;
+  total_tva: Montant;
+  timbre: Montant;
+  total: Montant;
+  mode_paiement: ModePaiement | null;
+  paye_le: HorodatageNul;
+  valide_jusqua: ColumnType<Date | null, string | null | undefined, string | null>;
+  stock_sorti: Generated<boolean>;
+  note: Generated<string>;
+  session_caisse_id: string | null;
+  emis_par: string;
+  emis_le: Generated<Date>;
+  cle: string | null;
+  transaction_creation: Generated<string>;
+}
+
+export interface LignesDocument {
+  id: Generated<string>;
+  commercant_id: string;
+  document_id: string;
+  variante_id: string | null;
+  designation: string;
+  quantite: number;
+  prix_unitaire: Montant;
+  taux_tva: number;
+  total_ht: Montant;
+  total_ttc: Montant;
+  cout_unitaire: Montant;
+  ordre: number;
+}
+
+export interface LiensDocuments {
+  commercant_id: string;
+  source_id: string;
+  cible_id: string;
+  nature: 'transforme_en' | 'corrige_par' | 'regle_par';
+}
+
+export interface EcartsStock {
+  id: Generated<string>;
+  commercant_id: string;
+  variante_id: string;
+  document_id: string;
+  quantite: number;
+  cree_le: Generated<Date>;
+  traite_le: HorodatageNul;
+  traite_par: string | null;
+}
+
 export interface BD {
+  clients: Clients;
+  sessions_caisse: SessionsCaisse;
+  compteurs_documents: CompteursDocuments;
+  documents: Documents;
+  lignes_document: LignesDocument;
+  liens_documents: LiensDocuments;
+  ecarts_stock: EcartsStock;
   categories: Categories;
   produits: Produits;
   variantes: Variantes;

@@ -195,6 +195,8 @@ export interface Mouvement {
   note?: string;
   coutUnitaire?: number;
   inventaireId?: string;
+  /** Document à l'origine du mouvement (ticket, facture, avoir…). */
+  documentId?: string;
   /** Clé d'idempotence : la même clé ne crée jamais deux mouvements. */
   cle?: string;
 }
@@ -230,6 +232,7 @@ export async function ajouterMouvement(trx: Trx, ctx: Contexte, m: Mouvement): P
       cout_unitaire: m.coutUnitaire ?? null,
       auteur_id: ctx.utilisateurId,
       inventaire_id: m.inventaireId ?? null,
+      document_id: m.documentId ?? null,
       cle: m.cle ?? null,
     })
     .execute();

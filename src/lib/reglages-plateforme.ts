@@ -25,3 +25,9 @@ export async function reglage(cle: CleReglage): Promise<number> {
 }
 
 export const oublierReglages = () => (memo = undefined);
+
+/** Réglage complexe (liste, tableau) : renvoyé tel quel, à valider par l'appelant. */
+export async function reglageBrut(cle: 'taux_tva' | 'timbre'): Promise<unknown> {
+  await reglage('invitation_jours'); // recharge la mémoire au besoin
+  return memo?.valeurs.get(cle);
+}

@@ -1,16 +1,14 @@
 # État du projet
 
-Dernière mise à jour : 17/11/2026, fin de l'étape 4.
+Dernière mise à jour : 17/11/2026, fin de l'étape 5.
 
 ## Où on en est
 
-- **Étape 0 : validée.**
-- **Étape 1 (socle) : terminée.** Bilan : `docs/etape-1/02-bilan.md`.
-- **Étape 2 (produits, stock, scan) : validée le 17/11/2026.** Bilan : `docs/etape-2/02-bilan.md`.
-- **Étape 3 (caisse, factures, documents) : validée le 17/11/2026** (« reprends et continue »). Bilan : `docs/etape-3/02-bilan.md`.
-- **Étape 4 (commandes à livrer, colis, clients) : terminée et testée, en attente de la validation du propriétaire.** Bilan : `docs/etape-4/02-bilan.md`.
-- Prochaine étape : **étape 5, accueil et rapports** (tableau de bord, marge réelle, taux de confirmation et de livraison, retours par wilaya, meilleurs produits, export pour le comptable).
-- Branche de travail : `claude/vigilant-gates-3k9mjn` (elle contient tout `claude/adoring-ptolemy-sn6zzz`). `main` est en retard : il s'arrête à la fin de l'étape 1 (à mettre à jour quand le propriétaire le confirme).
+- **Étapes 0 à 3 : validées.** Bilans dans `docs/etape-N/02-bilan.md`.
+- **Étape 4 (commandes à livrer, colis, clients) : validée le 17/11/2026.** Bilan : `docs/etape-4/02-bilan.md`.
+- **Étape 5 (accueil, rapports, export pour le comptable) : terminée et testée, en attente de la validation du propriétaire.** Bilan : `docs/etape-5/02-bilan.md`.
+- Prochaine étape : **étape 6, boutique en ligne** (quatre modèles, lien avec le stock, commande sans compte confirmée par téléphone, ticket, devis automatique, notifications, message du paiement par carte, demandes d'activation et de site personnalisé). Voir les parties 12 et 14 du cahier des charges.
+- Branche de travail : `claude/vigilant-gates-3k9mjn`. `main` est en retard : il s'arrête à la fin de l'étape 1 (à mettre à jour quand le propriétaire le confirme).
 
 ## Façon de travailler (décidée par le propriétaire le 16/11/2026)
 
@@ -19,9 +17,9 @@ Dernière mise à jour : 17/11/2026, fin de l'étape 4.
 
 ## Prochaine action
 
-1. Obtenir la validation de l'étape 4.
-2. Étape 5 : recherche (tableaux de bord des logiciels de caisse et d'e-commerce, indicateurs utiles au commerçant, export pour le comptable algérien), liste, puis code.
-3. À l'étape 5 : remplacer la page d'attente `src/app/(app)/[module]/page.tsx` pour `rapports` ; la carte Commandes de l'accueil compte les commandes à confirmer (`compterParFiltre` dans `src/lib/commandes.ts`) ; la marge réelle lit `lignes_document.cout_unitaire`, `commandes.frais_livraison` et les avoirs de retour.
+1. Obtenir la validation de l'étape 5.
+2. Étape 6 : recherche (boutiques en ligne algériennes, anti-fraude des commandes à la livraison, notifications push Web, sous-domaines), liste, puis code.
+3. À l'étape 6 : une commande de la boutique = `creerCommande(..., { origine: 'boutique' })` avec le statut `nouvelle` (à ajouter), réservation pendant une durée réglable puis expiration automatique (tâches de fond) ; la carte Boutique de l'accueil doit dire « En ligne » ou « Désactivée » ; remplacer la page d'attente `src/app/(app)/[module]/page.tsx` pour `boutique`.
 
 ## Pour reprendre le travail dans un nouveau conteneur
 
@@ -41,6 +39,7 @@ npm run verifier                     # tout doit passer avant de continuer
 2. **Avoir partiel** (annuler une seule ligne d'une facture) : utile tout de suite, ou plus tard ?
 3. **Comment le propriétaire essaie l'application** : il n'a pas Docker, et l'aperçu de la session précédente ne s'est pas affiché chez lui. Lui proposer : (a) un pas-à-pas pour installer sur son ordinateur (Windows ou Mac), ou (b) avancer une partie de l'étape 8 pour mettre un petit serveur de test en ligne, à essayer sur son vrai téléphone (scan, installation sur l'écran d'accueil). Lui demander son choix.
 4. **Argent reversé par le transporteur** : aujourd'hui, « Livré et payé » marque la facture payée. Faut-il suivre aussi le jour où le transporteur vous reverse l'argent (versements groupés) ?
+5. **Sécurité des dépendances** : `picomatch` a une alerte sans correction publiée (outils de développement seulement) ; à mettre à jour dès que possible.
 
 ## Magasin de démonstration
 
@@ -73,5 +72,7 @@ npm run verifier                     # tout doit passer avant de continuer
 | `docs/etape-3/02-bilan.md` | Bilan de l'étape 3 : fait, pas fait, à essayer, liens |
 | `docs/etape-4/01-recherche-commandes.md` | Recherche et liste des fonctions de l'étape 4 |
 | `docs/etape-4/02-bilan.md` | Bilan de l'étape 4 : fait, pas fait, à essayer, liens |
+| `docs/etape-5/01-recherche-accueil-rapports.md` | Recherche et liste des fonctions de l'étape 5 |
+| `docs/etape-5/02-bilan.md` | Bilan de l'étape 5 : fait, pas fait, à essayer, liens |
 | `README.md` | Lancer, vérifier, organisation du code |
 | `docs/journal/JOURNAL.md` | Historique daté |

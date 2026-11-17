@@ -366,6 +366,7 @@ test('tous les écrans du stock en arabe, de droite à gauche, en thème sombre'
   await expect(nadia.locator('html')).toHaveAttribute('dir', 'rtl');
   await nadia.goto('/plus');
   await nadia.getByRole('button', { name: 'داكن' }).click();
+  await expect(nadia.getByRole('button', { name: 'داكن' })).toHaveAttribute('aria-pressed', 'true');
   await expect(nadia.locator('html')).toHaveAttribute('data-theme', 'sombre');
   const ecrans: [string, string][] = [
     ['/stock', 'stock'], [adresseCafe, 'produit'], [`${adresseCafe}/modifier`, 'produit-modifier'], ['/stock/nouveau', 'produit-nouveau'], ['/stock/mouvements', 'mouvements'],

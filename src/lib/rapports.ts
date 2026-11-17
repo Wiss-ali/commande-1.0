@@ -52,6 +52,7 @@ const nonAnnule = (alias: string) => sql.raw(`NOT EXISTS (SELECT 1 FROM liens_do
 
 export interface ChiffresAccueil {
   ventesJour: number;
+  /** Ventes faites à la caisse aujourd'hui (carte Caisse). */
   nbVentesJour: number;
   aConfirmer: number;
   aExpedier: number;
@@ -72,7 +73,7 @@ export async function chiffresAccueil(trx: Trx): Promise<ChiffresAccueil> {
   }>`
     SELECT
       (SELECT coalesce(sum(total), 0) FROM documents WHERE type IN ('facture', 'ticket', 'avoir') AND ${jourDe('emis_le')} = ${aujourdhui}::date) AS ventes,
-      (SELECT count(*) FROM documents WHERE type IN ('facture', 'ticket') AND ${jourDe('emis_le')} = ${aujourdhui}::date)::int AS nb,
+      (SELECT count(*) FROM documents WHERE type IN ('facture', 'ticket') AND origine = 'caisse' AND ${jourDe('emis_le')} = ${aujourdhui}::date)::int AS nb,
       (SELECT count(*) FROM commandes WHERE statut IN ('nouvelle', 'a_confirmer'))::int AS a_confirmer,
       (SELECT count(*) FROM commandes WHERE statut IN ('confirmee', 'preparee'))::int AS a_expedier,
       (SELECT count(*) FROM commandes WHERE statut = 'expediee')::int AS en_route,

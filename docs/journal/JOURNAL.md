@@ -2,6 +2,22 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 17/11/2026 — Étape 5 (accueil, rapports, export pour le comptable) terminée
+
+- Le propriétaire a confirmé que l'acheteur d'une boutique ne crée jamais de compte (déjà prévu, étape 6), puis a dit « tu peux continuer » : **étape 4 validée**.
+- Recherche : `docs/etape-5/01-recherche-accueil-rapports.md`. Bilan : `docs/etape-5/02-bilan.md`.
+- Vérifications : 117 tests unitaires et d'intégration, 53 parcours de bout en bout. `npm audit` signale `picomatch` (ReDoS, aucune version corrigée publiée), tiré par `vitest` et `next-intl` → `@parcel/watcher` ; jamais appelé avec une saisie utilisateur. Ne pas lancer `npm audit fix --force` (il rétrograde vitest) ; mettre à jour dès qu'une correction sort.
+- Choix techniques à connaître pour la suite :
+  - `src/lib/rapports.ts` : tous les calculs, jours à l'heure d'Alger (`AT TIME ZONE 'Africa/Algiers'`), périodes `periode(code)` et `periodeLibre`.
+  - **Marge réelle** = Σ `total_ht` des factures et tickets non annulés (pas de lien `corrige_par`) − Σ `quantite × cout_unitaire` de leurs lignes − Σ `commandes.frais_livraison` des colis expédiés dans la période (livrés ou retournés). Les frais facturés servent de coût de livraison (pas de coût réel par transporteur).
+  - Taux de confirmation = confirmées ÷ (confirmées + annulées avant confirmation) ; taux de livraison = livrées ÷ (livrées + retournées).
+  - Accueil : `chiffresAccueil` ; `nbVentesJour` ne compte que les ventes de la caisse (carte Caisse).
+  - Graphiques : `src/components/Graphiques.tsx`, SVG dessiné par le serveur. **Pas d'attribut `style`** (la CSP l'interdit) : les largeurs passent par des attributs SVG.
+  - Export : `src/lib/export.ts` + route `/rapports/export/archive` (GET, droit `rapports`, journalisé `export.archive`). CSV : BOM UTF-8, `;`, virgule décimale, formules neutralisées par une apostrophe. PDF produits 4 par 4 (≈ 0,1 s chacun) ; 500 documents au plus.
+  - Les en-têtes et noms de fichiers de l'archive viennent de `messages/*.json`, espaces `export` et `pdf`. Le test des traductions exige de l'arabe dans chaque texte arabe : les noms de fichiers arabes sont en arabe.
+  - Sur l'accueil, le choix 7 j / 30 j est un `div role="group"`, pas un `nav` (le test de la barre du bas cherche la seule navigation de la page).
+  - Tests de bout en bout : après le clic sur « داكن », attendre `aria-pressed="true"` avant de changer de page, sinon la capture reste en clair.
+
 ## 17/11/2026 — Étape 4 (commandes à livrer, colis, clients) terminée
 
 - Le propriétaire a demandé de reprendre la branche `claude/adoring-ptolemy-sn6zzz` et de continuer : pris comme la **validation de l'étape 3**. Travail poursuivi sur la branche `claude/vigilant-gates-3k9mjn` (partie de l'étape 3, même historique).

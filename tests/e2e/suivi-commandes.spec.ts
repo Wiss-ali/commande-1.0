@@ -236,6 +236,7 @@ test('les écrans des commandes et des clients en arabe, en thème sombre', asyn
   await expect(nadia.locator('html')).toHaveAttribute('dir', 'rtl');
   await nadia.goto('/plus');
   await nadia.getByRole('button', { name: 'داكن' }).click();
+  await expect(nadia.getByRole('button', { name: 'داكن' })).toHaveAttribute('aria-pressed', 'true');
   const ecrans: [string, string][] = [
     ['/commandes?f=terminees', 'commandes'], ['/commandes/nouvelle', 'commande-nouvelle'], [adresseCommande, 'commande'],
     ['/clients', 'clients'], ['/reglages/livraison', 'livraison'],

@@ -155,6 +155,7 @@ test("l'arabe s'affiche de droite à gauche, et le choix est mémorisé", async 
   // Thème sombre, mémorisé lui aussi.
   await ali.goto('/plus');
   await ali.getByRole('button', { name: 'داكن' }).click();
+  await expect(ali.getByRole('button', { name: 'داكن' })).toHaveAttribute('aria-pressed', 'true');
   await expect(ali.locator('html')).toHaveAttribute('data-theme', 'sombre');
   await ali.goto('/');
   await expect(ali.locator('html')).toHaveAttribute('data-theme', 'sombre');

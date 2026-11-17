@@ -72,7 +72,7 @@ describe('accueil', () => {
     const c = await chez(A, chiffresAccueil);
     // Ventes du jour : caisse 11 000 + factures des commandes (5 500, 5 500, 5 800) ; le ticket annulé s'efface avec son avoir.
     expect(c.ventesJour).toBe(11_000_00 + 5_500_00 + 5_500_00 + 5_800_00 - 5_500_00);
-    expect(c).toMatchObject({ aConfirmer: 1, aExpedier: 0, enRoute: 0, ecarts: 0, caisseNonCloturee: false });
+    expect(c).toMatchObject({ nbVentesJour: 2, aConfirmer: 1, aExpedier: 0, enRoute: 0, ecarts: 0, caisseNonCloturee: false });
     expect(c.stockBas).toBe(1); // le foulard : 1 en stock, seuil 5
     const serie = await chez(A, (trx) => serieVentes(trx, 7));
     expect(serie).toHaveLength(7);

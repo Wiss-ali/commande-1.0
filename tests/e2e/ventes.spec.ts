@@ -383,6 +383,7 @@ test('tous les écrans de la caisse et des factures en arabe, en thème sombre',
   await expect(salim.locator('html')).toHaveAttribute('dir', 'rtl');
   await salim.goto('/plus');
   await salim.getByRole('button', { name: 'داكن' }).click();
+  await expect(salim.getByRole('button', { name: 'داكن' })).toHaveAttribute('aria-pressed', 'true');
   const ecrans: [string, string][] = [
     ['/caisse', 'caisse'], ['/caisse/cloture', 'cloture'], ['/factures', 'factures'], ['/factures?onglet=devis', 'devis-liste'], ['/factures?onglet=autres', 'autres'],
     [adresseFacture, 'facture'], ['/factures/nouveau?type=devis', 'devis-nouveau'], ['/reglages/facturation', 'facturation'],

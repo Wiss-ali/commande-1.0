@@ -263,6 +263,8 @@ export interface SaisieTicket {
   piege: string;
   /** Identifiant de l'appareil (cookie) et adresse tronquée : limite du nombre de tickets. */
   appareil: string;
+  /** Adresse IP tronquée : limite plus large, pour ne pas bloquer un cybercafé ou un réseau mobile partagé. */
+  ip?: string | null;
   libelleLivraison: string;
   cle: string;
 }
@@ -271,6 +273,7 @@ export type RefusTicket = RefusCommande | 'boutique_indisponible' | 'trop_de_tic
 
 export const MAX_TICKETS_TELEPHONE = 3; // par 24 heures et par boutique
 export const MAX_TICKETS_APPAREIL = 5; // par heure et par boutique
+export const MAX_TICKETS_IP = 20; // par heure et par boutique
 
 /**
  * Ticket d'un acheteur sans compte : crée le devis « Boutique en ligne » et la commande « Nouvelle »,
@@ -284,6 +287,7 @@ export async function creerTicket(v: Vitrine, s: SaisieTicket): Promise<{ ok: tr
   if (!telephone) return { ok: false, raison: 'telephone_invalide' };
   if (!s.lignes.length || s.lignes.length > 50) return { ok: false, raison: 'panier_vide' };
   if (!(await autoriser(`ticket-appareil:${v.commercantId}`, s.appareil, MAX_TICKETS_APPAREIL, 3600))) return { ok: false, raison: 'trop_de_tickets' };
+  if (s.ip && !(await autoriser(`ticket-ip:${v.commercantId}`, s.ip, MAX_TICKETS_IP, 3600))) return { ok: false, raison: 'trop_de_tickets' };
   if (!(await autoriser(`ticket-telephone:${v.commercantId}`, telephone, MAX_TICKETS_TELEPHONE, 24 * 3600))) return { ok: false, raison: 'trop_de_tickets' };
   const { jeton, hash } = nouveauJeton();
   return avecCommercant(v.commercantId, async (trx) => {

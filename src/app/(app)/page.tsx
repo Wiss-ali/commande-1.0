@@ -27,7 +27,8 @@ export default async function Accueil({ searchParams }: { searchParams: Promise<
   const a = (x: NomModule) => actifs.includes(x);
   const voitVentes = peut('vendre') && (a('caisse') || a('factures'));
 
-  const { c, serie, margeMois } = await avecCommercant(s.commercant.id, async (trx) => ({
+  const { c, serie, margeMois, enLigne } = await avecCommercant(s.commercant.id, async (trx) => ({
+    enLigne: a('boutique') ? !!(await trx.selectFrom('boutiques').select('en_ligne').executeTakeFirst())?.en_ligne : false,
     c: await chiffresAccueil(trx),
     serie: voitVentes ? await serieVentes(trx, jours) : [],
     margeMois: a('rapports') ? (await rapportMarge(trx, periode('mois'))).marge : null,
@@ -60,8 +61,7 @@ export default async function Accueil({ searchParams }: { searchParams: Promise<
       case 'commandes': return c.aConfirmer ? <Pastille ton="safran">{t('carte.aConfirmer', { n: c.aConfirmer })}</Pastille> : <span className="text-sm text-doux">{t('carte.enRoute', { n: c.enRoute })}</span>;
       case 'clients': return <span className="text-sm text-doux">{t('carte.clients', { n: c.clients })}</span>;
       case 'rapports': return margeMois === null ? null : <span className="text-sm text-doux">{t('carte.marge')} <span className="font-semibold text-encre">{formaterMontant(margeMois, langue)}</span></span>;
-      // La boutique en ligne arrive à l'étape 6 : elle est désactivée tant qu'elle n'est pas mise en ligne.
-      case 'boutique': return <Pastille ton="neutre">{t('carte.boutiqueOff')}</Pastille>;
+      case 'boutique': return enLigne ? <Pastille ton="vert">{t('carte.boutiqueOn')}</Pastille> : <Pastille ton="neutre">{t('carte.boutiqueOff')}</Pastille>;
     }
   };
 

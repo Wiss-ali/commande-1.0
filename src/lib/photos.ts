@@ -63,3 +63,17 @@ export async function lirePhoto(trx: Trx, commercantId: string, photoId: string,
     return null;
   }
 }
+
+/** Image de la boutique (logo, bannière) : rangée comme une photo, sans produit. Renvoie son identifiant. */
+export async function enregistrerImageLibre(trx: Trx, ctx: Contexte, images: Images): Promise<string> {
+  const { id } = await trx.insertInto('photos_produit').values({ commercant_id: ctx.commercantId, produit_id: null }).returning('id').executeTakeFirstOrThrow();
+  await mkdir(join(racine(), ctx.commercantId), { recursive: true });
+  await writeFile(chemin(ctx.commercantId, id, false), images.grande);
+  await writeFile(chemin(ctx.commercantId, id, true), images.petite);
+  return id;
+}
+
+export async function supprimerImageLibre(trx: Trx, ctx: Contexte, photoId: string): Promise<void> {
+  const r = await trx.deleteFrom('photos_produit').where('id', '=', photoId).where('produit_id', 'is', null).returning('id').execute();
+  for (const a of r) await effacerFichiers(ctx.commercantId, a.id);
+}

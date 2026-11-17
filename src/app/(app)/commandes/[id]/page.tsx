@@ -64,6 +64,9 @@ export default async function Commande({ params }: { params: Promise<{ id: strin
             <PastilleCommande statut={c.statut} />
             {c.origine === 'boutique' ? <span className="text-sm text-doux">{t('origineBoutique')}</span> : null}
           </div>
+          <div>
+            {c.statut === 'nouvelle' && c.reservationJusqua ? <p className="text-sm text-doux">{t('reserveJusqua', { date: `${formaterDate(c.reservationJusqua)} ${formaterHeure(c.reservationJusqua)}` })}</p> : null}
+          </div>
           <p className="text-sm text-doux"><span className="chiffres">{formaterDate(c.creeLe)} {formaterHeure(c.creeLe)}</span></p>
           <div className="border-t border-trait pt-2">
             <p className="font-semibold"><Link href={`/clients/${c.client.id}`} className="underline">{c.client.nom}</Link></p>

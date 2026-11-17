@@ -1,9 +1,13 @@
 // En-tête de chaque écran : titre, retour éventuel, et bouton de langue (présent partout).
-import { ArrowLeft, Languages } from 'lucide-react';
+import { ArrowLeft, Bell, Languages } from 'lucide-react';
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { changerLangue } from '@/app/actions/preferences';
+import { avecCommercant } from '@/lib/bd';
+import { compterNonVues } from '@/lib/boutique';
+import { autorise } from '@/lib/droits';
+import { sessionUtilisateur } from '@/lib/web';
 
 // Le nom d'une langue s'écrit toujours dans cette langue : ce n'est pas un texte à traduire.
 const AUTRE = { fr: { code: 'ar', nom: 'العربية' }, ar: { code: 'fr', nom: 'Français' } } as const;
@@ -23,7 +27,21 @@ export async function BoutonLangue() {
   );
 }
 
-export async function EnTete({ titre, retour, fin }: { titre: string; retour?: string; fin?: ReactNode }) {
+/** Cloche des notifications (nouvelles commandes de la boutique), pour les personnes qui vendent. */
+async function Cloche() {
+  const s = await sessionUtilisateur();
+  if (!s?.complete || !autorise(s.utilisateur, 'vendre') || !s.commercant.modules.commandes) return null;
+  const n = await avecCommercant(s.commercant.id, (trx) => compterNonVues(trx, s.utilisateur.id));
+  const t = await getTranslations('notifications');
+  return (
+    <Link href="/notifications" aria-label={t('cloche', { n })} className="relative inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-trait bg-surface">
+      <Bell aria-hidden className="size-5" />
+      {n ? <span className="chiffres absolute -end-1.5 -top-1.5 rounded-full bg-safran px-1.5 text-xs font-bold text-encre">{n > 99 ? '99+' : n}</span> : null}
+    </Link>
+  );
+}
+
+export async function EnTete({ titre, retour, fin, admin }: { titre: string; retour?: string; fin?: ReactNode; admin?: boolean }) {
   const t = await getTranslations('commun');
   return (
     <header className="sticky top-0 z-10 flex min-h-16 items-center gap-2 border-b border-trait bg-surface px-4">
@@ -34,6 +52,7 @@ export async function EnTete({ titre, retour, fin }: { titre: string; retour?: s
       ) : null}
       <h1 className="min-w-0 flex-1 truncate text-lg font-semibold">{titre}</h1>
       {fin}
+      {admin ? null : <Cloche />}
       <BoutonLangue />
     </header>
   );

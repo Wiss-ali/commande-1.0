@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
-import { changerEtat, changerMaxEmployes, lienProprietaire, nouveauLien } from '@/app/actions/admin';
+import { changerEtat, changerMaxEmployes, changerPaiementCarte, lienProprietaire, nouveauLien } from '@/app/actions/admin';
 import { EnTete } from '@/components/EnTete';
 import { Formulaire } from '@/components/Formulaire';
 import { Page } from '@/components/Page';
@@ -19,14 +19,14 @@ export default async function FicheCommercant({ params }: { params: Promise<{ id
   const t = await getTranslations('admin');
   const tr = await getTranslations('roles');
   const tc = await getTranslations('commun');
-  const c = await bd('plateforme').selectFrom('commercants').select(['id', 'nom', 'etat', 'max_employes', 'cree_le']).where('id', '=', id).executeTakeFirst();
+  const c = await bd('plateforme').selectFrom('commercants').select(['id', 'nom', 'etat', 'max_employes', 'cree_le', 'paiement_carte_actif', 'sous_domaine']).where('id', '=', id).executeTakeFirst();
   if (!c) notFound();
   const comptes = await bd('plateforme').selectFrom('utilisateurs').select(['id', 'nom', 'telephone', 'role']).where('commercant_id', '=', id).where('supprime_le', 'is', null).orderBy('cree_le').execute();
   const jours = await reglage('invitation_jours');
   const accepte = comptes.some((u) => u.role === 'proprietaire');
   return (
     <>
-      <EnTete titre={c.nom} retour="/admin" />
+      <EnTete admin titre={c.nom} retour="/admin" />
       <Page>
         <Carte className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-2">
@@ -38,6 +38,18 @@ export default async function FicheCommercant({ params }: { params: Promise<{ id
             <input type="hidden" name="id" value={c.id} />
             <input type="hidden" name="etat" value={c.etat === 'suspendu' ? 'actif' : 'suspendu'} />
             <button type="submit" className={c.etat === 'suspendu' ? classeBouton.secondaire : classeBouton.danger}>{t(c.etat === 'suspendu' ? 'reactiver' : 'suspendre')}</button>
+          </form>
+        </Carte>
+
+        <Carte className="flex flex-col gap-2">
+          <h2 className="font-semibold">{t('boutique')}</h2>
+          <p className="text-sm">{c.sous_domaine ? <a href={`/b/${c.sous_domaine}`} target="_blank" rel="noopener" dir="ltr" className="underline">/b/{c.sous_domaine}</a> : t('boutiqueSansAdresse')}</p>
+          <p className="text-sm">{t(c.paiement_carte_actif ? 'carteActive' : 'carteInactive')}</p>
+          <p className="text-xs text-doux">{t('carteAvertissement')}</p>
+          <form action={changerPaiementCarte}>
+            <input type="hidden" name="id" value={c.id} />
+            <input type="hidden" name="actif" value={c.paiement_carte_actif ? 'non' : 'oui'} />
+            <button type="submit" className={classeBouton.secondaire}>{t(c.paiement_carte_actif ? 'carteDesactiver' : 'carteActiver')}</button>
           </form>
         </Carte>
 

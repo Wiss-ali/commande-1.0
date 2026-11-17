@@ -1,6 +1,16 @@
 // En-têtes de sécurité posés sur chaque page : politique CSP stricte avec un nonce par requête, HSTS, etc.
 import { NextResponse, type NextRequest } from 'next/server';
 
+/** « magasin-ali.mondomaine.dz » → « magasin-ali » ; rien pour le domaine principal ou un autre hôte. */
+export function boutiqueDeHote(hote: string | null): string | null {
+  const domaine = process.env.DOMAINE_BOUTIQUES;
+  if (!domaine || !hote) return null;
+  const h = hote.toLowerCase().replace(/:\d+$/, '');
+  if (!h.endsWith(`.${domaine}`)) return null;
+  const nom = h.slice(0, -domaine.length - 1);
+  return /^[a-z0-9]([a-z0-9-]{1,38}[a-z0-9])$/.test(nom) && nom !== 'www' ? nom : null;
+}
+
 export function proxy(requete: NextRequest) {
   const nonce = btoa(crypto.randomUUID());
   const dev = process.env.NODE_ENV !== 'production';
@@ -25,7 +35,19 @@ export function proxy(requete: NextRequest) {
   const entetes = new Headers(requete.headers);
   entetes.set('x-nonce', nonce);
   entetes.set('Content-Security-Policy', csp);
-  const reponse = NextResponse.next({ request: { headers: entetes } });
+  // Boutique sur son sous-domaine (« nom.mondomaine.dz ») : même application, pages de /b/nom.
+  // Les liens de la boutique sont alors écrits sans le préfixe /b/nom (en-tête x-boutique-base).
+  entetes.delete('x-boutique-base');
+  const sousDomaine = boutiqueDeHote(requete.headers.get('host'));
+  let reponse: NextResponse;
+  if (sousDomaine && !requete.nextUrl.pathname.startsWith('/_next')) {
+    entetes.set('x-boutique-base', '');
+    const cible = requete.nextUrl.clone();
+    cible.pathname = `/b/${sousDomaine}${requete.nextUrl.pathname === '/' ? '' : requete.nextUrl.pathname}`;
+    reponse = NextResponse.rewrite(cible, { request: { headers: entetes } });
+  } else {
+    reponse = NextResponse.next({ request: { headers: entetes } });
+  }
 
   reponse.headers.set('Content-Security-Policy', csp);
   reponse.headers.set('X-Content-Type-Options', 'nosniff');

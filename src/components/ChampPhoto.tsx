@@ -21,7 +21,7 @@ async function reduire(fichier: File): Promise<File> {
   return new File([blob], 'photo.jpg', { type: 'image/jpeg' });
 }
 
-export function ChampPhoto({ actuelle }: { actuelle: string | null }) {
+export function ChampPhoto({ actuelle, nom = 'photo', libelle }: { actuelle: string | null; nom?: string; libelle?: string }) {
   const t = useTranslations('produit');
   const envoi = useRef<HTMLInputElement>(null);
   const [apercu, setApercu] = useState<string | null>(actuelle);
@@ -51,7 +51,7 @@ export function ChampPhoto({ actuelle }: { actuelle: string | null }) {
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-sm font-medium">{t('photo')}</span>
+      <span className="text-sm font-medium">{libelle ?? t('photo')}</span>
       <div className="flex items-center gap-3">
         <span className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-trait bg-creux text-doux">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -65,8 +65,8 @@ export function ChampPhoto({ actuelle }: { actuelle: string | null }) {
           {apercu ? <button type="button" onClick={retirer} className={classeBouton.secondaire}>{t('photoRetirer')}</button> : null}
         </div>
       </div>
-      <input ref={envoi} type="file" name="photo" tabIndex={-1} aria-hidden className="hidden" />
-      {retiree ? <input type="hidden" name="retirerPhoto" value="1" /> : null}
+      <input ref={envoi} type="file" name={nom} tabIndex={-1} aria-hidden className="hidden" />
+      {retiree ? <input type="hidden" name={nom === 'photo' ? 'retirerPhoto' : `retirer_${nom}`} value="1" /> : null}
       {erreur ? <Message ton="erreur">{t('photoIllisible')}</Message> : null}
     </div>
   );

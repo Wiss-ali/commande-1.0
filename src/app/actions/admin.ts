@@ -137,3 +137,31 @@ export const enregistrerTimbre = action(async (f) => {
   revalidatePath('/admin/reglages');
   return { ok: true };
 });
+
+/** Demande d'un commerçant (paiement par carte, site personnalisé) : traitée ou refusée, avec une note. */
+export const traiterDemande = actionSimple(async (f) => {
+  const s = await exigerAdmin();
+  const id = texte(f, 'id', 40);
+  const etat = f.get('etat') === 'refusee' ? 'refusee' : 'traitee';
+  if (!UUID.test(id)) return;
+  const { ip } = await infoRequete();
+  await bd('plateforme').transaction().execute(async (trx) => {
+    const d = await trx.updateTable('demandes').set({ etat, note_admin: texte(f, 'note', 500), traitee_le: new Date() }).where('id', '=', id).where('etat', '=', 'nouvelle').returning('commercant_id').executeTakeFirst();
+    if (d) await journaliser(trx, { commercantId: d.commercant_id, acteurType: 'administrateur', acteurId: s.administrateur.id, action: `demande.${etat}`, objetType: 'demande', objetId: id, ip });
+  });
+  revalidatePath('/admin', 'layout');
+});
+
+/** Seul l'administrateur active le paiement par carte d'un commerçant (aucune passerelle n'est branchée aujourd'hui). */
+export const changerPaiementCarte = actionSimple(async (f) => {
+  const s = await exigerAdmin();
+  const id = texte(f, 'id', 40);
+  if (!UUID.test(id)) return;
+  const actif = f.get('actif') === 'oui';
+  const { ip } = await infoRequete();
+  await bd('plateforme').transaction().execute(async (trx) => {
+    await trx.updateTable('commercants').set({ paiement_carte_actif: actif }).where('id', '=', id).execute();
+    await journaliser(trx, { commercantId: id, acteurType: 'administrateur', acteurId: s.administrateur.id, action: actif ? 'paiement_carte.active' : 'paiement_carte.desactive', objetType: 'commercant', objetId: id, ip });
+  });
+  revalidatePath('/admin', 'layout');
+});

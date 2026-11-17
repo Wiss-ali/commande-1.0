@@ -576,7 +576,8 @@ export async function listerDocuments(trx: Trx, o: { types: readonly TypeDocumen
     .select(['d.id', 'd.type', 'd.annee', 'd.numero', 'd.etat', 'd.origine', 'd.total', 'd.paye_le', 'd.mode_vente', 'd.emis_le', 'c.nom as client'])
     .select((eb) => eb.exists(eb.selectFrom('liens_documents as l').select('l.cible_id').whereRef('l.source_id', '=', 'd.id').where('l.nature', '=', 'corrige_par')).as('annule'))
     .where('d.type', 'in', [...o.types]);
-  if (o.numero) q = q.where('d.numero', '=', o.numero);
+  // Un devis se retrouve aussi par le numéro du ticket (ou de la commande) qu'il porte.
+  if (o.numero) q = q.where((eb) => eb.or([eb('d.numero', '=', o.numero!), eb('d.id', 'in', eb.selectFrom('commandes').select('devis_id').where('numero', '=', o.numero!))]));
   return (await q.orderBy('d.emis_le', 'desc').orderBy('d.numero', 'desc').limit(o.limite).offset(o.decalage ?? 0).execute()) as LigneListe[];
 }
 

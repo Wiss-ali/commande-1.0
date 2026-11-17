@@ -17,7 +17,7 @@ export default async function ReglagesPlateforme() {
   const valeur = (c: number | null | undefined) => (c ? montantPourSaisie(c) : '');
   return (
     <>
-      <EnTete titre={t('titre')} retour="/admin" />
+      <EnTete admin titre={t('titre')} retour="/admin" />
       <Page>
         <Message ton="info">{t('avertissement')}</Message>
         <Carte className="flex flex-col gap-3">

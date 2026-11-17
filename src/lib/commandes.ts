@@ -408,6 +408,7 @@ export interface CommandeComplete {
   total: number;
   tentatives: number;
   dernierAppel: Date | null;
+  reservationJusqua: Date | null;
   transporteur: string | null;
   numeroSuivi: string | null;
   expedieeLe: Date | null;
@@ -434,7 +435,7 @@ export async function lireCommande(trx: Trx, id: string): Promise<CommandeComple
     .leftJoin('transporteurs as t', 't.id', 'c.transporteur_id')
     .select([
       'c.id', 'c.annee', 'c.numero', 'c.statut', 'c.origine', 'c.livraison', 'c.commune', 'c.adresse_chiffre', 'c.frais_livraison', 'c.tentatives_appel',
-      'c.dernier_appel_le', 'c.numero_suivi', 'c.expediee_le', 'c.livree_le', 'c.retournee_le', 'c.note', 'c.cree_le',
+      'c.dernier_appel_le', 'c.reservation_jusqua', 'c.numero_suivi', 'c.expediee_le', 'c.livree_le', 'c.retournee_le', 'c.note', 'c.cree_le',
       'cl.id as client_id', 'cl.nom as client_nom', 'cl.telephone_chiffre',
       'w.code as w_code', 'w.nom_fr as w_fr', 'w.nom_ar as w_ar',
       'dv.id as dv_id', 'dv.annee as dv_annee', 'dv.numero as dv_numero', 'dv.total as dv_total',
@@ -464,7 +465,7 @@ export async function lireCommande(trx: Trx, id: string): Promise<CommandeComple
     client: { id: c.client_id, nom: c.client_nom, telephone: dechiffrerOuNul(c.telephone_chiffre, `clients.telephone:${c.client_id}`) },
     livraison: c.livraison, wilaya: { code: c.w_code, nom_fr: c.w_fr, nom_ar: c.w_ar }, commune: c.commune,
     adresse: c.adresse_chiffre ? dechiffrer(c.adresse_chiffre, `commandes.adresse:${id}`) : null,
-    frais: Number(c.frais_livraison), total: Number(c.f_total ?? c.dv_total), tentatives: c.tentatives_appel, dernierAppel: c.dernier_appel_le,
+    frais: Number(c.frais_livraison), total: Number(c.f_total ?? c.dv_total), tentatives: c.tentatives_appel, dernierAppel: c.dernier_appel_le, reservationJusqua: c.reservation_jusqua,
     transporteur: c.transporteur, numeroSuivi: c.numero_suivi, expedieeLe: c.expediee_le, livreeLe: c.livree_le, retourneeLe: c.retournee_le,
     note: c.note, creeLe: c.cree_le,
     devis: { id: c.dv_id, type: 'devis', annee: c.dv_annee, numero: c.dv_numero },

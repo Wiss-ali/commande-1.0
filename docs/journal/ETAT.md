@@ -1,12 +1,12 @@
 # État du projet
 
-Dernière mise à jour : 17/11/2026, fin de l'étape 6.
+Dernière mise à jour : 17/11/2026, fin de l'étape 7.
 
 ## Où on en est
 
-- **Étapes 0 à 5 : validées** (le propriétaire vérifiera tout à la fin). Bilans dans `docs/etape-N/02-bilan.md`.
-- **Étape 6 (boutique en ligne) : terminée et testée.** Bilan : `docs/etape-6/02-bilan.md`.
-- Prochaine étape : **étape 7, administration de la plateforme** (commerçants, formules, abonnements mensuels ou annuels, paiements reçus hors application, rappels 7 j et 1 j, délai de 5 jours puis lecture seule, revenu du mois, demandes). **À traiter d'abord avec le propriétaire : les modules par abonnement (question 6).**
+- **Étapes 0 à 6 : validées** (le propriétaire vérifiera tout à la fin). Bilans dans `docs/etape-N/02-bilan.md`.
+- **Étape 7 (administration, abonnements) : terminée et testée.** Bilan : `docs/etape-7/02-bilan.md`.
+- Prochaine étape : **étape 8, la dernière** : renforcement de la sécurité (OWASP ASVS niveau 2, Top 10 : ce qui est couvert ou non), tests complets, sauvegardes chiffrées et restauration testée, mise à jour sans coupure et retour arrière, page d'état et alertes, copie de test et site réel, guide pas à pas pour un débutant (louer le serveur, installer, mettre à jour, restaurer, réagir à une alerte), serveur de test pour que le propriétaire essaie sur son téléphone.
 - Branche de travail : `claude/vigilant-gates-3k9mjn`. `main` est en retard : il s'arrête à la fin de l'étape 1 (à mettre à jour quand le propriétaire le confirme).
 
 ## Façon de travailler (décidée par le propriétaire le 16/11/2026)
@@ -19,9 +19,9 @@ Dernière mise à jour : 17/11/2026, fin de l'étape 6.
 
 ## Prochaine action
 
-1. Étape 7 : parler avec le propriétaire des modules par abonnement (question 6), puis recherche (logiciels SaaS algériens, moyens de paiement hors ligne : CCP, BaridiMob, virement), liste, code.
-2. À l'étape 7 : tables `formules`, `abonnements`, `paiements_abonnement` (prévues dans `docs/etape-0/03-schema.md`) ; passage en lecture seule 5 jours après la fin (l'état `lecture_seule` existe déjà et coupe la boutique) ; écran complet des demandes (la liste simple existe dans `/admin`) ; écran d'administration des wilayas.
-3. La page d'attente `src/app/(app)/[module]/page.tsx` ne sert plus à aucun module (tous construits) : à supprimer à l'étape 8.
+1. Étape 8 : recherche (OWASP ASVS 4/5 niveau 2, NIST 800-63B, sauvegardes PostgreSQL chiffrées, Docker en production, hébergeurs en Algérie), liste, puis code et guide.
+2. À faire à l'étape 8 (noté pendant les étapes précédentes) : supprimer la page d'attente `src/app/(app)/[module]/page.tsx` ; programmer `npm run taches` toutes les 5 minutes ; clés VAPID ; DNS et certificat « *.domaine » pour les boutiques ; Chromium dans l'image Docker pour les PDF ; mettre à jour `picomatch` si une correction sort ; mettre `main` à jour avec l'accord du propriétaire.
+3. À la toute fin : une seule liste de vérification pour le propriétaire (tous les « à essayer » des bilans) et toutes les questions ouvertes.
 
 ## Pour reprendre le travail dans un nouveau conteneur
 
@@ -45,7 +45,7 @@ d'installation et serveur de test préparés à l'étape 8 ; 4 → plus tard ; 5
 3. **Comment le propriétaire essaie l'application** : il n'a pas Docker, et l'aperçu de la session précédente ne s'est pas affiché chez lui. Lui proposer : (a) un pas-à-pas pour installer sur son ordinateur (Windows ou Mac), ou (b) avancer une partie de l'étape 8 pour mettre un petit serveur de test en ligne, à essayer sur son vrai téléphone (scan, installation sur l'écran d'accueil). Lui demander son choix.
 4. **Argent reversé par le transporteur** : aujourd'hui, « Livré et payé » marque la facture payée. Faut-il suivre aussi le jour où le transporteur vous reverse l'argent (versements groupés) ?
 5. **Sécurité des dépendances** : `picomatch` a une alerte sans correction publiée (outils de développement seulement) ; à mettre à jour dès que possible.
-6. **Modules par abonnement (à discuter à l'étape 7, demandé par le propriétaire)** : l'administrateur doit pouvoir choisir les modules d'un compte (ex. caisse + factures seulement). Proposition faite : chaque formule contient une liste de modules, réglable aussi commerçant par commerçant ; le commerçant n'allume que ce que sa formule contient ; la fiche produit reste toujours disponible (sinon la caisse n'a rien à vendre). Boutique : option payante ou comprise ? À trancher à l'étape 7.
+6. ~~Modules par abonnement~~ : **tranché le 17/11/2026** (par formule avec retouche ; boutique = module comme les autres) et fait à l'étape 7.
 
 ## Magasin de démonstration
 
@@ -84,5 +84,7 @@ d'installation et serveur de test préparés à l'étape 8 ; 4 → plus tard ; 5
 | `docs/etape-5/02-bilan.md` | Bilan de l'étape 5 : fait, pas fait, à essayer, liens |
 | `docs/etape-6/01-recherche-boutique.md` | Recherche et liste des fonctions de l'étape 6 |
 | `docs/etape-6/02-bilan.md` | Bilan de l'étape 6 : fait, pas fait, à essayer, liens |
+| `docs/etape-7/01-recherche-administration.md` | Recherche et liste des fonctions de l'étape 7 |
+| `docs/etape-7/02-bilan.md` | Bilan de l'étape 7 : fait, pas fait, à essayer, liens |
 | `README.md` | Lancer, vérifier, organisation du code |
 | `docs/journal/JOURNAL.md` | Historique daté |

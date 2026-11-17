@@ -124,7 +124,9 @@
       "marge": "Marge du mois :",
       "boutiqueOff": "Désactivée",
       "boutiqueOn": "En ligne"
-    }
+    },
+    "rappelBientot": "Votre abonnement se termine le {date} ({n, plural, one {dans # jour} other {dans # jours}}). Contactez l'administrateur pour le renouveler.",
+    "rappelDelai": "Votre abonnement est terminé. Le compte passera en lecture seule le {date} : renouvelez-le avant."
   },
   "aVenir": {
     "titre": "Ce module arrive bientôt",
@@ -155,7 +157,9 @@
     "facturation": "Facturation",
     "facturationAide": "TVA, droit de timbre, texte des documents",
     "livraison": "Livraison",
-    "livraisonAide": "Transporteurs et frais par wilaya."
+    "livraisonAide": "Transporteurs et frais par wilaya.",
+    "abonnement": "Abonnement",
+    "abonnementAide": "Formule, date de fin, paiements."
   },
   "entreprise": {
     "titre": "Informations légales",
@@ -196,7 +200,8 @@
   "modulesReglages": {
     "titre": "Modules",
     "aide": "Un module désactivé disparaît des menus. Ses données sont conservées.",
-    "boutiqueNote": "La boutique en ligne s'active ici ; sa mise en ligne se fait dans le module."
+    "boutiqueNote": "La boutique en ligne s'active ici ; sa mise en ligne se fait dans le module.",
+    "nonCompris": "Non compris dans votre abonnement"
   },
   "securite": {
     "titre": "Sécurité",
@@ -273,7 +278,36 @@
     "carteInactive": "Paiement par carte : non autorisé.",
     "carteAvertissement": "Aucune passerelle de paiement n'est branchée : même autorisé, l'acheteur paie à la livraison.",
     "carteDesactiver": "Retirer l'autorisation",
-    "carteActiver": "Autoriser le paiement par carte"
+    "carteActiver": "Autoriser le paiement par carte",
+    "tuile": {
+      "actifs": "Abonnements actifs",
+      "bientot": "Expirent dans 7 jours",
+      "delaiLecture": "Terminés ou en lecture seule",
+      "revenuMois": "Revenu du mois"
+    },
+    "formules": "Formules",
+    "formulesAide": "Prix, durée et modules de chaque formule.",
+    "paiements": "Paiements reçus",
+    "paiementsAide": "{n, plural, =0 {Aucun paiement ce mois-ci} one {# paiement ce mois-ci} other {# paiements ce mois-ci}}",
+    "wilayas": "Wilayas",
+    "wilayasAide": "Liste officielle des 69 wilayas, modifiable.",
+    "filtres": "Filtrer les commerçants",
+    "filtre": {
+      "tous": "Tous",
+      "bientot": "Bientôt",
+      "delai": "En délai",
+      "lecture_seule": "Lecture seule",
+      "sans": "Sans abonnement"
+    },
+    "abonnement": {
+      "actif": "Actif",
+      "bientot": "Se termine bientôt",
+      "delai": "Terminé, délai en cours",
+      "lecture_seule": "Lecture seule",
+      "archive": "Archivé",
+      "sans": "Sans abonnement"
+    },
+    "jusquau": "jusqu'au {date}"
   },
   "erreurs": {
     "identifiants": "Numéro ou mot de passe incorrect.",
@@ -336,7 +370,10 @@
     "boutique_indisponible": "Cette boutique ne prend pas de commande pour le moment.",
     "trop_de_tickets": "Trop de commandes en peu de temps. Appelez directement le vendeur.",
     "refuse": "Commande refusée. Réessayez, ou appelez le vendeur.",
-    "produit_indisponible": "Un article de votre panier n'est plus proposé. Retirez-le puis réessayez."
+    "produit_indisponible": "Un article de votre panier n'est plus proposé. Retirez-le puis réessayez.",
+    "nom_pris": "Ce nom est déjà utilisé.",
+    "duree_invalide": "Durée invalide : un nombre de jours entre 1 et 1100 (30 pour un mois, 365 pour un an).",
+    "date_invalide": "Date invalide (pas de date dans le futur)."
   },
   "pageErreur": {
     "titre": "Quelque chose n'a pas marché",
@@ -823,7 +860,14 @@
     "trancheAide": "Laissez « Jusqu'à » vide pour la dernière tranche (sans limite). Laissez une tranche entièrement vide pour ne pas l'utiliser.",
     "minimum": "Montant minimum (DA)",
     "plafond": "Plafond (DA)",
-    "plafondAide": "Laissez vide s'il n'y a pas de plafond."
+    "plafondAide": "Laissez vide s'il n'y a pas de plafond.",
+    "delaisTitre": "Échéances des abonnements",
+    "grace": "Délai après la fin (jours, accès complet)",
+    "graceAide": "5 jours par défaut, puis lecture seule.",
+    "lecture": "Durée de la lecture seule (jours)",
+    "lectureAide": "90 jours par défaut, puis le compte est archivé. Rien n'est supprimé.",
+    "rappel1": "Premier rappel (jours avant)",
+    "rappel2": "Second rappel (jours avant)"
   },
   "commandes": {
     "titre": "Commandes",
@@ -1246,5 +1290,94 @@
     "carteActive": "Le paiement par carte est autorisé par l'administrateur, mais aucune passerelle n'est encore branchée : le paiement à la livraison reste le seul mode.",
     "carteInactive": "Seul le paiement à la livraison est actif. Le paiement par carte (CIB, Edahabia) s'active sur demande auprès de l'administrateur.",
     "demanderActivation": "Demander l'activation"
+  },
+  "moyens": {
+    "ccp": "CCP",
+    "baridimob": "BaridiMob",
+    "virement": "Virement bancaire",
+    "especes": "Espèces"
+  },
+  "adminFormules": {
+    "titre": "Formules",
+    "texte": "Une formule fixe le prix d'une période, sa durée et les modules compris. Le module Stock est toujours compris : la caisse a besoin des fiches produits.",
+    "nom": "Nom de la formule",
+    "prix": "Prix d'une période (DA)",
+    "duree": "Durée (jours)",
+    "dureeAide": "30 : un mois. 365 : un an.",
+    "modules": "Modules compris",
+    "toujours": "toujours compris",
+    "active": "Proposée aux nouveaux paiements",
+    "activeCourt": "Active",
+    "inactive": "Inactive",
+    "jours": "{n} jours",
+    "aucune": "Aucune formule pour l'instant.",
+    "nouvelle": "Nouvelle formule",
+    "creer": "Créer la formule"
+  },
+  "adminPaiements": {
+    "titre": "Paiements reçus",
+    "mois": "Choisir le mois",
+    "precedent": "Mois précédent",
+    "suivant": "Mois suivant",
+    "total": "{n, plural, =0 {Aucun paiement} one {Total de # paiement} other {Total de # paiements}}",
+    "periode": "Période du {du} au {au}",
+    "videTitre": "Aucun paiement ce mois-ci",
+    "videTexte": "Les paiements se saisissent sur la fiche de chaque commerçant."
+  },
+  "adminWilayas": {
+    "titre": "Wilayas",
+    "texte": "Liste officielle (décret 26-206 pour les wilayas 59 à 69, à vérifier au Journal officiel). Une wilaya décochée n'est plus proposée dans les commandes ; rien n'est supprimé.",
+    "active": "Proposée",
+    "nomFr": "Nom en français",
+    "nomAr": "Nom en arabe"
+  },
+  "adminAbonnement": {
+    "titre": "Abonnement",
+    "formule": "Formule",
+    "periode": "Période en cours",
+    "lectureSeuleLe": "Lecture seule le",
+    "modules": "Modules ouverts",
+    "sans": "Aucun abonnement : tous les modules sont ouverts jusqu'au premier paiement.",
+    "saisirPaiement": "Enregistrer un paiement reçu",
+    "enregistrerPaiement": "Enregistrer le paiement",
+    "paiementOk": "Paiement enregistré, abonnement prolongé.",
+    "jours": "{n} jours",
+    "inactive": "inactive",
+    "montant": "Montant reçu (DA)",
+    "montantAide": "Vide : le prix de la formule.",
+    "moyen": "Moyen de paiement",
+    "recuLe": "Reçu le",
+    "reference": "Référence (numéro du versement)",
+    "note": "Note (facultatif)",
+    "regle": "La nouvelle période commence à la fin de la période en cours (ou aujourd'hui si l'abonnement est terminé depuis plus que le délai). Un paiement enregistré ne se modifie plus.",
+    "creerFormule": "Créez d'abord une formule.",
+    "retoucheTitre": "Modules de ce commerçant",
+    "retoucheTexte": "Par défaut, les modules de sa formule. Vous pouvez en ajouter ou en retirer pour lui seul.",
+    "retouche": {
+      "formule": "Selon la formule",
+      "ajoute": "Ajouté",
+      "retire": "Retiré"
+    },
+    "historique": "Paiements"
+  },
+  "abonnement": {
+    "titre": "Abonnement",
+    "sansFormule": "Pas encore d'abonnement",
+    "sansTexte": "L'administrateur enregistrera votre abonnement à votre premier paiement.",
+    "etat": {
+      "actif": "Actif",
+      "bientot": "Se termine bientôt",
+      "delai": "Terminé, délai en cours",
+      "lecture_seule": "Lecture seule",
+      "archive": "Archivé",
+      "sans": "Sans abonnement"
+    },
+    "periode": "Du {du} au {au}",
+    "restant": "{n, plural, one {Encore # jour} other {Encore # jours}}",
+    "delai": "Votre abonnement est terminé. Le compte passera en lecture seule le {date}.",
+    "lectureSeule": "Compte en lecture seule : vos données restent consultables et exportables. Un paiement le rouvre.",
+    "modulesTitre": "Modules compris",
+    "renouveler": "Pour renouveler ou changer de formule, payez par CCP, BaridiMob, virement ou en espèces, puis prévenez l'administrateur : il enregistre le paiement et votre abonnement est prolongé.",
+    "paiements": "Vos paiements"
   }
 }

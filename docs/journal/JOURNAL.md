@@ -2,6 +2,17 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 17/11/2026 — Étape 7 (administration, abonnements) terminée
+
+- Recherche : `docs/etape-7/01-recherche-administration.md`. Bilan : `docs/etape-7/02-bilan.md`.
+- Vérifications : 140 tests unitaires et d'intégration, 69 parcours de bout en bout.
+- Choix techniques à connaître pour la suite :
+  - Migration `0008_abonnements` : `formules` (prix, `duree_jours`, `modules` jsonb), `paiements_abonnement` (montant, moyen, `recu_le`, référence), `abonnements` (une période par paiement : `debut`, `fin`), colonnes `commercants.modules_ajoutes` et `modules_retires`, réglages `delai_grace_jours`, `lecture_seule_jours`, `rappel_jours_1`, `rappel_jours_2`. Paiements et périodes figés (déclencheur `ligne_figee`).
+  - `src/lib/abonnements.ts` : `etatDepuisFin` (la date `fin` est le premier jour sans accès payé ; puis délai, lecture seule, archivé), `etatEffectif` (suspension prioritaire), `modulesAutorises` (formule + ajouts − retraits, Stock toujours ; null = pas d'abonnement = tout), `situation(via, id)`.
+  - **L'état et les modules sont recalculés à chaque requête** dans `trouverSession` (rôle `auth`), à la connexion (`comptes.ts`) et dans `trouverBoutique`. `s.commercant.modules` = choix du commerçant ∧ autorisés. `appliquerEcheances` (tableau d'administration et `npm run taches`) recopie l'état dans `commercants.etat`.
+  - Les dates `date` sont lues avec `to_char(..., 'YYYY-MM-DD')` (jamais en objet Date, pour éviter les décalages de fuseau).
+  - Tests de bout en bout : `suivi-abonnements.spec.ts` crée son propre administrateur et active sa double authentification. Dans `parcours.spec.ts`, le bouton du barème du timbre est maintenant cherché dans son formulaire (la page des réglages en a deux).
+
 ## 17/11/2026 — Décision du propriétaire : modules par abonnement
 
 - **Modules par formule, avec retouche** : chaque formule contient une liste de modules ; l'administrateur peut en ajouter ou en retirer pour un commerçant précis ; le commerçant n'allume que ce que son abonnement contient.

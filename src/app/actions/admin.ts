@@ -3,7 +3,10 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { action, actionSimple, secret, texte } from '@/lib/actions';
+import { enregistrerFormule, enregistrerPaiement, MOYENS, retoucherModules } from '@/lib/abonnements';
 import { bd } from '@/lib/bd';
+import { MODULES } from '@/lib/droits';
+import type { MoyenPaiement, NomModule } from '@/lib/types-bd';
 import { activerTotp, connecterAdmin, preparerTotp, verifierCode } from '@/lib/comptes';
 import { schemaBaremeTimbre } from '@/lib/fiscal';
 import { analyserMontant, normaliserTelephone } from '@/lib/formats';
@@ -164,4 +167,104 @@ export const changerPaiementCarte = actionSimple(async (f) => {
     await journaliser(trx, { commercantId: id, acteurType: 'administrateur', acteurId: s.administrateur.id, action: actif ? 'paiement_carte.active' : 'paiement_carte.desactive', objetType: 'commercant', objetId: id, ip });
   });
   revalidatePath('/admin', 'layout');
+});
+
+
+// ───────────── Abonnements ─────────────
+
+const modulesCoches = (f: FormData, prefixe: string): NomModule[] => MODULES.filter((m) => f.get(`${prefixe}${m}`) === 'on');
+
+/** Crée ou modifie une formule : nom, prix, durée en jours, modules compris, active. */
+export const sauverFormule = action(async (f) => {
+  const s = await exigerAdmin();
+  const prix = analyserMontant(texte(f, 'prix', 20));
+  if (prix === null) return { erreur: 'montant_invalide' };
+  const duree = texte(f, 'duree', 5);
+  const id = texte(f, 'id', 40);
+  const r = await enregistrerFormule(bd('plateforme'), {
+    id: UUID.test(id) ? id : undefined, nom: texte(f, 'nom', 60), prix, dureeJours: /^\d{1,4}$/.test(duree) ? Number(duree) : 0,
+    modules: modulesCoches(f, 'module_'), active: f.get('active') === 'on',
+  });
+  if (!r.ok) return { erreur: r.raison };
+  const { ip } = await infoRequete();
+  await journaliser(bd('plateforme'), { commercantId: null, acteurType: 'administrateur', acteurId: s.administrateur.id, action: id ? 'formule.modifiee' : 'formule.creee', objetType: 'formule', objetId: r.id, ip });
+  revalidatePath('/admin', 'layout');
+  return { ok: true };
+});
+
+/** Paiement reçu hors de l'application (CCP, BaridiMob, virement, espèces) : prolonge l'abonnement. */
+export const saisirPaiement = action(async (f) => {
+  const s = await exigerAdmin();
+  const commercantId = texte(f, 'id', 40);
+  const formuleId = texte(f, 'formule', 40);
+  if (!UUID.test(commercantId) || !UUID.test(formuleId)) return { erreur: 'champ_requis' };
+  const saisi = texte(f, 'montant', 20);
+  const montant = saisi ? analyserMontant(saisi) : undefined;
+  if (montant === null) return { erreur: 'montant_invalide' };
+  const moyen = MOYENS.find((m) => m === f.get('moyen')) as MoyenPaiement | undefined;
+  if (!moyen) return { erreur: 'champ_requis' };
+  const { ip } = await infoRequete();
+  const r = await bd('plateforme').transaction().execute(async (trx) => {
+    const fait = await enregistrerPaiement(trx, s.administrateur.id, { commercantId, formuleId, montant, moyen, recuLe: texte(f, 'recuLe', 10), reference: texte(f, 'reference', 80), note: texte(f, 'note', 300) });
+    if (fait.ok) await journaliser(trx, { commercantId, acteurType: 'administrateur', acteurId: s.administrateur.id, action: 'abonnement.paiement', objetType: 'commercant', objetId: commercantId, details: { moyen, fin: fait.fin }, ip });
+    return fait;
+  });
+  if (!r.ok) return { erreur: r.raison };
+  revalidatePath('/admin', 'layout');
+  return { ok: true };
+});
+
+/** Retouche des modules d'un commerçant : « selon la formule », « ajouté » ou « retiré », module par module. */
+export const retoucherModulesCommercant = action(async (f) => {
+  const s = await exigerAdmin();
+  const id = texte(f, 'id', 40);
+  if (!UUID.test(id)) return { erreur: 'champ_requis' };
+  const ajoutes = MODULES.filter((m) => f.get(`retouche_${m}`) === 'ajoute');
+  const retires = MODULES.filter((m) => f.get(`retouche_${m}`) === 'retire');
+  await retoucherModules(bd('plateforme'), id, ajoutes, retires);
+  const { ip } = await infoRequete();
+  await journaliser(bd('plateforme'), { commercantId: id, acteurType: 'administrateur', acteurId: s.administrateur.id, action: 'abonnement.modules', details: { ajoutes: ajoutes.join(','), retires: retires.join(',') }, ip });
+  revalidatePath('/admin', 'layout');
+  return { ok: true };
+});
+
+/** Délais : accès complet après la fin, durée de la lecture seule avant archivage, jours des rappels. */
+export const enregistrerDelais = action(async (f) => {
+  const s = await exigerAdmin();
+  const lire = (nom: string, min: number, max: number) => {
+    const v = texte(f, nom, 4);
+    return /^\d{1,4}$/.test(v) && Number(v) >= min && Number(v) <= max ? Number(v) : null;
+  };
+  const valeurs = { delai_grace_jours: lire('grace', 0, 60), lecture_seule_jours: lire('lecture', 1, 3650), rappel_jours_1: lire('rappel1', 1, 60), rappel_jours_2: lire('rappel2', 0, 60) };
+  if (Object.values(valeurs).some((v) => v === null)) return { erreur: 'champ_requis' };
+  await bd('plateforme').transaction().execute(async (trx) => {
+    for (const [cle, valeur] of Object.entries(valeurs)) {
+      await trx.updateTable('reglages_plateforme').set({ valeur: JSON.stringify(valeur), modifie_le: new Date() }).where('cle', '=', cle).execute();
+    }
+    const { ip } = await infoRequete();
+    await journaliser(trx, { commercantId: null, acteurType: 'administrateur', acteurId: s.administrateur.id, action: 'abonnement.delais', details: valeurs as Record<string, number>, ip });
+  });
+  oublierReglages();
+  revalidatePath('/admin', 'layout');
+  return { ok: true };
+});
+
+/** Liste officielle des wilayas : noms et état, modifiables (ex. publication au Journal officiel). */
+export const enregistrerWilayas = action(async (f) => {
+  const s = await exigerAdmin();
+  const wilayas = await bd('plateforme').selectFrom('wilayas').select(['code']).execute();
+  const lignes: { code: number; fr: string; ar: string; active: boolean }[] = [];
+  for (const { code } of wilayas) {
+    const fr = texte(f, `fr_${code}`, 60);
+    const ar = texte(f, `ar_${code}`, 60);
+    if (!fr || !ar) return { erreur: 'champ_requis' };
+    lignes.push({ code, fr, ar, active: f.get(`active_${code}`) === 'on' });
+  }
+  await bd('plateforme').transaction().execute(async (trx) => {
+    for (const l of lignes) await trx.updateTable('wilayas').set({ nom_fr: l.fr, nom_ar: l.ar, active: l.active }).where('code', '=', l.code).execute();
+    const { ip } = await infoRequete();
+    await journaliser(trx, { commercantId: null, acteurType: 'administrateur', acteurId: s.administrateur.id, action: 'wilayas.modifiees', ip });
+  });
+  revalidatePath('/admin/wilayas');
+  return { ok: true };
 });

@@ -305,14 +305,14 @@ test("l'administrateur saisit le barème du droit de timbre : aucune valeur n'es
   await admin.getByRole('link', { name: /Réglages fiscaux/ }).click();
   await expect(admin.getByLabel("Exonéré jusqu'à (DA)")).toHaveValue(''); // vide au départ : aucun timbre
   await admin.getByLabel('DA par tranche de 100 DA').first().fill('abc');
-  await admin.getByRole('button', { name: 'Enregistrer' }).click();
+  await admin.locator('form', { hasText: 'Tranche 1' }).getByRole('button', { name: 'Enregistrer' }).click();
   await expect(admin.locator('p[role=alert]')).toContainText('Prix invalide');
   await admin.getByLabel("Exonéré jusqu'à (DA)").fill('300');
   await admin.getByLabel("Jusqu'à (DA)").first().fill('30000');
   await admin.getByLabel('DA par tranche de 100 DA').first().fill('1');
   await admin.getByLabel('DA par tranche de 100 DA').nth(1).fill('1,5');
   await admin.getByLabel('Montant minimum (DA)').fill('5');
-  await admin.getByRole('button', { name: 'Enregistrer' }).click();
+  await admin.locator('form', { hasText: 'Tranche 1' }).getByRole('button', { name: 'Enregistrer' }).click();
   await expect(admin.getByText('Modifications enregistrées.')).toBeVisible();
   await sansDebordement(admin);
   await admin.reload();
@@ -322,7 +322,7 @@ test("l'administrateur saisit le barème du droit de timbre : aucune valeur n'es
   for (const champ of ["Exonéré jusqu'à (DA)", 'Montant minimum (DA)']) await admin.getByLabel(champ).fill('');
   for (const i of [0, 1]) await admin.getByLabel('DA par tranche de 100 DA').nth(i).fill('');
   await admin.getByLabel("Jusqu'à (DA)").first().fill('');
-  await admin.getByRole('button', { name: 'Enregistrer' }).click();
+  await admin.locator('form', { hasText: 'Tranche 1' }).getByRole('button', { name: 'Enregistrer' }).click();
   await expect(admin.getByText('Modifications enregistrées.')).toBeVisible();
 });
 

@@ -1,7 +1,9 @@
 // Tâches périodiques (à lancer toutes les 5 minutes, par exemple avec cron ou un minuteur systemd) :
 //  - tickets de la boutique non confirmés à temps : devis expiré, stock libéré, commande annulée ;
+//  - échéances des abonnements : lecture seule après le délai, archivage après la lecture seule ;
 //  - nettoyage des compteurs de limite de débit.
 // Les mêmes expirations ont aussi lieu à chaque lecture du catalogue : cette tâche les rend ponctuelles.
+import { appliquerEcheances } from '../src/lib/abonnements.ts';
 import { avecCommercant, bd, fermerBD } from '../src/lib/bd.ts';
 import { contexteBoutique } from '../src/lib/boutique.ts';
 import { expirerTickets } from '../src/lib/commandes.ts';
@@ -16,6 +18,7 @@ for (const { id } of commercants) {
     // Commerçant sans propriétaire (invitation pas encore acceptée) : rien à expirer.
   }
 }
+const comptes = await appliquerEcheances(bd('plateforme'));
 await purgerLimites();
-console.log(`Tickets expirés : ${expires}`);
+console.log(`Tickets expirés : ${expires} · Comptes changés d'état : ${comptes}`);
 await fermerBD();

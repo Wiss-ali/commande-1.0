@@ -1,12 +1,12 @@
 import { getTranslations } from 'next-intl/server';
-import { enregistrerTimbre } from '@/app/actions/admin';
+import { enregistrerDelais, enregistrerTimbre } from '@/app/actions/admin';
 import { EnTete } from '@/components/EnTete';
 import { Formulaire } from '@/components/Formulaire';
 import { Page } from '@/components/Page';
 import { Carte, Champ, Message } from '@/components/ui';
 import { lireBaremeTimbre } from '@/lib/fiscal';
 import { montantPourSaisie } from '@/lib/formats';
-import { reglageBrut } from '@/lib/reglages-plateforme';
+import { reglage, reglageBrut } from '@/lib/reglages-plateforme';
 import { exigerAdmin } from '@/lib/web';
 
 export default async function ReglagesPlateforme() {
@@ -19,6 +19,17 @@ export default async function ReglagesPlateforme() {
     <>
       <EnTete admin titre={t('titre')} retour="/admin" />
       <Page>
+        <Carte className="flex flex-col gap-3">
+          <h2 className="font-semibold">{t('delaisTitre')}</h2>
+          <Formulaire action={enregistrerDelais} bouton={tc('enregistrer')} succes={tc('enregistre')} garder>
+            <Champ libelle={t('grace')} name="grace" defaultValue={String(await reglage('delai_grace_jours'))} inputMode="numeric" dir="ltr" maxLength={3} aide={t('graceAide')} />
+            <Champ libelle={t('lecture')} name="lecture" defaultValue={String(await reglage('lecture_seule_jours'))} inputMode="numeric" dir="ltr" maxLength={4} aide={t('lectureAide')} />
+            <div className="grid grid-cols-2 gap-3">
+              <Champ libelle={t('rappel1')} name="rappel1" defaultValue={String(await reglage('rappel_jours_1'))} inputMode="numeric" dir="ltr" maxLength={2} />
+              <Champ libelle={t('rappel2')} name="rappel2" defaultValue={String(await reglage('rappel_jours_2'))} inputMode="numeric" dir="ltr" maxLength={2} />
+            </div>
+          </Formulaire>
+        </Carte>
         <Message ton="info">{t('avertissement')}</Message>
         <Carte className="flex flex-col gap-3">
           <h2 className="font-semibold">{t('timbreTitre')}</h2>

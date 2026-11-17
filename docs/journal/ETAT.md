@@ -21,7 +21,7 @@ Dernière mise à jour : 17/11/2026, fin de l'étape 6.
 
 1. Étape 7 : parler avec le propriétaire des modules par abonnement (question 6), puis recherche (logiciels SaaS algériens, moyens de paiement hors ligne : CCP, BaridiMob, virement), liste, code.
 2. À l'étape 7 : tables `formules`, `abonnements`, `paiements_abonnement` (prévues dans `docs/etape-0/03-schema.md`) ; passage en lecture seule 5 jours après la fin (l'état `lecture_seule` existe déjà et coupe la boutique) ; écran complet des demandes (la liste simple existe dans `/admin`) ; écran d'administration des wilayas.
-3. La page d'attente `src/app/(app)/[module]/page.tsx` ne servent plus à aucun module (tous construits) : à supprimer à l'étape 8.
+3. La page d'attente `src/app/(app)/[module]/page.tsx` ne sert plus à aucun module (tous construits) : à supprimer à l'étape 8.
 
 ## Pour reprendre le travail dans un nouveau conteneur
 

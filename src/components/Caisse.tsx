@@ -222,7 +222,7 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
         )
       ) : null}
       {scan ? <Scanner onCode={surCode} /> : null}
-      <div aria-live="polite">{message ? <Message ton={message.ton}>{message.texte}</Message> : null}</div>
+      <div aria-live="polite">{message && !paiement ? <Message ton={message.ton}>{message.texte}</Message> : null}</div>
 
       {lignes.length ? (
         <ul className="flex flex-col gap-2">
@@ -251,7 +251,7 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
           <p className="text-sm text-doux">{t('total')}</p>
           <p className="text-2xl font-bold">{formaterMontant(total, langue)}</p>
         </div>
-        <button type="button" disabled={!lignes.length} onClick={() => setPaiement(true)} className={`${classeBouton.principal} w-auto px-6`}>{t('encaisser')}</button>
+        <button type="button" disabled={!lignes.length} onClick={() => setPaiement(true)} className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-lg bg-vert px-6 text-base font-semibold text-sur-vert disabled:opacity-60">{t('encaisser')}</button>
       </div>
 
       {paiement ? (

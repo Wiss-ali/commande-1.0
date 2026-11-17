@@ -7,6 +7,9 @@ const DEFAUTS = {
   mdp_min_administrateur: 15,
   session_jours_utilisateur: 30,
   session_heures_administrateur: 12,
+  // Déconnexion après une période sans activité.
+  inactivite_heures_utilisateur: 168,
+  inactivite_minutes_administrateur: 60,
   invitation_jours: 7,
   connexion_echecs_max: 5,
   connexion_blocage_minutes: 15,

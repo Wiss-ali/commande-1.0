@@ -2,6 +2,27 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 17/11/2026 — Étape 8 (sécurité, installation, exploitation) terminée — fin du projet en 8 étapes
+
+- Le propriétaire a dit « continue » : **étape 7 validée** (il vérifiera tout à la fin).
+- Recherche : `docs/etape-8/01-recherche-securite-exploitation.md`. ASVS et Top 10 : `docs/etape-8/03-asvs.md`. Bilan : `docs/etape-8/02-bilan.md`. Guide : `docs/GUIDE-INSTALLATION.md`. Vérification finale et questions : `docs/VERIFICATION-FINALE.md`.
+- **Écart signalé au propriétaire** : NIST 800-63B rév. 4 (juillet 2025) demande 15 caractères pour un mot de passe utilisé seul ; les commerçants ont 8 caractères sans double authentification imposée (son choix). Question posée dans la vérification finale.
+- Vérifications : 142 tests unitaires et d'intégration, 74 parcours de bout en bout, plus l'installation réelle avec Docker (voir ci-dessous).
+- Choix techniques à connaître :
+  - Migration `0009_exploitation` : `clients.supprime_le` (suppression des données d'un client à sa demande), réglage `conservation_ans`.
+  - `/etat` : `{"etat":"ok"}` (200) ou `"erreur"` (503) ; détail avec `Authorization: Bearer $ETAT_JETON` ; `?base` = santé du conteneur (sans la sauvegarde). La sauvegarde est jugée en panne au-delà de 26 heures (si `DOSSIER_SAUVEGARDES` est réglé).
+  - `/api/tls-autorise?domain=` : point « ask » de Caddy (On-Demand TLS) ; 200 seulement pour un sous-domaine de boutique existant.
+  - Connexion TLS à la base : `src/lib/ssl-base.ts` (`DATABASE_SSL=require` + `DATABASE_SSL_CA`), utilisée par l'application et tous les scripts.
+  - Déconnexion après inactivité (`inactivite_heures_utilisateur` 168, `inactivite_minutes_administrateur` 60) dans `trouverSession`.
+  - **Déploiement** (`deploiement/`) : `installer.sh` (proxy, environnements, cron), `deployer.sh` (construction, sauvegarde, migrations par le service `outils`, puis `app_vert` et `app_bleu` l'un après l'autre avec attente de santé ; retour automatique ; `retour`), `restaurer.sh` (vérifie les empreintes, demande « OUI » ; `--cles-de prod` pour la copie de test), `sauvegarde.sh` (gpg à clé publique, `derniere.json`), `surveiller.sh`, `copier-sauvegardes.sh`, `outils.sh`. Secrets dans `deploiement/secrets/` (ignoré par git).
+  - Caddy : sites exacts pour le domaine et `test.domaine`, puis un site `https://` (tout le reste) en `on_demand` : un site `*.domaine` en `on_demand` volait le certificat de `test.domaine`.
+  - Seul le service `outils` reçoit le mot de passe du super-utilisateur et du propriétaire de la base ; l'application n'a que ses trois rôles.
+  - Les scripts montés dans un conteneur (fichier unique) ne sont relus qu'à sa recréation : `deployer.sh` recrée `taches` et `sauvegarde` à chaque fois.
+  - Dockerfile : `ARG BASE_EXECUTION` (défaut `node:22-slim` + Chromium Debian), `INSTALLER_CHROMIUM`, `CHEMIN_CHROMIUM`, `USAGER` ; secret de construction facultatif `ca_proxy` (proxy d'entreprise). `OPTIONS_CONSTRUCTION` dans `deployer.sh` passe des options à `docker build`.
+  - **Essai dans l'environnement de travail** : `dockerd` lancé à la main ; Docker Hub limité → images par `mirror.gcr.io` ; dépôts Debian bloqués → image de base `mcr.microsoft.com/playwright:v1.65.1-noble` (Chromium inclus, utilisateur `pwuser`). Résultats : HTTPS et en-têtes ✅, sous-domaine de boutique ✅, PDF arabe dans le conteneur ✅, 381 visites pendant une mise à jour sans erreur ✅, retour arrière sans erreur ✅, sauvegarde et restauration (base + photos) ✅, restauration du site réel sur la copie de test avec lecture des données chiffrées ✅, alertes panne / rétabli ✅.
+  - Parcours de bout en bout : une fois sur trois lancements complets, `ventes.spec.ts` a vu deux réponses 404 sur des pages `/factures/<id>` (non reproduit ensuite, ni seul). Un journal des réponses 404 est ajouté au test (« 404 → adresse ») pour identifier la cause si cela revient.
+  - Défauts trouvés par ces essais et corrigés : collision de deux sauvegardes dans la même minute (effaçait la première), empreintes avec chemins internes, script de sauvegarde pas rechargé, certificat de la copie de test, droits de fichiers trop ouverts.
+
 ## 17/11/2026 — Étape 7 (administration, abonnements) terminée
 
 - Recherche : `docs/etape-7/01-recherche-administration.md`. Bilan : `docs/etape-7/02-bilan.md`.

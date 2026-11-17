@@ -14,6 +14,8 @@ const problemes: string[] = [];
 let horsLigne = false;
 async function ouvrir(browser: Browser): Promise<Page> {
   const page = await (await browser.newContext()).newPage();
+  // Diagnostic : une réponse 404 inattendue a été vue une fois, sans pouvoir la reproduire. Son adresse est affichée.
+  page.on('response', (r) => { if (r.status() === 404) console.log('404 →', r.url(), 'depuis', page.url()); });
   page.on('console', (m) => {
     // Pendant la coupure simulée, les chargements ratés sont attendus.
     if (m.type() === 'error' && !horsLigne) problemes.push(`${page.url()} : ${m.text()}`);

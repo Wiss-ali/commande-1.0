@@ -1,13 +1,13 @@
 # État du projet
 
-Dernière mise à jour : 17/11/2026, fin de l'étape 7.
+Dernière mise à jour : 17/11/2026, fin de l'étape 8 (dernière étape du plan).
 
 ## Où on en est
 
-- **Étapes 0 à 6 : validées** (le propriétaire vérifiera tout à la fin). Bilans dans `docs/etape-N/02-bilan.md`.
-- **Étape 7 (administration, abonnements) : terminée et testée.** Bilan : `docs/etape-7/02-bilan.md`.
-- Prochaine étape : **étape 8, la dernière** : renforcement de la sécurité (OWASP ASVS niveau 2, Top 10 : ce qui est couvert ou non), tests complets, sauvegardes chiffrées et restauration testée, mise à jour sans coupure et retour arrière, page d'état et alertes, copie de test et site réel, guide pas à pas pour un débutant (louer le serveur, installer, mettre à jour, restaurer, réagir à une alerte), serveur de test pour que le propriétaire essaie sur son téléphone.
-- Branche de travail : `claude/vigilant-gates-3k9mjn`. `main` est en retard : il s'arrête à la fin de l'étape 1 (à mettre à jour quand le propriétaire le confirme).
+- **Les 8 étapes sont construites et testées.** Étapes 0 à 7 validées par le propriétaire ; il a choisi de tout vérifier à la fin.
+- **Étape 8 (sécurité, installation, exploitation) : terminée.** Bilan : `docs/etape-8/02-bilan.md`.
+- **À faire par le propriétaire maintenant** : `docs/VERIFICATION-FINALE.md` (tout ce qu'il faut essayer, et les questions à trancher), en installant d'abord le serveur avec `docs/GUIDE-INSTALLATION.md`.
+- Branche de travail : `claude/vigilant-gates-3k9mjn`. **`main` est en retard** (fin de l'étape 1) ; le guide installe depuis `main` : à mettre à jour avec l'accord du propriétaire (question 5 de la vérification finale).
 
 ## Façon de travailler (décidée par le propriétaire le 16/11/2026)
 
@@ -19,9 +19,9 @@ Dernière mise à jour : 17/11/2026, fin de l'étape 7.
 
 ## Prochaine action
 
-1. Étape 8 : recherche (OWASP ASVS 4/5 niveau 2, NIST 800-63B, sauvegardes PostgreSQL chiffrées, Docker en production, hébergeurs en Algérie), liste, puis code et guide.
-2. À faire à l'étape 8 (noté pendant les étapes précédentes) : supprimer la page d'attente `src/app/(app)/[module]/page.tsx` ; programmer `npm run taches` toutes les 5 minutes ; clés VAPID ; DNS et certificat « *.domaine » pour les boutiques ; Chromium dans l'image Docker pour les PDF ; mettre à jour `picomatch` si une correction sort ; mettre `main` à jour avec l'accord du propriétaire.
-3. À la toute fin : une seule liste de vérification pour le propriétaire (tous les « à essayer » des bilans) et toutes les questions ouvertes.
+1. Obtenir les réponses du propriétaire aux questions de `docs/VERIFICATION-FINALE.md` (en particulier : mettre `main` à jour, longueur des mots de passe des commerçants).
+2. Aider le propriétaire à louer le serveur et à suivre le guide ; corriger ce que l'installation réelle révèle (image Debian + Chromium, Let's Encrypt, second serveur, notifications sur un vrai téléphone).
+3. Puis, selon ses retours : avoir partiel, versements du transporteur, facture d'abonnement, rappels par SMS, script de re-chiffrement des données, alertes sur comportements suspects, liste des communes.
 
 ## Pour reprendre le travail dans un nouveau conteneur
 
@@ -36,6 +36,8 @@ npm run verifier                     # tout doit passer avant de continuer
 ```
 
 ## Questions ouvertes pour le propriétaire (réponses attendues à la fin, choix par défaut en attendant)
+
+La liste à jour et complète est dans `docs/VERIFICATION-FINALE.md` (section « Questions à trancher »). Ci-dessous, l'historique.
 
 Choix par défaut appliqués : 1 → rien n'est ajouté tant que ce n'est pas saisi ; 2 → plus tard ; 3 → guide
 d'installation et serveur de test préparés à l'étape 8 ; 4 → plus tard ; 5 → mise à jour dès qu'une correction sort.
@@ -63,7 +65,7 @@ d'installation et serveur de test préparés à l'étape 8 ; 4 → plus tard ; 5
 - Texte exact de l'article 10 du Code de commerce (inventaire annuel) ; état actuel de l'obligation du code-barres ; arrêté sur l'affichage des prix.
 - Essai du scan sur de vrais téléphones (Android et iPhone), en HTTPS.
 - Mentions complètes de la facture (cachet, signature, capital social), règles de l'avoir, timbre sur les tickets de caisse : à confirmer avec un comptable.
-- Production des PDF dans l'image Docker (Chromium installé par le Dockerfile, non testé).
+- Image Docker avec le Chromium de Debian (essayée ici avec une image de base équivalente, car les dépôts Debian sont bloqués dans l'environnement de travail).
 - Notifications sur un vrai téléphone (Android et iPhone installé), avec des clés VAPID sur le serveur réel.
 - Sous-domaines des boutiques : DNS et certificat « *.domaine » à l'installation.
 
@@ -86,5 +88,11 @@ d'installation et serveur de test préparés à l'étape 8 ; 4 → plus tard ; 5
 | `docs/etape-6/02-bilan.md` | Bilan de l'étape 6 : fait, pas fait, à essayer, liens |
 | `docs/etape-7/01-recherche-administration.md` | Recherche et liste des fonctions de l'étape 7 |
 | `docs/etape-7/02-bilan.md` | Bilan de l'étape 7 : fait, pas fait, à essayer, liens |
+| `docs/etape-8/01-recherche-securite-exploitation.md` | Recherche de l'étape 8 |
+| `docs/etape-8/02-bilan.md` | Bilan de l'étape 8 : installation essayée, défauts corrigés |
+| `docs/etape-8/03-asvs.md` | Sécurité : OWASP ASVS niveau 2 et Top 10, couvert ou non |
+| `docs/GUIDE-INSTALLATION.md` | Guide pas à pas : louer, installer, mettre à jour, restaurer, alertes |
+| `docs/VERIFICATION-FINALE.md` | Tout ce que le propriétaire doit essayer, et les questions à trancher |
+| `deploiement/` | Fichiers et scripts de production (Docker, Caddy, sauvegardes, mise à jour) |
 | `README.md` | Lancer, vérifier, organisation du code |
 | `docs/journal/JOURNAL.md` | Historique daté |

@@ -64,6 +64,13 @@ export async function trouverSession(jeton: string): Promise<Session | null> {
     .executeTakeFirst();
   if (!s) return null;
 
+  // Inactivité trop longue : la session est fermée (1 heure pour l'administrateur, 7 jours pour un commerçant, réglables).
+  const inactivite = s.administrateur_id ? (await reglage('inactivite_minutes_administrateur')) * 60_000 : (await reglage('inactivite_heures_utilisateur')) * 3_600_000;
+  if (Date.now() - s.vue_le.getTime() > inactivite) {
+    await bd('auth').deleteFrom('sessions').where('id', '=', s.id).execute();
+    return null;
+  }
+
   // Dernière activité : mise à jour au plus toutes les cinq minutes.
   if (Date.now() - s.vue_le.getTime() > 300_000) {
     await bd('auth').updateTable('sessions').set({ vue_le: new Date() }).where('id', '=', s.id).execute();

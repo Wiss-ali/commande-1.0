@@ -33,6 +33,13 @@ Les tests utilisent une base séparée (`hanout_test`), recréée à chaque lanc
 
 Les photos des produits sont rangées dans le dossier `DOSSIER_FICHIERS` (par défaut `./donnees`), à sauvegarder avec la base.
 
+## Mettre en ligne (production)
+
+Tout est dans `deploiement/` et expliqué pas à pas, pour un débutant, dans **`docs/GUIDE-INSTALLATION.md`** :
+Caddy (HTTPS automatique, boutiques en sous-domaine), site réel et copie de test sur le même serveur,
+sauvegardes chiffrées chaque nuit et restauration, mise à jour sans coupure (`deploiement/deployer.sh`),
+retour arrière en une commande, surveillance et alertes. Liste de vérification finale : `docs/VERIFICATION-FINALE.md`.
+
 ## Organisation
 
 | Dossier | Contenu |

@@ -174,3 +174,21 @@ describe('double authentification', () => {
     expect(stocke.rows[0]!.totp_secret_chiffre).not.toContain(secret);
   });
 });
+
+describe('inactivité', () => {
+  it('une session sans activité depuis trop longtemps est fermée', async () => {
+    const { creerAdmin, creerCommercant } = await import('../outils.ts');
+    const { creerSession, trouverSession } = await import('../../src/lib/sessions.ts');
+    const { hacherJeton } = await import('../../src/lib/chiffrement.ts');
+    const { bd } = await import('../../src/lib/bd.ts');
+    const admin = await creerAdmin();
+    const c = await creerCommercant(admin.id, `Inactif ${Date.now()}`);
+    const { jeton } = await creerSession({ utilisateurId: c.proprietaireId, commercantId: c.commercantId }, { complete: true, appareil: 'test' });
+    expect(await trouverSession(jeton)).not.toBeNull();
+    await bd('auth').updateTable('sessions').set({ vue_le: new Date(Date.now() - 8 * 24 * 3_600_000) }).where('jeton_hash', '=', hacherJeton(jeton)).execute();
+    expect(await trouverSession(jeton)).toBeNull();
+    const a = await creerSession({ administrateurId: admin.id }, { complete: true, appareil: 'test' });
+    await bd('auth').updateTable('sessions').set({ vue_le: new Date(Date.now() - 61 * 60_000) }).where('jeton_hash', '=', hacherJeton(a.jeton)).execute();
+    expect(await trouverSession(a.jeton)).toBeNull();
+  });
+});

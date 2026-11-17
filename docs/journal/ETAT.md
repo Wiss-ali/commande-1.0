@@ -7,7 +7,7 @@ Dernière mise à jour : 17/11/2026, fin de l'étape 8 (dernière étape du plan
 - **Les 8 étapes sont construites et testées.** Étapes 0 à 7 validées par le propriétaire ; il a choisi de tout vérifier à la fin.
 - **Étape 8 (sécurité, installation, exploitation) : terminée.** Bilan : `docs/etape-8/02-bilan.md`.
 - **À faire par le propriétaire maintenant** : `docs/VERIFICATION-FINALE.md` (tout ce qu'il faut essayer, et les questions à trancher), en installant d'abord le serveur avec `docs/GUIDE-INSTALLATION.md`.
-- Branche de travail : `claude/vigilant-gates-3k9mjn`. **`main` est en retard** (fin de l'étape 1) ; le guide installe depuis `main` : à mettre à jour avec l'accord du propriétaire (question 5 de la vérification finale).
+- **`main` est à jour** (17/11/2026, accord du propriétaire) : identique à la branche de travail `claude/vigilant-gates-3k9mjn`. Le guide installe depuis `main`.
 
 ## Façon de travailler (décidée par le propriétaire le 16/11/2026)
 
@@ -19,7 +19,7 @@ Dernière mise à jour : 17/11/2026, fin de l'étape 8 (dernière étape du plan
 
 ## Prochaine action
 
-1. Obtenir les réponses du propriétaire aux questions de `docs/VERIFICATION-FINALE.md` (en particulier : mettre `main` à jour, longueur des mots de passe des commerçants).
+1. Obtenir les réponses du propriétaire aux questions de `docs/VERIFICATION-FINALE.md` (en particulier : longueur des mots de passe des commerçants). Proposition faite pour un essai gratuit : Oracle Cloud « Always Free » + adresse sslip.io, avec des données de démonstration seulement.
 2. Aider le propriétaire à louer le serveur et à suivre le guide ; corriger ce que l'installation réelle révèle (image Debian + Chromium, Let's Encrypt, second serveur, notifications sur un vrai téléphone).
 3. Puis, selon ses retours : avoir partiel, versements du transporteur, facture d'abonnement, rappels par SMS, script de re-chiffrement des données, alertes sur comportements suspects, liste des communes.
 

@@ -82,7 +82,7 @@ boutique `/b/magasin-demo`. **Jamais sur le site réel.**
 | 2 | **Mot de passe des commerçants** : 8 caractères sans double authentification imposée (votre choix). La norme NIST de 2025 demande 15 caractères quand le mot de passe est utilisé seul. Garder 8, passer à 12 ou 15, ou imposer la double authentification ? | 8 caractères (votre choix du 17/11), liste des mots de passe courants, blocage après 5 essais |
 | 3 | **Avoir partiel** (annuler une seule ligne d'une facture) | Plus tard |
 | 4 | **Argent reversé par le transporteur** (suivre le jour du versement) | Plus tard |
-| 5 | **Mettre la branche principale (`main`) à jour** avec tout le travail (aujourd'hui sur `claude/vigilant-gates-3k9mjn`) : le guide installe depuis `main` | À faire avec votre accord |
+| 5 | ~~Mettre la branche principale (`main`) à jour~~ | **Fait le 17/11/2026** |
 | 6 | **Hébergeur** : lequel choisir (ICOSNET, Djaweb, Octenium…) ; le guide fonctionne avec tous | À choisir |
 | 7 | **Déclaration à l'ANPDP** (loi 18-07 / 25-11) | Démarche à faire de votre côté |
 | 8 | **Facture d'abonnement** de vous au commerçant, rappels par SMS ou e-mail | Plus tard |

@@ -2,6 +2,11 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 17/11/2026 — `main` mise à jour avec tout le travail (accord du propriétaire)
+
+- Le propriétaire a demandé de mettre le travail sur `main`. `main` (fin de l'étape 1) était un ancêtre de `claude/vigilant-gates-3k9mjn` : avance rapide, sans fusion ni réécriture d'historique. Les deux branches sont identiques à ce commit.
+- Questions du propriétaire : l'ANPDP (réponse : déclaration probablement obligatoire, à confirmer par un juriste), Netlify (réponse : non adapté, l'application a besoin d'un vrai serveur), un essai gratuit (réponse : serveur gratuit Oracle Cloud « Always Free » et adresse gratuite sslip.io, avec seulement des données de démonstration).
+
 ## 17/11/2026 — Étape 8 (sécurité, installation, exploitation) terminée — fin du projet en 8 étapes
 
 - Le propriétaire a dit « continue » : **étape 7 validée** (il vérifiera tout à la fin).

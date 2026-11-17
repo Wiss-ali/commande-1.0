@@ -76,7 +76,12 @@ export default async function Factures({ searchParams }: { searchParams: Promise
                   <span className="flex shrink-0 flex-col items-end gap-1">
                     <span className="font-bold">{formaterMontant(BigInt(d.total), langue)}</span>
                     {d.annule ? <Pastille ton="terre">{t('annule')}</Pastille>
-                      : d.type === 'devis' ? <Pastille ton={d.etat === 'en_attente' ? 'safran' : d.etat === 'transforme' ? 'vert' : 'neutre'}>{t(`etat.${d.etat}`)}</Pastille>
+                      : d.type === 'devis' ? (
+                        <>
+                          {d.origine === 'boutique' ? <Pastille ton="bleu">{t('boutique')}</Pastille> : null}
+                          <Pastille ton={d.etat === 'en_attente' ? 'safran' : d.etat === 'transforme' ? 'vert' : 'neutre'}>{t(`etat.${d.etat}`)}</Pastille>
+                        </>
+                      )
                       : d.type === 'facture' ? <Pastille ton={d.paye_le ? 'vert' : 'safran'}>{t(d.paye_le ? 'payee' : 'aPayer')}</Pastille>
                       : d.origine === 'boutique' ? <Pastille ton="bleu">{t('boutique')}</Pastille> : null}
                   </span>

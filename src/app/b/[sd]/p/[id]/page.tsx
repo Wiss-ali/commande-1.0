@@ -8,13 +8,15 @@ import { catalogue } from '@/lib/boutique';
 import { nomLocal } from '@/lib/formats';
 import type { Langue } from '@/lib/types-bd';
 import { chargerVitrine } from '@/lib/vitrine-page';
+import { Indisponible } from '@/components/boutique/Indisponible';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default async function ProduitBoutique({ params }: { params: Promise<{ sd: string; id: string }> }) {
   const { sd, id } = await params;
   const c = await chargerVitrine(sd);
-  if (!c || (!c.v.disponible && !c.apercu) || !UUID.test(id)) notFound();
+  if (!c || !UUID.test(id)) notFound();
+  if (!c.v.disponible && !c.apercu) return <Indisponible />;
   const t = await getTranslations('boutique');
   const langue = (await getLocale()) as Langue;
   // Les produits masqués quand ils sont épuisés restent introuvables ici aussi.

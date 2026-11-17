@@ -20,7 +20,9 @@
     "demo": "tsx scripts/demo.ts",
     "test": "vitest run",
     "test:e2e": "playwright test --trace off",
-    "verifier": "npm run typecheck && npm test && npm run build && npm run test:e2e"
+    "verifier": "npm run typecheck && npm test && npm run build && npm run test:e2e",
+    "push:cles": "tsx scripts/cles-push.ts",
+    "taches": "tsx scripts/taches.ts"
   },
   "dependencies": {
     "@fontsource/ibm-plex-sans": "5.3.0",

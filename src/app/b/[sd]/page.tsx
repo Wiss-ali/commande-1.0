@@ -12,11 +12,13 @@ import { listerWilayas } from '@/lib/commandes';
 import { formaterTelephone, nomLocal } from '@/lib/formats';
 import type { Langue } from '@/lib/types-bd';
 import { chargerVitrine } from '@/lib/vitrine-page';
+import { Indisponible } from '@/components/boutique/Indisponible';
 
 /** Accueil de la boutique, selon le modèle choisi. Les sections suivent l'ordre réglé par le commerçant. */
 export default async function Boutique({ params, searchParams }: { params: Promise<{ sd: string }>; searchParams: Promise<{ q?: string; cat?: string }> }) {
   const c = await chargerVitrine((await params).sd);
-  if (!c || (!c.v.disponible && !c.apercu)) notFound();
+  if (!c) notFound();
+  if (!c.v.disponible && !c.apercu) return <Indisponible />;
   const t = await getTranslations('boutique');
   const langue = (await getLocale()) as Langue;
   const { v, base } = c;

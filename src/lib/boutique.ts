@@ -185,8 +185,11 @@ export async function trouverBoutique(sousDomaine: string): Promise<Vitrine | nu
   const c = await bd('auth').selectFrom('commercants').select(['id', 'nom', 'telephone', 'forme_juridique', 'etat', 'paiement_carte_actif', 'modules']).where('sous_domaine', '=', s).executeTakeFirst();
   if (!c) return null;
   const reglages = await avecCommercant(c.id, lireReglages);
+  // Le ticket doit toujours montrer un numéro à appeler : à défaut du téléphone du magasin, celui du propriétaire.
+  const telephone = c.telephone ?? (await bd('auth').selectFrom('utilisateurs').select('telephone').where('commercant_id', '=', c.id).where('role', '=', 'proprietaire')
+    .where('supprime_le', 'is', null).orderBy('cree_le').executeTakeFirst())?.telephone ?? null;
   return {
-    commercantId: c.id, sousDomaine: s, nom: c.nom, telephone: c.telephone, formeJuridique: c.forme_juridique,
+    commercantId: c.id, sousDomaine: s, nom: c.nom, telephone, formeJuridique: c.forme_juridique,
     disponible: reglages.enLigne && c.etat === 'actif' && !!c.modules.boutique, paiementCarte: c.paiement_carte_actif, reglages,
   };
 }

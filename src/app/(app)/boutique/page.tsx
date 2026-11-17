@@ -20,11 +20,12 @@ export default async function ModuleBoutique() {
   const t = await getTranslations('boutiqueAdmin');
   const tc = await getTranslations('commun');
   const langue = (await getLocale()) as Langue;
-  const { r, c, produits, demandes } = await avecCommercant(s.commercant.id, async (trx) => ({
+  const { r, c, produits, demandes, moi } = await avecCommercant(s.commercant.id, async (trx) => ({
     r: await lireReglages(trx),
     c: await trx.selectFrom('commercants').select(['sous_domaine', 'paiement_carte_actif', 'nom', 'telephone']).executeTakeFirstOrThrow(),
     produits: await trx.selectFrom('produits').select(['id', 'nom_fr', 'nom_ar', 'visible_boutique', 'nouveau']).where('archive_le', 'is', null).orderBy('nom_fr').limit(200).execute(),
     demandes: await demandesDuCommercant(trx),
+    moi: await trx.selectFrom('utilisateurs').select('telephone').where('id', '=', s.utilisateur.id).executeTakeFirst(),
   }));
   const app = config();
   const adresse = c.sous_domaine
@@ -38,7 +39,7 @@ export default async function ModuleBoutique() {
   const coordonnees = (
     <>
       <Champ libelle={t('demandeNom')} name="nom" defaultValue={s.utilisateur.nom} maxLength={120} required />
-      <Champ libelle={t('demandeTelephone')} name="telephone" defaultValue={c.telephone ?? ''} type="tel" inputMode="tel" dir="ltr" maxLength={30} required />
+      <Champ libelle={t('demandeTelephone')} name="telephone" defaultValue={c.telephone ?? moi?.telephone ?? ''} type="tel" inputMode="tel" dir="ltr" maxLength={30} required />
     </>
   );
 

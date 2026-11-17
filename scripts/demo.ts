@@ -5,6 +5,7 @@
 import { avecCommercant, bd, fermerBD } from '../src/lib/bd.ts';
 import { accepterInvitation, inviterCommercant, inviterEmploye } from '../src/lib/invitations.ts';
 import { hacher } from '../src/lib/mots-de-passe.ts';
+import { changerSousDomaine, enregistrerReglages, mettreEnLigne, REGLAGES_DEFAUT } from '../src/lib/boutique.ts';
 import { ajouterTransporteur, confirmerCommande, creerCommande, enregistrerFrais, listerWilayas } from '../src/lib/commandes.ts';
 import { creerProduit, lireProduit } from '../src/lib/stock.ts';
 import pg from 'pg';
@@ -61,8 +62,17 @@ if (deja) {
     if (!a.ok || !b.ok) throw new Error('commande refusée');
     await confirmerCommande(trx, ctx, b.id, 'envoi', crypto.randomUUID());
   });
+  // Boutique en ligne : module activé, adresse « magasin-demo » (/b/magasin-demo), produits publiés.
+  await avecCommercant(ctx.commercantId, async (trx) => {
+    await trx.updateTable('commercants').set({ modules: JSON.stringify({ stock: true, caisse: true, factures: true, commandes: true, clients: true, rapports: true, boutique: true }) }).execute();
+    await trx.updateTable('produits').set({ visible_boutique: true }).execute();
+    await changerSousDomaine(trx, 'magasin-demo');
+    await enregistrerReglages(trx, ctx, { ...REGLAGES_DEFAUT, accueil: { fr: 'Épicerie et vêtements, livrés dans les 69 wilayas.', ar: 'بقالة وملابس، توصيل إلى 69 ولاية.' }, livraison: { fr: 'Livraison en 48 à 72 heures. Paiement à la livraison.', ar: 'التوصيل خلال 48 إلى 72 ساعة. الدفع عند الاستلام.' }, whatsapp: '0550000001' });
+    await mettreEnLigne(trx, ctx, true);
+  });
   console.log('Magasin de démonstration créé.');
 }
 console.log(`Propriétaire : ${PROPRIETAIRE.telephone} / ${PROPRIETAIRE.motDePasse}`);
 console.log(`Vendeuse     : ${VENDEUR.telephone} / ${VENDEUR.motDePasse}`);
+console.log('Boutique     : /b/magasin-demo');
 await fermerBD();

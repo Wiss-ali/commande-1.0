@@ -1,13 +1,12 @@
 # État du projet
 
-Dernière mise à jour : 17/11/2026, fin de l'étape 5.
+Dernière mise à jour : 17/11/2026, fin de l'étape 6.
 
 ## Où on en est
 
-- **Étapes 0 à 3 : validées.** Bilans dans `docs/etape-N/02-bilan.md`.
-- **Étape 4 (commandes à livrer, colis, clients) : validée le 17/11/2026.** Bilan : `docs/etape-4/02-bilan.md`.
-- **Étape 5 (accueil, rapports, export pour le comptable) : terminée et testée, en attente de la validation du propriétaire.** Bilan : `docs/etape-5/02-bilan.md`.
-- Prochaine étape : **étape 6, boutique en ligne** (quatre modèles, lien avec le stock, commande sans compte confirmée par téléphone, ticket, devis automatique, notifications, message du paiement par carte, demandes d'activation et de site personnalisé). Voir les parties 12 et 14 du cahier des charges.
+- **Étapes 0 à 5 : validées** (le propriétaire vérifiera tout à la fin). Bilans dans `docs/etape-N/02-bilan.md`.
+- **Étape 6 (boutique en ligne) : terminée et testée.** Bilan : `docs/etape-6/02-bilan.md`.
+- Prochaine étape : **étape 7, administration de la plateforme** (commerçants, formules, abonnements mensuels ou annuels, paiements reçus hors application, rappels 7 j et 1 j, délai de 5 jours puis lecture seule, revenu du mois, demandes). **À traiter d'abord avec le propriétaire : les modules par abonnement (question 6).**
 - Branche de travail : `claude/vigilant-gates-3k9mjn`. `main` est en retard : il s'arrête à la fin de l'étape 1 (à mettre à jour quand le propriétaire le confirme).
 
 ## Façon de travailler (décidée par le propriétaire le 16/11/2026)
@@ -20,9 +19,9 @@ Dernière mise à jour : 17/11/2026, fin de l'étape 5.
 
 ## Prochaine action
 
-1. Obtenir la validation de l'étape 5.
-2. Étape 6 : recherche (boutiques en ligne algériennes, anti-fraude des commandes à la livraison, notifications push Web, sous-domaines), liste, puis code.
-3. À l'étape 6 : une commande de la boutique = `creerCommande(..., { origine: 'boutique' })` avec le statut `nouvelle` (à ajouter), réservation pendant une durée réglable puis expiration automatique (tâches de fond) ; la carte Boutique de l'accueil doit dire « En ligne » ou « Désactivée » ; remplacer la page d'attente `src/app/(app)/[module]/page.tsx` pour `boutique`.
+1. Étape 7 : parler avec le propriétaire des modules par abonnement (question 6), puis recherche (logiciels SaaS algériens, moyens de paiement hors ligne : CCP, BaridiMob, virement), liste, code.
+2. À l'étape 7 : tables `formules`, `abonnements`, `paiements_abonnement` (prévues dans `docs/etape-0/03-schema.md`) ; passage en lecture seule 5 jours après la fin (l'état `lecture_seule` existe déjà et coupe la boutique) ; écran complet des demandes (la liste simple existe dans `/admin`) ; écran d'administration des wilayas.
+3. La page d'attente `src/app/(app)/[module]/page.tsx` ne servent plus à aucun module (tous construits) : à supprimer à l'étape 8.
 
 ## Pour reprendre le travail dans un nouveau conteneur
 
@@ -50,7 +49,7 @@ d'installation et serveur de test préparés à l'étape 8 ; 4 → plus tard ; 5
 
 ## Magasin de démonstration
 
-`npm run demo` crée (une seule fois) un magasin rempli : propriétaire `0550000001` / `hanout demo`, vendeuse `0550000002` / `hanout vente`, cinq produits, un transporteur, les frais des 69 wilayas et deux commandes. Mots de passe publics : **jamais sur le site réel**. Puis `npm run build` et `npx next start -p 3000`.
+`npm run demo` crée (une seule fois) un magasin rempli : propriétaire `0550000001` / `hanout demo`, vendeuse `0550000002` / `hanout vente`, cinq produits, un transporteur, les frais des 69 wilayas, deux commandes et la boutique en ligne `/b/magasin-demo`. Mots de passe publics : **jamais sur le site réel**. Puis `npm run build` et `npx next start -p 3000`.
 
 ## Points à vérifier plus tard (sources officielles non joignables)
 
@@ -65,6 +64,8 @@ d'installation et serveur de test préparés à l'étape 8 ; 4 → plus tard ; 5
 - Essai du scan sur de vrais téléphones (Android et iPhone), en HTTPS.
 - Mentions complètes de la facture (cachet, signature, capital social), règles de l'avoir, timbre sur les tickets de caisse : à confirmer avec un comptable.
 - Production des PDF dans l'image Docker (Chromium installé par le Dockerfile, non testé).
+- Notifications sur un vrai téléphone (Android et iPhone installé), avec des clés VAPID sur le serveur réel.
+- Sous-domaines des boutiques : DNS et certificat « *.domaine » à l'installation.
 
 ## Où trouver quoi
 
@@ -81,5 +82,7 @@ d'installation et serveur de test préparés à l'étape 8 ; 4 → plus tard ; 5
 | `docs/etape-4/02-bilan.md` | Bilan de l'étape 4 : fait, pas fait, à essayer, liens |
 | `docs/etape-5/01-recherche-accueil-rapports.md` | Recherche et liste des fonctions de l'étape 5 |
 | `docs/etape-5/02-bilan.md` | Bilan de l'étape 5 : fait, pas fait, à essayer, liens |
+| `docs/etape-6/01-recherche-boutique.md` | Recherche et liste des fonctions de l'étape 6 |
+| `docs/etape-6/02-bilan.md` | Bilan de l'étape 6 : fait, pas fait, à essayer, liens |
 | `README.md` | Lancer, vérifier, organisation du code |
 | `docs/journal/JOURNAL.md` | Historique daté |

@@ -18,6 +18,9 @@ npm run db:roles              # crée les rôles et la base (une seule fois)
 npm run db:migrer             # applique les migrations
 npm run admin:creer -- moi@exemple.dz   # crée l'administrateur de la plateforme
 npm run dev                   # http://localhost:3000 — administration : /admin
+npm run demo                  # magasin de démonstration (jamais sur le site réel) — boutique : /b/magasin-demo
+npm run push:cles             # clés des notifications sur le téléphone (une fois, à copier dans .env)
+npm run taches                # tâches périodiques (expiration des tickets de la boutique) : toutes les 5 minutes
 ```
 
 ## Vérifier

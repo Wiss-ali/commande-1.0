@@ -31,14 +31,14 @@ export default async function CadreBoutique({ params, children }: { params: Prom
     + `@media (prefers-color-scheme:dark){:root:not([data-theme=clair]) .boutique{--vert:${couleur.pale};--sur-vert:${couleur.fond};--vert-pale:${couleur.fond}}}`
     + `:root[data-theme=sombre] .boutique{--vert:${couleur.pale};--sur-vert:${couleur.fond};--vert-pale:${couleur.fond}}`;
 
+  // Boutique coupée : cadre réduit (pas de panier). Chaque page affiche « momentanément indisponible »,
+  // sauf le ticket d'un acheteur, qui reste consultable par son lien privé.
   if (!v.disponible && !c.apercu) {
     return (
-      <div className="boutique mx-auto flex min-h-dvh w-full max-w-md flex-col items-center justify-center gap-3 px-4 text-center">
+      <div className="boutique mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 py-6">
         <style nonce={c.nonce}>{css}</style>
-        <p className="text-xl font-bold">{v.nom}</p>
-        <h1 className="text-lg font-semibold">{t('indisponibleTitre')}</h1>
-        <p className="text-doux">{t('indisponibleTexte')}</p>
-        <BoutonLangue />
+        <div className="flex items-center justify-between gap-2"><p className="text-xl font-bold">{v.nom}</p><BoutonLangue /></div>
+        {children}
       </div>
     );
   }

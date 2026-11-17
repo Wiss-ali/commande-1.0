@@ -2,6 +2,24 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 17/11/2026 — Étape 6 (boutique en ligne) terminée
+
+- Le propriétaire a dit « continue » après la présentation de l'étape 6 : **étape 5 validée** (il vérifiera tout à la fin).
+- Recherche : `docs/etape-6/01-recherche-boutique.md`. Bilan : `docs/etape-6/02-bilan.md`.
+- Vérifications : 130 tests unitaires et d'intégration, 63 parcours de bout en bout ; `npm run demo` testé sur une base neuve.
+- Choix techniques à connaître pour la suite :
+  - Migration `0007_boutique` : `boutiques` (une par commerçant, coupée par défaut), `demandes`, `notifications`, `notifications_vues`, `abonnements_push` ; `produits.nouveau` ; `commandes.ticket_hash` et `reservation_jusqua` ; `photos_produit.produit_id` facultatif (logo, bannière) ; contrainte de format sur `commercants.sous_domaine` ; événement d'historique `expiree`.
+  - Pages publiques sous `src/app/b/[sd]/` (et non `/boutique/…`, pris par le module du commerçant). Le proxy réécrit `nom.DOMAINE_BOUTIQUES/...` vers `/b/nom/...` et pose `x-boutique-base: ''` ; les liens utilisent `chargerVitrine(sd).base`.
+  - La boutique est retrouvée par le rôle `auth` (lecture de `commercants`), puis tout passe par `avecCommercant`. Les écritures faites au nom de la boutique ont pour auteur le propriétaire (`contexteBoutique`).
+  - Un ticket = `creerCommande(..., { origine: 'boutique', ticket: { hash, reservationJusqua } })`, statut `nouvelle`. Le premier « Pas de réponse » le passe à `a_confirmer`.
+  - Expiration : `expirerTickets` (dans `commandes.ts`) est appelée à chaque lecture du catalogue ou d'un ticket et par `npm run taches`.
+  - Couleur de la boutique : feuille `<style nonce>` qui redéfinit `--vert` sur `.boutique` (clair et sombre). Jamais d'attribut `style`.
+  - Web Push écrit à la main (`src/lib/push.ts`, RFC 8291 + VAPID ES256), sans la bibliothèque `web-push` (version trop récente). Liste blanche des services de notification contre les appels vers n'importe quelle adresse. Service worker : `public/sw.js`.
+  - Limites anti-fausses commandes avec `autoriser` (table `limites_debit`) : 3 par téléphone et par 24 h, 5 par appareil (cookie `appareil`) et 20 par adresse IP tronquée par heure, par boutique.
+  - Paiement par carte : `src/lib/paiement.ts`, interface vide, `PASSERELLE = null`. L'administrateur autorise par commerçant ; le commerçant ne peut pas (droit refusé par la base).
+  - Tests de bout en bout : `DOMAINE_BOUTIQUES=boutiques.test` dans `playwright.config.ts` ; le sous-domaine est testé par une requête HTTP avec un en-tête `Host`.
+  - Piège de test : `sqlProprietaire` ne modifie rien sur une table à RLS forcée (pas de règle pour ce rôle) ; passer par `avecCommercant` ou `bd('plateforme')`.
+
 ## 17/11/2026 — Demande : modules choisis par l'administrateur (reportée à l'étape 7)
 
 - Le propriétaire veut pouvoir donner un compte avec seulement certains modules (ex. caisse et factures). Aujourd'hui, c'est le commerçant qui choisit ses modules.

@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { avecCommercant, bd, fermerBD } from '../../src/lib/bd.ts';
 import { inviterEmploye } from '../../src/lib/invitations.ts';
 import { journaliser } from '../../src/lib/journal.ts';
+import { ajouterTransporteur, creerCommande, enregistrerFrais } from '../../src/lib/commandes.ts';
 import { creerAvoir, vendreEnCaisse } from '../../src/lib/documents.ts';
 import { creerSession } from '../../src/lib/sessions.ts';
 import { compter, creerProduit, ouvrirInventaire, trouverOuCreerCategorie } from '../../src/lib/stock.ts';
@@ -35,6 +36,14 @@ beforeAll(async () => {
       const f = await vendreEnCaisse(trx, ctx, { lignes: [{ varianteId: variante.id, quantite: 5 }], facture: true, acheteur: { nom: 'Client', telephone: telephone() }, cle: crypto.randomUUID() });
       if (!f.ok) throw new Error(f.raison);
       await creerAvoir(trx, ctx, f.id, { remettreEnStock: true, cle: crypto.randomUUID() });
+      // Commandes : transporteur, frais, commande et son historique.
+      await ajouterTransporteur(trx, ctx, 'Transporteur');
+      await enregistrerFrais(trx, ctx, [{ wilaya: 16, domicile: 50_000, pointRelais: 30_000 }]);
+      const cmd = await creerCommande(trx, ctx, {
+        client: { nom: 'Client', telephone: telephone() }, wilaya: 16, commune: 'Bab Ezzouar', livraison: 'domicile',
+        lignes: [{ varianteId: variante.id, quantite: 1 }], cle: crypto.randomUUID(), libelleLivraison: 'Livraison',
+      });
+      if (!cmd.ok) throw new Error(cmd.raison);
     });
   }
   const r = await sqlProprietaire<{ table_name: string }>(
@@ -46,7 +55,7 @@ afterAll(fermerBD);
 
 describe('configuration de la base', () => {
   it('chaque table d\'un commerçant a la RLS activée, forcée, et une règle pour le rôle de l\'application', async () => {
-    expect(tablesCommercant).toEqual(expect.arrayContaining(['utilisateurs', 'sessions', 'invitations', 'journal_actions', 'categories', 'produits', 'variantes', 'stocks', 'mouvements_stock', 'photos_produit', 'inventaires', 'lignes_inventaire', 'clients', 'sessions_caisse', 'compteurs_documents', 'documents', 'lignes_document', 'liens_documents', 'ecarts_stock']));
+    expect(tablesCommercant).toEqual(expect.arrayContaining(['utilisateurs', 'sessions', 'invitations', 'journal_actions', 'categories', 'produits', 'variantes', 'stocks', 'mouvements_stock', 'photos_produit', 'inventaires', 'lignes_inventaire', 'clients', 'sessions_caisse', 'compteurs_documents', 'documents', 'lignes_document', 'liens_documents', 'ecarts_stock', 'transporteurs', 'frais_livraison', 'commandes', 'historique_commande']));
     for (const table of [...tablesCommercant, 'commercants']) {
       const t = await sqlProprietaire<{ relrowsecurity: boolean; relforcerowsecurity: boolean }>(
         'SELECT relrowsecurity, relforcerowsecurity FROM pg_class WHERE oid = $1::regclass', [table]);
@@ -64,6 +73,12 @@ describe('configuration de la base', () => {
        JOIN pg_class c ON c.relname = g.table_name AND c.relnamespace = 'public'::regnamespace
        WHERE g.grantee = 'hanout_app' AND g.table_schema = 'public' AND NOT c.relrowsecurity`);
     expect(r.rows.map((l) => l.table_name)).toEqual(['reglages_plateforme']);
+  });
+
+  it('les wilayas sont lisibles par tous les commerçants, mais pas modifiables', async () => {
+    const w = await avecCommercant(A.commercantId, (trx) => trx.selectFrom('wilayas').select('code').execute());
+    expect(w).toHaveLength(69);
+    await expect(avecCommercant(A.commercantId, (trx) => sql`UPDATE wilayas SET nom_fr = 'X'`.execute(trx))).rejects.toThrow(/permission denied/);
   });
 
   it('les rôles de l\'application ne sont ni propriétaires des tables, ni super-utilisateurs, ni dispensés de RLS', async () => {

@@ -69,7 +69,7 @@ const MAX_LIGNES = 200;
 const MAX_QUANTITE = 100_000;
 const MAX_MONTANT = 100_000_000_00;
 const entier = (n: unknown, min: number, max: number) => typeof n === 'number' && Number.isInteger(n) && n >= min && n <= max;
-const anneeAlger = (d = new Date()) => Number(new Intl.DateTimeFormat('en', { timeZone: 'Africa/Algiers', year: 'numeric' }).format(d));
+export const anneeAlger = (d = new Date()) => Number(new Intl.DateTimeFormat('en', { timeZone: 'Africa/Algiers', year: 'numeric' }).format(d));
 
 /** Mentions légales du commerçant, telles qu'elles seront figées sur le document. */
 export async function mentionsVendeur(trx: Trx, commercantId: string): Promise<{ mentions: Mentions; reglages: ReglagesDocuments }> {
@@ -121,7 +121,7 @@ async function enregistrerClient(trx: Trx, ctx: Contexte, a: Mentions): Promise<
 }
 
 /** Prochain numéro du type pour l'année. Verrouille le compteur jusqu'à la fin de la transaction. */
-async function prochainNumero(trx: Trx, commercantId: string, type: TypeDocument, annee: number): Promise<number> {
+export async function prochainNumero(trx: Trx, commercantId: string, type: TypeDocument | 'commande', annee: number): Promise<number> {
   const r = await sql<{ dernier: number }>`
     INSERT INTO compteurs_documents (commercant_id, type, annee, dernier) VALUES (${commercantId}, ${type}, ${annee}, 1)
     ON CONFLICT (commercant_id, type, annee) DO UPDATE SET dernier = compteurs_documents.dernier + 1
@@ -135,6 +135,45 @@ export async function caisseOuverte(trx: Trx, ctx: Contexte, creer = true): Prom
   if (ouverte || !creer) return ouverte?.id ?? null;
   const { id } = await trx.insertInto('sessions_caisse').values({ commercant_id: ctx.commercantId, ouverte_par: ctx.utilisateurId }).returning('id').executeTakeFirstOrThrow();
   return id;
+}
+
+/** Quantités encore réservées par un document, article par article (réservations moins libérations). */
+export async function reservationsNettes(trx: Trx, documentId: string): Promise<Map<string, number>> {
+  const r = await trx
+    .selectFrom('mouvements_stock')
+    .select(['variante_id', (eb) => eb.fn.sum<string>('quantite').as('net')])
+    .where('document_id', '=', documentId)
+    .where('type', 'in', ['reservation', 'liberation'])
+    .groupBy('variante_id')
+    .execute();
+  return new Map(r.filter((l) => Number(l.net) > 0).map((l) => [l.variante_id, Number(l.net)]));
+}
+
+/** Libère tout ce que le document réserve encore. */
+export async function libererReservations(trx: Trx, ctx: Contexte, documentId: string): Promise<void> {
+  for (const [varianteId, net] of await reservationsNettes(trx, documentId)) {
+    await ajouterMouvement(trx, ctx, { varianteId, type: 'liberation', quantite: -net, documentId });
+  }
+}
+
+/** Quantités par article, à partir de lignes (le même article peut être sur deux lignes). */
+const parArticle = (lignes: { varianteId: string | null; quantite: number }[]) => {
+  const m = new Map<string, number>();
+  for (const l of lignes) if (l.varianteId) m.set(l.varianteId, (m.get(l.varianteId) ?? 0) + l.quantite);
+  return m;
+};
+
+/**
+ * Vérifie, avant toute écriture, que le stock libre suffit pour réserver ces quantités.
+ * `dejaReserve` : ce que le même document réserve déjà et rendra avant de réserver à nouveau.
+ * Ainsi un refus n'écrit rien (pas de numéro consommé, pas de document à moitié écrit).
+ */
+async function stockLibreSuffit(trx: Trx, besoins: Map<string, number>, dejaReserve = new Map<string, number>()): Promise<boolean> {
+  if (!besoins.size) return true;
+  const s = await trx.selectFrom('stocks').select(['variante_id', 'quantite', 'reservee']).where('variante_id', 'in', [...besoins.keys()]).execute();
+  const parId = new Map(s.map((l) => [l.variante_id, l.quantite - l.reservee]));
+  for (const [id, q] of besoins) if ((parId.get(id) ?? 0) + (dejaReserve.get(id) ?? 0) < q) return false;
+  return true;
 }
 
 interface LignePrete {
@@ -203,6 +242,8 @@ export interface NouveauDocument {
   negatif?: boolean;
   /** Reçu de paiement : montant encaissé, sans ligne d'article. */
   montantRecu?: number;
+  /** Réservations d'un document d'origine, rendues dans la même transaction avant de réserver. */
+  reservationsRendues?: Map<string, number>;
 }
 
 export async function creerDocument(trx: Trx, ctx: Contexte, n: NouveauDocument): Promise<Resultat<{ id: string; doublon?: boolean; manques: number }>> {
@@ -227,6 +268,8 @@ export async function creerDocument(trx: Trx, ctx: Contexte, n: NouveauDocument)
   const avecTimbre = n.payeEnEspeces && ((n.type === 'facture' && reglages.timbreFactures) || (n.type === 'ticket' && reglages.timbreTickets));
   const timbre = avecTimbre ? calculerTimbre(t.ttc, lireBaremeTimbre(await reglageBrut('timbre'))) : 0;
   const signe = n.negatif ? -1 : 1;
+
+  if (n.stock === 'reserver' && !(await stockLibreSuffit(trx, parArticle(lignes), n.reservationsRendues))) return { ok: false, raison: 'stock_insuffisant' };
 
   const id = randomUUID();
   const annee = anneeAlger();
@@ -276,9 +319,7 @@ export async function creerDocument(trx: Trx, ctx: Contexte, n: NouveauDocument)
   // Stock : les quantités sont regroupées par article (le même article peut être sur deux lignes).
   let manques = 0;
   if (n.stock) {
-    const parArticle = new Map<string, number>();
-    for (const l of lignes) if (l.varianteId) parArticle.set(l.varianteId, (parArticle.get(l.varianteId) ?? 0) + l.quantite);
-    for (const [varianteId, quantite] of parArticle) {
+    for (const [varianteId, quantite] of parArticle(lignes)) {
       if (n.stock === 'reserver') {
         const r = await ajouterMouvement(trx, ctx, { varianteId, type: 'reservation', quantite, documentId: id });
         if (r !== 'ok') return { ok: false, raison: r === 'stock_reserve' ? 'stock_reserve' : 'stock_insuffisant' };
@@ -318,7 +359,14 @@ export async function modifierDevis(trx: Trx, ctx: Contexte, id: string, m: { li
   if (!a.ok) return a;
   const p = await preparerLignes(trx, m.lignes, reglages, { prixLibres: true });
   if (!p.ok) return p;
+  // Devis d'une commande : il réserve le stock. Les nouvelles quantités doivent être disponibles.
+  const reserve = await reservationsNettes(trx, id);
+  if (reserve.size && !(await stockLibreSuffit(trx, parArticle(p.lignes), reserve))) return { ok: false, raison: 'stock_insuffisant' };
   const t = totaux(p.lignes);
+  if (reserve.size) {
+    await libererReservations(trx, ctx, id);
+    for (const [varianteId, quantite] of parArticle(p.lignes)) await ajouterMouvement(trx, ctx, { varianteId, type: 'reservation', quantite, documentId: id });
+  }
   await trx.deleteFrom('lignes_document').where('document_id', '=', id).execute();
   await trx
     .insertInto('lignes_document')
@@ -339,10 +387,26 @@ export async function modifierDevis(trx: Trx, ctx: Contexte, id: string, m: { li
   return { ok: true };
 }
 
-export async function changerEtatDevis(trx: Trx, id: string, etat: 'refuse' | 'en_attente'): Promise<Resultat<object>> {
+export async function changerEtatDevis(trx: Trx, ctx: Contexte, id: string, etat: 'refuse' | 'en_attente'): Promise<Resultat<object>> {
   const attendu: EtatDocument = etat === 'refuse' ? 'en_attente' : 'refuse';
+  // Le devis d'une commande se gère depuis la commande (annuler, confirmer).
+  const commande = await trx.selectFrom('commandes').select('id').where('devis_id', '=', id).executeTakeFirst();
+  if (commande) return { ok: false, raison: 'devis_non_modifiable' };
   const r = await trx.updateTable('documents').set({ etat }).where('id', '=', id).where('type', '=', 'devis').where('etat', '=', attendu).executeTakeFirst();
-  return r.numUpdatedRows ? { ok: true } : { ok: false, raison: 'devis_non_modifiable' };
+  if (!r.numUpdatedRows) return { ok: false, raison: 'devis_non_modifiable' };
+  if (etat === 'refuse') await libererReservations(trx, ctx, id);
+  return { ok: true };
+}
+
+/** Le document et tous ceux dont il vient par transformation. */
+async function chaineOrigines(trx: Trx, id: string): Promise<string[]> {
+  const r = await sql<{ id: string }>`
+    WITH RECURSIVE chaine AS (
+      SELECT id FROM documents WHERE id = ${id}
+      UNION
+      SELECT l.source_id FROM chaine c JOIN liens_documents l ON l.cible_id = c.id AND l.nature = 'transforme_en'
+    ) SELECT id FROM chaine`.execute(trx);
+  return r.rows.map((l) => l.id);
 }
 
 /** Vrai si le document, ou l'un de ceux dont il vient, a déjà sorti le stock. */
@@ -381,6 +445,16 @@ export async function transformer(trx: Trx, ctx: Contexte, sourceId: string, cib
     if (cible === 'bon_livraison') stock = 'vente';
     else if (cible === 'facture') stock = o.mode === 'envoi' ? 'reserver' : 'vente';
   }
+  if (cible === 'facture' && !verifierAcheteur(acheteur).ok) return { ok: false, raison: 'telephone_invalide' };
+  if (cible === 'facture' && !acheteur?.nom?.trim()) return { ok: false, raison: 'client_requis' };
+  // Ce que la chaîne réserve déjà (devis d'une commande) passe au nouveau document : rendu puis repris.
+  const chaine = stock ? await chaineOrigines(trx, sourceId) : [];
+  const rendues = new Map<string, number>();
+  for (const docId of chaine) for (const [v, q] of await reservationsNettes(trx, docId)) rendues.set(v, (rendues.get(v) ?? 0) + q);
+  if (stock === 'reserver' && !(await stockLibreSuffit(trx, parArticle(lignes.map((l) => ({ varianteId: l.variante_id, quantite: l.quantite }))), rendues))) {
+    return { ok: false, raison: 'stock_insuffisant' };
+  }
+  for (const docId of chaine) await libererReservations(trx, ctx, docId);
   const r = await creerDocument(trx, ctx, {
     type: cible,
     origine: source.origine,
@@ -446,9 +520,12 @@ export async function creerAvoir(trx: Trx, ctx: Contexte, sourceId: string, o: {
   // Stock : on défait exactement ce que la vente avait fait (sorties et réservations), jamais plus.
   const faits = await trx.selectFrom('mouvements_stock').select(['variante_id', 'type', 'quantite']).where('document_id', '=', sourceId).execute();
   const chaine = await stockDejaSorti(trx, sourceId);
+  // Réservation encore active (envoi pas encore expédié) : libérée. Les mouvements sont rattachés à l'avoir.
+  for (const [varianteId, net] of await reservationsNettes(trx, sourceId)) {
+    await ajouterMouvement(trx, ctx, { varianteId, type: 'liberation', quantite: -net, documentId: id });
+  }
   for (const m of faits) {
-    if (m.type === 'reservation') await ajouterMouvement(trx, ctx, { varianteId: m.variante_id, type: 'liberation', quantite: -m.quantite, documentId: id });
-    else if (m.type === 'vente' && o.remettreEnStock) await ajouterMouvement(trx, ctx, { varianteId: m.variante_id, type: 'retour', quantite: -m.quantite, documentId: id });
+    if (m.type === 'vente' && o.remettreEnStock) await ajouterMouvement(trx, ctx, { varianteId: m.variante_id, type: 'retour', quantite: -m.quantite, documentId: id });
   }
   // Stock sorti par un bon de livraison antérieur : remis à partir des lignes.
   if (o.remettreEnStock && chaine && !faits.some((m) => m.type === 'vente')) {

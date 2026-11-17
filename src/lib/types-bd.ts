@@ -315,7 +315,92 @@ export interface EcartsStock {
   traite_par: string | null;
 }
 
+export interface Wilayas {
+  code: number;
+  nom_fr: string;
+  nom_ar: string;
+  active: Generated<boolean>;
+}
+
+export interface Communes {
+  id: Generated<number>;
+  wilaya_code: number;
+  nom_fr: string;
+  nom_ar: Generated<string>;
+  active: Generated<boolean>;
+}
+
+export interface Transporteurs {
+  id: Generated<string>;
+  commercant_id: string;
+  nom: string;
+  actif: Generated<boolean>;
+  connecteur: string | null;
+  cree_le: Generated<Date>;
+}
+
+type MontantNul = ColumnType<string | null, number | null | undefined, number | null>;
+
+export interface FraisLivraison {
+  commercant_id: string;
+  wilaya_code: number;
+  domicile: MontantNul;
+  point_relais: MontantNul;
+}
+
+export type StatutCommande = 'nouvelle' | 'a_confirmer' | 'confirmee' | 'preparee' | 'expediee' | 'livree' | 'retournee' | 'annulee';
+export type ModeLivraison = 'domicile' | 'point_relais';
+
+export interface Commandes {
+  id: Generated<string>;
+  commercant_id: string;
+  annee: number;
+  numero: number;
+  statut: StatutCommande;
+  origine: 'manuel' | 'boutique';
+  devis_id: string;
+  facture_id: string | null;
+  avoir_id: string | null;
+  client_id: string;
+  tentatives_appel: Generated<number>;
+  dernier_appel_le: HorodatageNul;
+  livraison: ModeLivraison;
+  wilaya_code: number;
+  commune: string;
+  adresse_chiffre: string | null;
+  frais_livraison: ColumnType<string, number | undefined, number>;
+  transporteur_id: string | null;
+  numero_suivi: string | null;
+  expediee_le: HorodatageNul;
+  livree_le: HorodatageNul;
+  retournee_le: HorodatageNul;
+  note: Generated<string>;
+  cle: string | null;
+  cree_par: string;
+  cree_le: Generated<Date>;
+  modifie_le: Generated<Date>;
+}
+
+export type EvenementCommande = 'creee' | 'appel_sans_reponse' | 'statut' | 'modifiee';
+
+export interface HistoriqueCommande {
+  id: Generated<string>;
+  commercant_id: string;
+  commande_id: string;
+  evenement: EvenementCommande;
+  ancien_statut: StatutCommande | null;
+  nouveau_statut: StatutCommande | null;
+  auteur: string;
+  le: Generated<Date>;
+}
+
 export interface BD {
+  wilayas: Wilayas;
+  communes: Communes;
+  transporteurs: Transporteurs;
+  frais_livraison: FraisLivraison;
+  commandes: Commandes;
+  historique_commande: HistoriqueCommande;
   clients: Clients;
   sessions_caisse: SessionsCaisse;
   compteurs_documents: CompteursDocuments;

@@ -226,10 +226,10 @@ describe('devis et chaîne des documents', () => {
     expect(await chez(A, (trx) => creerDocument(trx, A, { type: 'devis', origine: 'manuel', prixLibres: true, lignes: [{ designation: '', quantite: 1, prixUnitaire: 1 }] }))).toEqual({ ok: false, raison: 'designation_requise' });
 
     // Refusé, puis rouvert.
-    expect(await chez(A, (trx) => changerEtatDevis(trx, r.id, 'refuse'))).toEqual({ ok: true });
+    expect(await chez(A, (trx) => changerEtatDevis(trx, A, r.id, 'refuse'))).toEqual({ ok: true });
     expect(await chez(A, (trx) => modifierDevis(trx, A, r.id, { lignes: [{ varianteId: cafe, quantite: 1 }] }))).toEqual({ ok: false, raison: 'devis_non_modifiable' });
     expect(await chez(A, (trx) => transformer(trx, A, r.id, 'facture', { mode: 'directe', cle: cle() }))).toEqual({ ok: false, raison: 'deja_transforme' });
-    expect(await chez(A, (trx) => changerEtatDevis(trx, r.id, 'en_attente'))).toEqual({ ok: true });
+    expect(await chez(A, (trx) => changerEtatDevis(trx, A, r.id, 'en_attente'))).toEqual({ ok: true });
 
     // « Transformer en facture », vente directe : stock sorti, payée, devis marqué transformé, lien dans les deux sens.
     const k = cle();

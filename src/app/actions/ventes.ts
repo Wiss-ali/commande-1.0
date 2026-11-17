@@ -156,7 +156,7 @@ export const changerEtat = actionSimple(async (f) => {
   const s = await exigerEcriture('vendre', 'factures');
   const id = texte(f, 'id', 40);
   if (!UUID.test(id)) return;
-  await avecCommercant(s.commercant.id, (trx) => changerEtatDevis(trx, id, f.get('etat') === 'en_attente' ? 'en_attente' : 'refuse'));
+  await avecCommercant(s.commercant.id, (trx) => changerEtatDevis(trx, ctxDe(s), id, f.get('etat') === 'en_attente' ? 'en_attente' : 'refuse'));
   revalidatePath('/factures', 'layout');
 });
 

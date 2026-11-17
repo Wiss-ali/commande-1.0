@@ -1,5 +1,6 @@
 // Sessions côté serveur. Le navigateur ne reçoit qu'un jeton aléatoire ; la base n'en garde que l'empreinte.
 import { sql } from 'kysely';
+import { etatEffectif, modulesEffectifs, situation } from './abonnements.ts';
 import { bd } from './bd.ts';
 import { hacherJeton, nouveauJeton } from './chiffrement.ts';
 import { reglage } from './reglages-plateforme.ts';
@@ -72,14 +73,17 @@ export async function trouverSession(jeton: string): Promise<Session | null> {
     return { type: 'administrateur', id: s.id, complete: s.mfa_ok, administrateur: { id: s.administrateur_id, identifiant: s.identifiant, totpActif: !!s.a_totp } };
   }
   if (s.utilisateur_id && s.c_id && s.role && s.u_nom != null && s.langue && s.etat && s.modules) {
-    // Compte bloqué, supprimé, ou commerçant suspendu : la session ne vaut plus rien.
-    if (s.desactive || s.supprime_le || s.etat === 'suspendu' || s.etat === 'archive') return null;
+    // L'abonnement décide de l'état réel (lecture seule après le délai) et des modules ouverts, à chaque requête.
+    const ab = await situation(bd('auth'), s.c_id);
+    const etat = etatEffectif(s.etat, ab.etat);
+    // Compte bloqué, supprimé, ou commerçant suspendu ou archivé : la session ne vaut plus rien.
+    if (s.desactive || s.supprime_le || etat === 'suspendu' || etat === 'archive') return null;
     return {
       type: 'utilisateur',
       id: s.id,
       complete: s.mfa_ok,
       utilisateur: { id: s.utilisateur_id, nom: s.u_nom, role: s.role, langue: s.langue, totpActif: !!s.u_totp, gereProduits: !!s.gere_produits },
-      commercant: { id: s.c_id, nom: s.c_nom ?? '', etat: s.etat, modules: s.modules },
+      commercant: { id: s.c_id, nom: s.c_nom ?? '', etat, modules: modulesEffectifs(s.modules, ab.autorises) },
     };
   }
   return null;

@@ -1,5 +1,6 @@
 // Connexion des commerçants et de l'administrateur, double authentification.
 import { sql } from 'kysely';
+import { etatEffectif, situation } from './abonnements.ts';
 import { bd } from './bd.ts';
 import { chiffrer, dechiffrer } from './chiffrement.ts';
 import { journaliserAuth } from './journal.ts';
@@ -45,7 +46,9 @@ export async function connecterUtilisateur(p: { telephone: string; motDePasse: s
     .where('u.telephone', '=', p.telephone)
     .executeTakeFirst();
 
-  if (!u || u.desactive || u.supprime_le || u.etat === 'suspendu' || u.etat === 'archive') {
+  // État d'après l'abonnement : un compte archivé (fin de la lecture seule) ne se connecte plus ; rien n'est effacé.
+  const etat = u ? etatEffectif(u.etat, (await situation(bd('auth'), u.commercant_id)).etat) : null;
+  if (!u || u.desactive || u.supprime_le || etat === 'suspendu' || etat === 'archive') {
     await verifierFactice(p.motDePasse);
     return { ok: false, raison: 'identifiants' };
   }

@@ -27,6 +27,8 @@ export interface Commercants {
   nis_chiffre: string | null;
   ai_chiffre: string | null;
   reglages_documents: ColumnType<unknown, string | undefined, string>;
+  modules_ajoutes: ColumnType<NomModule[], string | undefined, string>;
+  modules_retires: ColumnType<NomModule[], string | undefined, string>;
   cree_le: Generated<Date>;
   modifie_le: Generated<Date>;
 }
@@ -460,7 +462,46 @@ export interface AbonnementsPush {
   cree_le: Generated<Date>;
 }
 
+export interface Formules {
+  id: Generated<string>;
+  nom: string;
+  prix: ColumnType<string, number, number>;
+  duree_jours: number;
+  modules: ColumnType<NomModule[], string | undefined, string>;
+  active: Generated<boolean>;
+  cree_le: Generated<Date>;
+}
+
+export type MoyenPaiement = 'ccp' | 'baridimob' | 'virement' | 'especes';
+type Jour = ColumnType<Date, string, string>;
+
+export interface PaiementsAbonnement {
+  id: Generated<string>;
+  commercant_id: string;
+  formule_id: string;
+  montant: ColumnType<string, number, number>;
+  moyen: MoyenPaiement;
+  recu_le: Jour;
+  reference: Generated<string>;
+  note: Generated<string>;
+  saisi_par: string;
+  cree_le: Generated<Date>;
+}
+
+export interface Abonnements {
+  id: Generated<string>;
+  commercant_id: string;
+  formule_id: string;
+  paiement_id: string;
+  debut: Jour;
+  fin: Jour;
+  cree_le: Generated<Date>;
+}
+
 export interface BD {
+  formules: Formules;
+  paiements_abonnement: PaiementsAbonnement;
+  abonnements: Abonnements;
   boutiques: Boutiques;
   demandes: Demandes;
   notifications: Notifications;

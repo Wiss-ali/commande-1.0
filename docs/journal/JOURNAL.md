@@ -2,6 +2,12 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 17/11/2026 — Décision du propriétaire : modules par abonnement
+
+- **Modules par formule, avec retouche** : chaque formule contient une liste de modules ; l'administrateur peut en ajouter ou en retirer pour un commerçant précis ; le commerçant n'allume que ce que son abonnement contient.
+- **La boutique en ligne est un module comme les autres** (comprise ou non dans une formule).
+- La fiche produit reste toujours disponible (le module Stock fait partie de toute formule).
+
 ## 17/11/2026 — Étape 6 (boutique en ligne) terminée
 
 - Le propriétaire a dit « continue » après la présentation de l'étape 6 : **étape 5 validée** (il vérifiera tout à la fin).

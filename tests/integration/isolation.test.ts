@@ -2,6 +2,7 @@
 import { sql } from 'kysely';
 import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { enregistrerFormule, enregistrerPaiement, jourAlger } from '../../src/lib/abonnements.ts';
 import { avecCommercant, bd, fermerBD } from '../../src/lib/bd.ts';
 import { inviterEmploye } from '../../src/lib/invitations.ts';
 import { journaliser } from '../../src/lib/journal.ts';
@@ -53,6 +54,13 @@ beforeAll(async () => {
       await enregistrerAbonnement(trx, ctx, { endpoint: `https://fcm.googleapis.com/fcm/send/${c.commercantId}`, keys: { p256dh: 'x', auth: 'y' } });
     });
   }
+  // Abonnements : une formule, puis un paiement (et sa période) pour chacun, saisis par l'administrateur.
+  const formule = await enregistrerFormule(bd('plateforme'), { nom: `Isolation ${Date.now()}`, prix: 100_00, dureeJours: 30, modules: [], active: true });
+  if (!formule.ok) throw new Error(formule.raison);
+  for (const c of [A, B]) {
+    const p = await bd('plateforme').transaction().execute((trx) => enregistrerPaiement(trx, admin.id, { commercantId: c.commercantId, formuleId: formule.id, moyen: 'especes', recuLe: jourAlger() }));
+    if (!p.ok) throw new Error(p.raison);
+  }
   const r = await sqlProprietaire<{ table_name: string }>(
     `SELECT table_name FROM information_schema.columns WHERE table_schema = 'public' AND column_name = 'commercant_id' ORDER BY 1`,
   );
@@ -62,7 +70,7 @@ afterAll(fermerBD);
 
 describe('configuration de la base', () => {
   it('chaque table d\'un commerçant a la RLS activée, forcée, et une règle pour le rôle de l\'application', async () => {
-    expect(tablesCommercant).toEqual(expect.arrayContaining(['utilisateurs', 'sessions', 'invitations', 'journal_actions', 'categories', 'produits', 'variantes', 'stocks', 'mouvements_stock', 'photos_produit', 'inventaires', 'lignes_inventaire', 'clients', 'sessions_caisse', 'compteurs_documents', 'documents', 'lignes_document', 'liens_documents', 'ecarts_stock', 'transporteurs', 'frais_livraison', 'commandes', 'historique_commande', 'boutiques', 'demandes', 'notifications', 'notifications_vues', 'abonnements_push']));
+    expect(tablesCommercant).toEqual(expect.arrayContaining(['utilisateurs', 'sessions', 'invitations', 'journal_actions', 'categories', 'produits', 'variantes', 'stocks', 'mouvements_stock', 'photos_produit', 'inventaires', 'lignes_inventaire', 'clients', 'sessions_caisse', 'compteurs_documents', 'documents', 'lignes_document', 'liens_documents', 'ecarts_stock', 'transporteurs', 'frais_livraison', 'commandes', 'historique_commande', 'boutiques', 'demandes', 'notifications', 'notifications_vues', 'abonnements_push', 'paiements_abonnement', 'abonnements']));
     for (const table of [...tablesCommercant, 'commercants']) {
       const t = await sqlProprietaire<{ relrowsecurity: boolean; relforcerowsecurity: boolean }>(
         'SELECT relrowsecurity, relforcerowsecurity FROM pg_class WHERE oid = $1::regclass', [table]);

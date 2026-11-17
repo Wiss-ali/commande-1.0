@@ -1,6 +1,7 @@
 // Boutique en ligne : réglages du commerçant, catalogue public relié au stock, tickets des acheteurs sans compte,
 // demandes à l'administrateur et notifications. Le catalogue public ne montre que ce que le commerçant a publié.
 import { sql } from 'kysely';
+import { etatEffectif, modulesEffectifs, situation } from './abonnements.ts';
 import { avecCommercant, bd, type Trx } from './bd.ts';
 import { chiffrer, dechiffrer, empreinte, hacherJeton, nouveauJeton } from './chiffrement.ts';
 import { creerCommande, expirerTickets, fraisPour, type RefusCommande } from './commandes.ts';
@@ -184,13 +185,17 @@ export async function trouverBoutique(sousDomaine: string): Promise<Vitrine | nu
   if (!s) return null;
   const c = await bd('auth').selectFrom('commercants').select(['id', 'nom', 'telephone', 'forme_juridique', 'etat', 'paiement_carte_actif', 'modules']).where('sous_domaine', '=', s).executeTakeFirst();
   if (!c) return null;
+  // Abonnement terminé (après le délai) ou module non compris : « Boutique momentanément indisponible ».
+  const ab = await situation(bd('auth'), c.id);
+  const etat = etatEffectif(c.etat, ab.etat);
+  const modules = modulesEffectifs(c.modules, ab.autorises);
   const reglages = await avecCommercant(c.id, lireReglages);
   // Le ticket doit toujours montrer un numéro à appeler : à défaut du téléphone du magasin, celui du propriétaire.
   const telephone = c.telephone ?? (await bd('auth').selectFrom('utilisateurs').select('telephone').where('commercant_id', '=', c.id).where('role', '=', 'proprietaire')
     .where('supprime_le', 'is', null).orderBy('cree_le').executeTakeFirst())?.telephone ?? null;
   return {
     commercantId: c.id, sousDomaine: s, nom: c.nom, telephone, formeJuridique: c.forme_juridique,
-    disponible: reglages.enLigne && c.etat === 'actif' && !!c.modules.boutique, paiementCarte: c.paiement_carte_actif, reglages,
+    disponible: reglages.enLigne && etat === 'actif' && !!modules.boutique, paiementCarte: c.paiement_carte_actif, reglages,
   };
 }
 

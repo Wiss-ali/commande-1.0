@@ -10,6 +10,10 @@ const DEFAUTS = {
   invitation_jours: 7,
   connexion_echecs_max: 5,
   connexion_blocage_minutes: 15,
+  delai_grace_jours: 5,
+  lecture_seule_jours: 90,
+  rappel_jours_1: 7,
+  rappel_jours_2: 1,
 } as const;
 export type CleReglage = keyof typeof DEFAUTS;
 

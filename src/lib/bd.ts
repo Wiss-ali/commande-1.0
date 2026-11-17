@@ -5,6 +5,7 @@
 import { Kysely, PostgresDialect, sql, type Transaction } from 'kysely';
 import pg from 'pg';
 import { config } from './config.ts';
+import { optionsSsl } from './ssl-base.ts';
 import type { BD } from './types-bd.ts';
 
 export type RoleBD = 'app' | 'auth' | 'plateforme';
@@ -21,7 +22,7 @@ export function bd(role: RoleBD): Kysely<BD> {
     const pool = new pg.Pool({
       connectionString: url,
       max: role === 'app' ? 10 : 4,
-      ssl: c.DATABASE_SSL === 'require' ? { rejectUnauthorized: true } : undefined,
+      ssl: c.DATABASE_SSL === 'require' ? optionsSsl() : undefined,
     });
     k = new Kysely<BD>({ dialect: new PostgresDialect({ pool }) });
     cache.__hanoutBD[role] = k;

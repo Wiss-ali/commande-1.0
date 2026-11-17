@@ -1,7 +1,12 @@
 node_modules
 .next
 .env
+*.env
 .git
 test-results
+playwright-report
+.cache-tests
 docs
 donnees
+deploiement/secrets
+deploiement/*.env

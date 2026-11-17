@@ -1,0 +1,25 @@
+# Caddy : le seul service ouvert sur Internet (ports 80 et 443). HTTPS automatique (Let's Encrypt),
+# pour le site, l'administration, la copie de test et chaque sous-domaine de boutique (certificat à la demande).
+name: hanout-proxy
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    env_file: ../secrets/proxy.env
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - donnees:/data
+      - config:/config
+    networks: [web]
+
+volumes:
+  donnees:
+  config:
+
+networks:
+  web:
+    name: hanout_web

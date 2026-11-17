@@ -9,3 +9,6 @@ next-env.d.ts
 public/wasm/
 donnees/
 .cache-tests/
+
+# Secrets des serveurs (créés par deploiement/installer.sh) : jamais dans git.
+deploiement/secrets/

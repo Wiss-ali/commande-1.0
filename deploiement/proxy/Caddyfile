@@ -1,0 +1,49 @@
+# Adresses et options lues dans secrets/proxy.env (créé par installer.sh).
+{
+	email {$EMAIL_CERTIFICATS}
+	# Certificat d'un sous-domaine de boutique : seulement si l'application confirme que la boutique existe.
+	on_demand_tls {
+		ask http://prod-app:3000/api/tls-autorise
+	}
+	{$CADDY_OPTIONS}
+}
+
+# Deux copies de l'application derrière chaque adresse : si l'une redémarre (mise à jour), l'autre répond.
+(prod) {
+	encode zstd gzip
+	reverse_proxy prod-bleu:3000 prod-vert:3000 {
+		lb_policy first
+		lb_try_duration 15s
+		health_uri /etat?base
+		health_interval 3s
+		fail_duration 10s
+	}
+}
+
+(test) {
+	encode zstd gzip
+	reverse_proxy test-bleu:3000 test-vert:3000 {
+		lb_policy first
+		lb_try_duration 15s
+		health_uri /etat?base
+		health_interval 3s
+		fail_duration 10s
+	}
+}
+
+{$DOMAINE_PROD} {
+	import prod
+}
+
+# Toute autre adresse : sous-domaine d'une boutique. Certificat obtenu à la première visite, seulement si
+# l'application confirme que la boutique existe (voir « ask » plus haut) ; sinon la connexion est refusée.
+https:// {
+	tls {
+		on_demand
+	}
+	import prod
+}
+
+{$DOMAINE_TEST} {
+	import test
+}

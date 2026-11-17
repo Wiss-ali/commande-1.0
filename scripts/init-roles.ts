@@ -1,5 +1,6 @@
 // Crée (ou met à jour) les rôles PostgreSQL et la base. À lancer une fois, avec un compte super-utilisateur.
 import pg from 'pg';
+import { optionsSsl } from '../src/lib/ssl-base.ts';
 
 function lire(nom: string): URL {
   const v = process.env[nom];
@@ -17,7 +18,7 @@ const roles = {
 const base = roles.hanout_proprietaire.pathname.slice(1);
 if (!/^[a-z_][a-z0-9_]*$/.test(base)) throw new Error('Nom de base invalide');
 
-const client = new pg.Client({ connectionString: superUrl.toString() });
+const client = new pg.Client({ connectionString: superUrl.toString(), ssl: optionsSsl() });
 await client.connect();
 try {
   for (const [role, url] of Object.entries(roles)) {

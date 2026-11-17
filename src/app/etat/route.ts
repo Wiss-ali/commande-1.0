@@ -40,7 +40,8 @@ export async function GET(requete: Request) {
   const sauvegarde = await derniereSauvegarde();
   // Une sauvegarde par jour : plus de 26 heures sans sauvegarde réussie est une panne (si elles sont configurées).
   const sauvegardeOk = !process.env.DOSSIER_SAUVEGARDES || (sauvegarde.ok && sauvegarde.ageHeures !== null && sauvegarde.ageHeures <= 26);
-  const ok = base && sauvegardeOk;
+  // « ?base » : l'application et la base seulement (vérification de santé du conteneur pendant une mise à jour).
+  const ok = base && (new URL(requete.url).searchParams.has('base') || sauvegardeOk);
   const corps = jetonValide(requete)
     ? { etat: ok ? 'ok' : 'erreur', application: 'ok', base: base ? 'ok' : 'erreur', sauvegarde: { ...sauvegarde, ok: sauvegardeOk }, version: process.env.VERSION_APP ?? null }
     : { etat: ok ? 'ok' : 'erreur' };

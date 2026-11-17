@@ -1,0 +1,114 @@
+# Un environnement complet (site réel « prod » ou copie de test « test ») sur le même serveur.
+# Lancé par deployer.sh, jamais à la main : docker compose -p hanout-<env> --env-file secrets/<env>/compose.env -f compose.yml …
+# Les secrets sont dans secrets/<env>/ (créés par installer.sh), jamais dans ce fichier.
+services:
+  base:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_MOT_DE_PASSE:?}
+      TZ: Africa/Algiers
+    # Connexions chiffrées (TLS 1.2 au moins) entre l'application et la base, avec le certificat créé à l'installation.
+    command: ["postgres", "-c", "ssl=on", "-c", "ssl_cert_file=/certs/base.crt", "-c", "ssl_key_file=/certs/base.key", "-c", "ssl_min_protocol_version=TLSv1.2"]
+    volumes:
+      - base:/var/lib/postgresql
+      - ./secrets/${ENV_NOM:?}/certs:/certs:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 20
+    networks: [interne]
+
+  # Deux copies de l'application : pendant une mise à jour, l'une sert les visiteurs pendant que l'autre redémarre.
+  app_bleu: &app
+    image: hanout:${VERSION:?}
+    restart: unless-stopped
+    depends_on:
+      base: { condition: service_healthy }
+    env_file: ./secrets/${ENV_NOM}/app.env
+    environment: &env_app
+      DOSSIER_FICHIERS: /donnees
+      DOSSIER_SAUVEGARDES: /sauvegardes
+      DATABASE_SSL: require
+      DATABASE_SSL_CA: /certs/ca.crt
+      TZ: Africa/Algiers
+    volumes:
+      - fichiers:/donnees
+      - ${DOSSIER_SAUVEGARDES:?}:/sauvegardes:ro
+      - ./secrets/${ENV_NOM}/certs/ca.crt:/certs/ca.crt:ro
+    networks:
+      interne: {}
+      web:
+        aliases: ["${ENV_NOM}-bleu", "${ENV_NOM}-app"]
+
+  app_vert:
+    <<: *app
+    networks:
+      interne: {}
+      web:
+        aliases: ["${ENV_NOM}-vert", "${ENV_NOM}-app"]
+
+  # Tâches périodiques : expiration des tickets de la boutique, échéances des abonnements (toutes les 5 minutes).
+  taches:
+    image: hanout:${VERSION:?}
+    restart: unless-stopped
+    depends_on:
+      base: { condition: service_healthy }
+    env_file: ./secrets/${ENV_NOM}/app.env
+    environment: *env_app
+    volumes:
+      - ./secrets/${ENV_NOM}/certs/ca.crt:/certs/ca.crt:ro
+    command: ["sh", "-c", "while true; do npm run --silent taches; sleep 300; done"]
+    # Pas un site : la vérification de santé de l'image ne s'applique pas.
+    healthcheck:
+      disable: true
+    networks: [interne]
+
+  # Sauvegarde chaque nuit : base et photos, chiffrées avec la clé publique (le serveur ne peut pas les relire).
+  sauvegarde:
+    image: postgres:18
+    restart: unless-stopped
+    depends_on:
+      base: { condition: service_healthy }
+    environment:
+      PGHOST: base
+      PGUSER: postgres
+      PGPASSWORD: ${POSTGRES_MOT_DE_PASSE:?}
+      PGSSLMODE: verify-full
+      PGSSLROOTCERT: /certs/ca.crt
+      BASE: ${NOM_BASE:-hanout}
+      HEURE_SAUVEGARDE: ${HEURE_SAUVEGARDE:-03:30}
+      JOURS_GARDES: ${JOURS_GARDES:-30}
+      TZ: Africa/Algiers
+    volumes:
+      - ./sauvegarde.sh:/usr/local/bin/sauvegarde.sh:ro
+      - ./secrets/${ENV_NOM}/cle-sauvegarde-publique.asc:/cle/publique.asc:ro
+      - ./secrets/${ENV_NOM}/certs/ca.crt:/certs/ca.crt:ro
+      - fichiers:/donnees:ro
+      - ${DOSSIER_SAUVEGARDES:?}:/sauvegardes
+    command: ["bash", "/usr/local/bin/sauvegarde.sh", "boucle"]
+    networks: [interne]
+
+  # Outils lancés à la demande (migrations, création de l'administrateur) : seul conteneur qui reçoit
+  # les mots de passe du propriétaire de la base et du super-utilisateur.
+  outils:
+    image: hanout:${VERSION:?}
+    profiles: ["outils"]
+    env_file: ./secrets/${ENV_NOM}/app.env
+    environment:
+      <<: *env_app
+      DATABASE_URL_SUPER: postgres://postgres:${POSTGRES_MOT_DE_PASSE}@base:5432/postgres
+      DATABASE_URL_PROPRIETAIRE: ${DATABASE_URL_PROPRIETAIRE:?}
+    volumes:
+      - ./secrets/${ENV_NOM}/certs/ca.crt:/certs/ca.crt:ro
+    networks: [interne]
+
+volumes:
+  base:
+  fichiers:
+
+networks:
+  interne: {}
+  web:
+    name: hanout_web
+    external: true

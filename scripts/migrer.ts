@@ -2,12 +2,13 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import pg from 'pg';
+import { optionsSsl } from '../src/lib/ssl-base.ts';
 
 const dossier = join(import.meta.dirname, '..', 'db', 'migrations');
 
 export async function migrer(sens: 'monter' | 'descendre', url = process.env.DATABASE_URL_PROPRIETAIRE): Promise<string[]> {
   if (!url) throw new Error('Variable manquante : DATABASE_URL_PROPRIETAIRE');
-  const ssl = process.env.DATABASE_SSL === 'require' ? { rejectUnauthorized: true } : undefined;
+  const ssl = optionsSsl();
   const client = new pg.Client({ connectionString: url, ssl });
   await client.connect();
   const faites: string[] = [];

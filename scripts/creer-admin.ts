@@ -3,6 +3,7 @@
 // Le mot de passe est demandé au clavier (ou lu dans ADMIN_MOT_DE_PASSE pour les tests).
 import { createInterface } from 'node:readline/promises';
 import pg from 'pg';
+import { optionsSsl } from '../src/lib/ssl-base.ts';
 import { defautMotDePasse, hacher } from '../src/lib/mots-de-passe.ts';
 
 const identifiant = process.argv[2]?.trim().toLowerCase();
@@ -23,7 +24,7 @@ if (defaut) {
 }
 const client = new pg.Client({
   connectionString: process.env.DATABASE_URL_PROPRIETAIRE,
-  ssl: process.env.DATABASE_SSL === 'require' ? { rejectUnauthorized: true } : undefined,
+  ssl: optionsSsl(),
 });
 await client.connect();
 try {

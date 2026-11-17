@@ -17,6 +17,7 @@
     "db:migrer": "tsx scripts/migrer.ts monter",
     "db:annuler": "tsx scripts/migrer.ts descendre",
     "admin:creer": "tsx scripts/creer-admin.ts",
+    "demo": "tsx scripts/demo.ts",
     "test": "vitest run",
     "test:e2e": "playwright test --trace off",
     "verifier": "npm run typecheck && npm test && npm run build && npm run test:e2e"

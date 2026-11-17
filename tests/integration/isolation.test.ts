@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { avecCommercant, bd, fermerBD } from '../../src/lib/bd.ts';
 import { inviterEmploye } from '../../src/lib/invitations.ts';
 import { journaliser } from '../../src/lib/journal.ts';
+import { creerAvoir, vendreEnCaisse } from '../../src/lib/documents.ts';
 import { creerSession } from '../../src/lib/sessions.ts';
 import { compter, creerProduit, ouvrirInventaire, trouverOuCreerCategorie } from '../../src/lib/stock.ts';
 import { creerAdmin, creerCommercant, sqlProprietaire, telephone } from '../outils.ts';
@@ -30,6 +31,10 @@ beforeAll(async () => {
       await trx.insertInto('photos_produit').values({ commercant_id: c.commercantId, produit_id: p.id }).execute();
       const variante = await trx.selectFrom('variantes').select('id').where('produit_id', '=', p.id).executeTakeFirstOrThrow();
       await compter(trx, ctx, await ouvrirInventaire(trx, ctx), variante.id, { ajouter: 1 });
+      // Une ligne dans chaque table des documents : client, caisse, compteur, facture, lignes, avoir (lien), écart de stock.
+      const f = await vendreEnCaisse(trx, ctx, { lignes: [{ varianteId: variante.id, quantite: 5 }], facture: true, acheteur: { nom: 'Client', telephone: telephone() }, cle: crypto.randomUUID() });
+      if (!f.ok) throw new Error(f.raison);
+      await creerAvoir(trx, ctx, f.id, { remettreEnStock: true, cle: crypto.randomUUID() });
     });
   }
   const r = await sqlProprietaire<{ table_name: string }>(
@@ -41,7 +46,7 @@ afterAll(fermerBD);
 
 describe('configuration de la base', () => {
   it('chaque table d\'un commerçant a la RLS activée, forcée, et une règle pour le rôle de l\'application', async () => {
-    expect(tablesCommercant).toEqual(expect.arrayContaining(['utilisateurs', 'sessions', 'invitations', 'journal_actions', 'categories', 'produits', 'variantes', 'stocks', 'mouvements_stock', 'photos_produit', 'inventaires', 'lignes_inventaire']));
+    expect(tablesCommercant).toEqual(expect.arrayContaining(['utilisateurs', 'sessions', 'invitations', 'journal_actions', 'categories', 'produits', 'variantes', 'stocks', 'mouvements_stock', 'photos_produit', 'inventaires', 'lignes_inventaire', 'clients', 'sessions_caisse', 'compteurs_documents', 'documents', 'lignes_document', 'liens_documents', 'ecarts_stock']));
     for (const table of [...tablesCommercant, 'commercants']) {
       const t = await sqlProprietaire<{ relrowsecurity: boolean; relforcerowsecurity: boolean }>(
         'SELECT relrowsecurity, relforcerowsecurity FROM pg_class WHERE oid = $1::regclass', [table]);

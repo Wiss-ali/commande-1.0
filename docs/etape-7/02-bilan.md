@@ -39,7 +39,7 @@ Recherche et liste des fonctions : `docs/etape-7/01-recherche-administration.md`
 ## Tests automatiques
 
 - **140 tests** unitaires et d'intégration, dont 10 nouveaux : règles de dates, modules, formules, paiements successifs, échéance qui ne bouge pas, lecture seule, archivage, réouverture, modules limités dans la session et dans la boutique, droits refusés au commerçant, tableau.
-- **69 parcours de bout en bout**, dont 8 nouveaux : création des formules, paiement BaridiMob, modules limités puis retouchés, rappel, lecture seule, tableau, paiements, délais, wilayas, arabe en thème sombre.
+- **71 parcours de bout en bout**, dont 8 nouveaux : création des formules, paiement BaridiMob, modules limités puis retouchés, rappel, lecture seule, tableau, paiements, délais, wilayas, arabe en thème sombre.
 - Captures : `docs/etape-7/captures/`.
 
 ## Pas fait, ou différent du plan

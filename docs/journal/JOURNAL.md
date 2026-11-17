@@ -5,7 +5,7 @@ Entrées les plus récentes en haut. Une entrée par action importante.
 ## 17/11/2026 — Étape 7 (administration, abonnements) terminée
 
 - Recherche : `docs/etape-7/01-recherche-administration.md`. Bilan : `docs/etape-7/02-bilan.md`.
-- Vérifications : 140 tests unitaires et d'intégration, 69 parcours de bout en bout.
+- Vérifications : 140 tests unitaires et d'intégration, 71 parcours de bout en bout.
 - Choix techniques à connaître pour la suite :
   - Migration `0008_abonnements` : `formules` (prix, `duree_jours`, `modules` jsonb), `paiements_abonnement` (montant, moyen, `recu_le`, référence), `abonnements` (une période par paiement : `debut`, `fin`), colonnes `commercants.modules_ajoutes` et `modules_retires`, réglages `delai_grace_jours`, `lecture_seule_jours`, `rappel_jours_1`, `rappel_jours_2`. Paiements et périodes figés (déclencheur `ligne_figee`).
   - `src/lib/abonnements.ts` : `etatDepuisFin` (la date `fin` est le premier jour sans accès payé ; puis délai, lecture seule, archivé), `etatEffectif` (suspension prioritaire), `modulesAutorises` (formule + ajouts − retraits, Stock toujours ; null = pas d'abonnement = tout), `situation(via, id)`.

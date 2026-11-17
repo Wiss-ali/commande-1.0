@@ -14,6 +14,9 @@ Dernière mise à jour : 17/11/2026, fin de l'étape 5.
 
 - La recherche avant chaque module est faite et écrite dans `docs/etape-N/`, puis le code est lancé **sans attendre** la validation de la liste.
 - On s'arrête toujours à la fin de chaque étape, avec le bilan et la liste « à essayer ».
+- **Décision du 17/11/2026** : le propriétaire vérifiera tout à la fin, et répondra aux questions ouvertes à la fin aussi.
+  En attendant, chaque question ouverte suit le choix par défaut ci-dessous (prudent et réversible). Les bilans
+  et la liste « à essayer » de chaque étape restent écrits, pour la vérification finale.
 
 ## Prochaine action
 
@@ -33,7 +36,10 @@ npm run db:roles && npm run db:migrer
 npm run verifier                     # tout doit passer avant de continuer
 ```
 
-## Questions ouvertes pour le propriétaire
+## Questions ouvertes pour le propriétaire (réponses attendues à la fin, choix par défaut en attendant)
+
+Choix par défaut appliqués : 1 → rien n'est ajouté tant que ce n'est pas saisi ; 2 → plus tard ; 3 → guide
+d'installation et serveur de test préparés à l'étape 8 ; 4 → plus tard ; 5 → mise à jour dès qu'une correction sort.
 
 1. **Barème du droit de timbre et taux de TVA** : à faire confirmer par un comptable, puis à saisir (timbre : Administration › Réglages fiscaux ; TVA : Réglages › Facturation de chaque commerçant). Tant que c'est vide, aucune taxe n'est ajoutée.
 2. **Avoir partiel** (annuler une seule ligne d'une facture) : utile tout de suite, ou plus tard ?

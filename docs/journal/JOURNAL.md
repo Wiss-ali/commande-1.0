@@ -2,6 +2,14 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 17/11/2026 — Vérification et réponses reportées à la fin
+
+- Le propriétaire vérifiera tout à la fin du projet, et répondra aux questions ouvertes à la fin aussi.
+- En attendant, choix par défaut prudents et réversibles (liste dans `ETAT.md`) : pas de timbre ni de TVA tant
+  qu'ils ne sont pas saisis ; avoir partiel et versements du transporteur pour plus tard ; guide d'installation
+  et serveur de test à l'étape 8.
+- Chaque étape garde son bilan et sa liste « à essayer », pour la vérification finale.
+
 ## 17/11/2026 — Étape 5 (accueil, rapports, export pour le comptable) terminée
 
 - Le propriétaire a confirmé que l'acheteur d'une boutique ne crée jamais de compte (déjà prévu, étape 6), puis a dit « tu peux continuer » : **étape 4 validée**.

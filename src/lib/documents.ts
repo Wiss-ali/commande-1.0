@@ -426,9 +426,11 @@ async function stockDejaSorti(trx: Trx, id: string): Promise<boolean> {
  *  - vente directe : le stock sort et la facture est payée en espèces tout de suite ;
  *  - envoi : le stock est réservé, la facture sera payée à la livraison.
  */
-export async function transformer(trx: Trx, ctx: Contexte, sourceId: string, cible: TypeDocument, o: { mode?: 'directe' | 'envoi'; acheteur?: Mentions | null; cle: string }): Promise<Resultat<{ id: string; manques: number }>> {
+export async function transformer(trx: Trx, ctx: Contexte, sourceId: string, cible: TypeDocument, o: { mode?: 'directe' | 'envoi'; acheteur?: Mentions | null; cle: string; depuisCommande?: boolean }): Promise<Resultat<{ id: string; manques: number }>> {
   const deja = await trx.selectFrom('documents').select('id').where('cle', '=', o.cle).executeTakeFirst();
   if (deja) return { ok: true, id: deja.id, manques: 0 };
+  // Le devis d'une commande se confirme depuis la commande, pour que son suivi reste juste.
+  if (!o.depuisCommande && (await trx.selectFrom('commandes').select('id').where('devis_id', '=', sourceId).executeTakeFirst())) return { ok: false, raison: 'transformation_impossible' };
   const source = await trx.selectFrom('documents').select(['id', 'type', 'etat', 'acheteur_chiffre', 'origine', 'note']).where('id', '=', sourceId).executeTakeFirst();
   if (!source) return { ok: false, raison: 'introuvable' };
   if (!TRANSFORMATIONS[source.type]?.includes(cible)) return { ok: false, raison: 'transformation_impossible' };

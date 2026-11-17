@@ -5,7 +5,8 @@
 import { avecCommercant, bd, fermerBD } from '../src/lib/bd.ts';
 import { accepterInvitation, inviterCommercant, inviterEmploye } from '../src/lib/invitations.ts';
 import { hacher } from '../src/lib/mots-de-passe.ts';
-import { creerProduit } from '../src/lib/stock.ts';
+import { ajouterTransporteur, confirmerCommande, creerCommande, enregistrerFrais, listerWilayas } from '../src/lib/commandes.ts';
+import { creerProduit, lireProduit } from '../src/lib/stock.ts';
 import pg from 'pg';
 
 const PROPRIETAIRE = { telephone: '0550000001', motDePasse: 'hanout demo' };
@@ -46,6 +47,19 @@ if (deja) {
       const r = await creerProduit(trx, ctx, p);
       if (!r.ok) throw new Error(r.raison);
     }
+  });
+  // Livraison et deux commandes : une à confirmer, une confirmée à expédier.
+  await avecCommercant(ctx.commercantId, async (trx) => {
+    await ajouterTransporteur(trx, ctx, 'Yalidine');
+    const grille = (await listerWilayas(trx)).map((w) => ({ wilaya: w.code, domicile: w.code === 31 ? 40_000 : 70_000, pointRelais: w.code === 31 ? 25_000 : 45_000 }));
+    await enregistrerFrais(trx, ctx, grille);
+    const tshirt = await trx.selectFrom('produits').select('id').where('nom_fr', '=', 'T-shirt uni').executeTakeFirstOrThrow();
+    const m = (await lireProduit(trx, tshirt.id))!.variantes.find((v) => v.libelle === 'M')!.id;
+    const cafe = await trx.selectFrom('variantes as v').innerJoin('produits as p', 'p.id', 'v.produit_id').select('v.id').where('p.nom_fr', '=', 'Café moulu 250 g').executeTakeFirstOrThrow();
+    const a = await creerCommande(trx, ctx, { client: { nom: 'Amina', telephone: '0661000001' }, wilaya: 16, commune: 'Bab Ezzouar', livraison: 'domicile', lignes: [{ varianteId: m, quantite: 2 }], cle: crypto.randomUUID(), libelleLivraison: 'Livraison' });
+    const b = await creerCommande(trx, ctx, { client: { nom: 'Yacine', telephone: '0770000002' }, wilaya: 31, commune: 'Bir El Djir', livraison: 'point_relais', lignes: [{ varianteId: cafe.id, quantite: 3 }], cle: crypto.randomUUID(), libelleLivraison: 'Livraison' });
+    if (!a.ok || !b.ok) throw new Error('commande refusée');
+    await confirmerCommande(trx, ctx, b.id, 'envoi', crypto.randomUUID());
   });
   console.log('Magasin de démonstration créé.');
 }

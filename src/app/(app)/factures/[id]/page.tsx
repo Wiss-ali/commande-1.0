@@ -10,6 +10,7 @@ import { Page } from '@/components/Page';
 import { PartagerPdf } from '@/components/PartagerPdf';
 import { Carte, Champ, classeBouton, Message, Pastille, TitreSection } from '@/components/ui';
 import { avecCommercant } from '@/lib/bd';
+import { commandeDuDocument } from '@/lib/commandes';
 import { lireDocument, numeroTexte, TRANSFORMATIONS } from '@/lib/documents';
 import { peut } from '@/lib/droits';
 import { formaterTaux } from '@/lib/fiscal';
@@ -27,8 +28,9 @@ export default async function Document({ params, searchParams }: { params: Promi
   const t = await getTranslations('document');
   const tf = await getTranslations('factures');
   const td = await getTranslations('pdf');
+  const tc = await getTranslations('commandes');
   const langue = (await getLocale()) as Langue;
-  const d = await avecCommercant(s.commercant.id, (trx) => lireDocument(trx, id));
+  const { d, commande } = await avecCommercant(s.commercant.id, async (trx) => ({ d: await lireDocument(trx, id), commande: await commandeDuDocument(trx, id) }));
   if (!d) notFound();
   const numero = numeroTexte(d);
   const signe = d.type === 'avoir' ? -1 : 1;
@@ -36,7 +38,8 @@ export default async function Document({ params, searchParams }: { params: Promi
   const annule = suites.some((l) => l.nature === 'corrige_par');
   const transforme = suites.some((l) => l.nature === 'transforme_en');
   const ecrit = s.commercant.etat === 'actif';
-  const possibles = (d.type === 'devis' ? d.etat === 'en_attente' : !transforme) ? (TRANSFORMATIONS[d.type] ?? []) : [];
+  // Le devis et la facture d'une commande se gèrent depuis la commande (confirmer, annuler, retour).
+  const possibles = commande && d.type === 'devis' ? [] : (d.type === 'devis' ? d.etat === 'en_attente' : !transforme) ? (TRANSFORMATIONS[d.type] ?? []) : [];
   const autres = possibles.filter((c) => c !== 'facture');
   const onglet = d.type === 'facture' ? 'factures' : d.type === 'devis' ? 'devis' : d.type === 'ticket' ? 'tickets' : 'autres';
   const { manques } = await searchParams;
@@ -98,6 +101,12 @@ export default async function Document({ params, searchParams }: { params: Promi
           {d.note ? <p className="mt-2 text-sm">{d.note}</p> : null}
         </Carte>
 
+        {commande ? (
+          <Link href={`/commandes/${commande.id}`} className="flex min-h-12 items-center justify-between gap-3 rounded-xl border border-trait bg-surface px-4 py-2 text-sm">
+            <span className="text-doux">{t('commandeLiee')}</span>
+            <span className="chiffres font-semibold text-vert underline">{tc('numero', { n: commande.numero })}</span>
+          </Link>
+        ) : null}
         {d.liens.length ? (
           <>
             <TitreSection>{t('liens')}</TitreSection>
@@ -120,7 +129,10 @@ export default async function Document({ params, searchParams }: { params: Promi
 
         {ecrit ? (
           <>
-            {d.type === 'devis' && d.etat === 'en_attente' ? (
+            {d.type === 'devis' && d.etat === 'en_attente' && commande ? (
+              <Link href={`/factures/${id}/modifier`} className={classeBouton.secondaire}><Pencil aria-hidden className="size-4" />{t('modifier')}</Link>
+            ) : null}
+            {d.type === 'devis' && d.etat === 'en_attente' && !commande ? (
               <div className="grid grid-cols-2 gap-2">
                 <Link href={`/factures/${id}/modifier`} className={classeBouton.secondaire}><Pencil aria-hidden className="size-4" />{t('modifier')}</Link>
                 <form action={changerEtat}>
@@ -130,7 +142,7 @@ export default async function Document({ params, searchParams }: { params: Promi
                 </form>
               </div>
             ) : null}
-            {d.type === 'devis' && d.etat === 'refuse' ? (
+            {d.type === 'devis' && d.etat === 'refuse' && !commande ? (
               <form action={changerEtat}>
                 <input type="hidden" name="id" value={id} />
                 <input type="hidden" name="etat" value="en_attente" />
@@ -171,7 +183,7 @@ export default async function Document({ params, searchParams }: { params: Promi
               </details>
             ) : null}
 
-            {d.type === 'facture' && !d.payeLe && !annule ? (
+            {d.type === 'facture' && !d.payeLe && !annule && !commande ? (
               <Carte className="flex flex-col gap-3">
                 <p className="text-sm">{t('encaisserTexte')}</p>
                 <Formulaire action={encaisser} bouton={t('encaisser')} garder>
@@ -181,7 +193,7 @@ export default async function Document({ params, searchParams }: { params: Promi
               </Carte>
             ) : null}
 
-            {(d.type === 'facture' || d.type === 'ticket') && !annule && peut(s.utilisateur.role, 'stock.corriger') ? (
+            {(d.type === 'facture' || d.type === 'ticket') && !annule && !commande && peut(s.utilisateur.role, 'stock.corriger') ? (
               <details className="rounded-xl border border-trait bg-surface">
                 <summary className="flex min-h-12 cursor-pointer items-center px-4 font-semibold text-terre">{t('annulerTitre')}</summary>
                 <div className="flex flex-col gap-3 p-4 pt-0">

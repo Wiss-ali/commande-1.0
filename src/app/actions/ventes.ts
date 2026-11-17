@@ -10,6 +10,7 @@ import {
   changerEtatDevis, cloturerCaisse, creerAvoir, creerDocument, encaisserFacture, fixerFondCaisse, lireDocument, modifierDevis, numeroTexte,
   traiterEcart, transformer, vendreEnCaisse, type LigneSaisie, type Mentions,
 } from '@/lib/documents';
+import { commandeDuDocument } from '@/lib/commandes';
 import { analyserTaux, schemaReglagesDocuments } from '@/lib/fiscal';
 import { analyserMontant, analyserQuantite } from '@/lib/formats';
 import { journaliser } from '@/lib/journal';
@@ -132,6 +133,8 @@ export const annulerDocument = action(async (f) => {
   if (!UUID.test(id) || !UUID.test(cle)) return { erreur: 'introuvable' };
   const { ip } = await infoRequete();
   const r = await avecCommercant(s.commercant.id, async (trx) => {
+    // La facture d'une commande s'annule depuis la commande (annulation ou retour du colis).
+    if (await commandeDuDocument(trx, id)) return { ok: false as const, raison: 'transformation_impossible' };
     const fait = await creerAvoir(trx, ctxDe(s), id, { remettreEnStock: f.get('remettre') === 'on', cle });
     if (fait.ok) await journaliser(trx, { commercantId: s.commercant.id, acteurType: 'utilisateur', acteurId: s.utilisateur.id, action: 'document.annule', objetType: 'document', objetId: id, ip });
     return fait;
@@ -146,7 +149,7 @@ export const encaisser = action(async (f) => {
   const id = texte(f, 'id', 40);
   const cle = texte(f, 'cle', 40);
   if (!UUID.test(id) || !UUID.test(cle)) return { erreur: 'introuvable' };
-  const r = await avecCommercant(s.commercant.id, (trx) => encaisserFacture(trx, ctxDe(s), id, cle));
+  const r = await avecCommercant(s.commercant.id, async (trx) => ((await commandeDuDocument(trx, id)) ? { ok: false as const, raison: 'transformation_impossible' } : encaisserFacture(trx, ctxDe(s), id, cle)));
   if (!r.ok) return { erreur: r.raison };
   revalidatePath('/', 'layout');
   redirect(`/factures/${r.id}`);

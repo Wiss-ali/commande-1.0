@@ -2,6 +2,24 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 17/11/2026 — Étape 4 (commandes à livrer, colis, clients) terminée
+
+- Le propriétaire a demandé de reprendre la branche `claude/adoring-ptolemy-sn6zzz` et de continuer : pris comme la **validation de l'étape 3**. Travail poursuivi sur la branche `claude/vigilant-gates-3k9mjn` (partie de l'étape 3, même historique).
+- Recherche : `docs/etape-4/01-recherche-commandes.md`. Bilan : `docs/etape-4/02-bilan.md`. Les sites web n'étaient pas joignables depuis le conteneur : sources lues via les résumés du moteur de recherche.
+- Vérifications : 109 tests unitaires et d'intégration, 47 parcours de bout en bout, `npm audit` sans faille.
+- Choix techniques à connaître pour la suite :
+  - Migration `0006_commandes` : `wilayas` (69, numéros 59 à 69 selon le décret 26-206), `communes` (vide), `transporteurs`, `frais_livraison`, `commandes`, `historique_commande`. Les données de `wilayas` sont insérées avant d'activer la RLS (la RLS forcée bloque aussi le propriétaire des tables).
+  - **Une commande = un devis + une ligne `commandes`.** Les articles sont les lignes du devis ; les frais de livraison sont une ligne libre du devis. Le colis (transporteur, suivi, dates) est dans `commandes`. Numéro de commande : compteur `commande` dans `compteurs_documents`.
+  - Le devis d'une commande **réserve** le stock (`creerDocument` avec `stock: 'reserver'`). `transformer` rend les réservations de toute la chaîne d'origine avant de réserver ou de sortir pour le nouveau document (`chaineOrigines`, `reservationsNettes`, `libererReservations`).
+  - `stockLibreSuffit` vérifie le stock **avant toute écriture** : un refus n'écrit rien et ne consomme aucun numéro (défaut corrigé de l'étape 3 pour « Envoi »).
+  - `modifierDevis` réajuste la réservation d'un devis qui en a une ; `changerEtatDevis(trx, ctx, …)` libère la réservation au refus et refuse le devis d'une commande.
+  - Expédition : `liberation` puis `vente` rattachées à la facture. `creerAvoir` libère ce qui reste réservé (net) et remet en stock ce qui est sorti.
+  - Livraison : `paye_le` + `mode_paiement = 'a_la_livraison'` sur la facture, sans reçu ni caisse.
+  - Le devis et la facture d'une commande ne se transforment, ne s'annulent et ne s'encaissent que depuis la commande (`transformer(..., { depuisCommande })`, contrôles dans `actions/ventes.ts`, boutons masqués sur la fiche du document).
+  - Droits : créer, confirmer, appel, livrer, retour, annuler = `vendre` ; préparer et expédier = `preparer`.
+  - Interface des connecteurs transporteurs : `src/lib/transporteurs.ts` (vide).
+  - Tests de bout en bout : `tests/e2e/suivi-commandes.spec.ts` doit passer **après** `parcours.spec.ts`, qui attend une base sans commerçant (les fichiers passent par ordre alphabétique).
+
 ## 17/11/2026 — Magasin de démonstration ; changement de conversation
 
 - Ajouté `scripts/demo.ts` (`npm run demo`) : un magasin rempli pour essayer sans rien saisir.

@@ -207,7 +207,7 @@ export async function confirmerCommande(trx: Trx, ctx: Contexte, id: string, mod
   if (!c) return { ok: false, raison: 'introuvable' };
   if (c.facture_id && c.statut !== 'a_confirmer' && c.statut !== 'nouvelle') return { ok: true, factureId: c.facture_id };
   if (!A_CONFIRMER.includes(c.statut)) return { ok: false, raison: 'statut_invalide' };
-  const r = await transformer(trx, ctx, c.devis_id, 'facture', { mode, cle });
+  const r = await transformer(trx, ctx, c.devis_id, 'facture', { mode, cle, depuisCommande: true });
   if (!r.ok) return { ok: false, raison: r.raison === 'stock_reserve' ? 'stock_insuffisant' : r.raison === 'deja_transforme' ? 'statut_invalide' : (r.raison as RefusCommande) };
   const nouveau: StatutCommande = mode === 'envoi' ? 'confirmee' : 'livree';
   await changerStatut(trx, ctx, id, c.statut, nouveau, { facture_id: r.id, ...(mode === 'directe' ? { livree_le: new Date() } : {}) });

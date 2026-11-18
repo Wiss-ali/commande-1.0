@@ -77,9 +77,12 @@ export default async function Accueil({ searchParams }: { searchParams: Promise<
           <ul className="grid grid-cols-2 gap-2">
             {chiffres.map((x) => (
               <li key={x.cle}>
-                <Link href={x.lien} className={`flex min-h-24 flex-col justify-between gap-1 rounded-xl border bg-surface p-3 ${x.alerte ? 'border-safran' : 'border-trait'}`}>
-                  <span className="text-sm text-doux">{x.libelle}</span>
-                  <span className="text-xl font-bold">{x.valeur}</span>
+                <Link href={x.lien} className={`flex min-h-24 flex-col justify-between gap-2 rounded-2xl border bg-surface p-3.5 shadow-doux hover:border-trait-fort ${x.alerte ? 'border-safran/60' : 'border-trait'}`}>
+                  <span className="flex items-start gap-1.5 text-[13px] leading-snug text-doux">
+                    {x.alerte ? <span aria-hidden className="mt-1.5 size-2 shrink-0 rotate-45 bg-safran" /> : null}
+                    {x.libelle}
+                  </span>
+                  <span className="text-2xl font-semibold tracking-tight">{x.valeur}</span>
                 </Link>
               </li>
             ))}
@@ -95,7 +98,7 @@ export default async function Accueil({ searchParams }: { searchParams: Promise<
               </div>
               <div role="group" aria-label={t('graphiquePeriode')} className="flex shrink-0 gap-1">
                 {([7, 30] as const).map((n) => (
-                  <Link key={n} href={n === 7 ? '/' : '/?jours=30'} scroll={false} aria-current={n === jours ? 'true' : undefined} className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border px-2 text-sm font-semibold ${n === jours ? 'border-vert bg-vert-pale text-vert' : 'border-trait'}`}>
+                  <Link key={n} href={n === 7 ? '/' : '/?jours=30'} scroll={false} aria-current={n === jours ? 'true' : undefined} className={`inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border px-2 text-sm font-semibold ${n === jours ? 'border-prim bg-prim-pale text-prim' : 'border-trait'}`}>
                     {t('jours', { n })}
                   </Link>
                 ))}
@@ -115,7 +118,7 @@ export default async function Accueil({ searchParams }: { searchParams: Promise<
           <ul className="flex flex-col gap-2">
             {aFaire.map((x) => (
               <li key={x.cle}>
-                <Link href={x.lien} className="flex min-h-12 items-center gap-3 rounded-xl border border-trait bg-surface px-4 py-2">
+                <Link href={x.lien} className="flex min-h-12 items-center gap-3 rounded-2xl border border-trait bg-surface shadow-doux px-4 py-2">
                   <span aria-hidden className="size-2 shrink-0 rotate-45 bg-safran" />
                   <span className="min-w-0 flex-1 text-sm font-medium">{x.texte}</span>
                   <ChevronRight aria-hidden className="directionnelle size-5 shrink-0 text-doux" />
@@ -133,8 +136,8 @@ export default async function Accueil({ searchParams }: { searchParams: Promise<
             const Icone = ICONE_MODULE[x];
             return (
               <li key={x}>
-                <Link href={`/${x}`} className="flex min-h-24 flex-col justify-between gap-2 rounded-xl border border-trait bg-surface p-3">
-                  <Icone aria-hidden className="size-6 text-vert" />
+                <Link href={`/${x}`} className="flex min-h-24 flex-col justify-between gap-2 rounded-2xl border border-trait bg-surface shadow-doux p-3">
+                  <Icone aria-hidden className="size-6 text-prim" />
                   <span className="font-semibold">{tm(x)}</span>
                   {chiffreModule(x)}
                 </Link>

@@ -26,7 +26,7 @@ export default async function Livraison() {
         {transporteurs.length ? (
           <ul className="flex flex-col gap-2">
             {transporteurs.map((tr) => (
-              <li key={tr.id} className="flex min-h-14 items-center justify-between gap-3 rounded-xl border border-trait bg-surface px-4 py-2">
+              <li key={tr.id} className="flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-trait bg-surface shadow-doux px-4 py-2">
                 <span className={`font-semibold ${tr.actif ? '' : 'text-doux line-through'}`}>{tr.nom}</span>
                 <form action={basculerTransporteur}>
                   <input type="hidden" name="id" value={tr.id} />

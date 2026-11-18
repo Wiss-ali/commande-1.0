@@ -46,7 +46,7 @@ export function GraphiqueBarres({ titre, barres, voirChiffres, colonnes }: { tit
             <g key={i} className="barre">
               <title>{b.texte}</title>
               <rect x={i * pas} y={0} width={pas} height={H - BAS} fill="transparent" />
-              {h > 0 ? <path d={d} fill={b.valeur >= 0 ? 'var(--vert)' : 'var(--terre)'} /> : null}
+              {h > 0 ? <path d={d} fill={b.valeur >= 0 ? 'var(--prim)' : 'var(--terre)'} /> : null}
               {montrees.has(i) ? (
                 <text x={i * pas + pas / 2} y={H - 6} textAnchor={i === 0 ? 'start' : i === barres.length - 1 ? 'end' : 'middle'} fontSize={10} fill="var(--doux)" className="chiffres">
                   {b.etiquette}
@@ -57,7 +57,7 @@ export function GraphiqueBarres({ titre, barres, voirChiffres, colonnes }: { tit
         })}
       </svg>
       <details className="text-sm">
-        <summary className="inline-flex min-h-11 cursor-pointer items-center font-semibold text-vert">{voirChiffres}</summary>
+        <summary className="inline-flex min-h-11 cursor-pointer items-center font-semibold text-prim">{voirChiffres}</summary>
         <table className="w-full text-start">
           <thead><tr className="text-doux"><th className="py-1 text-start font-medium">{colonnes[0]}</th><th className="py-1 text-end font-medium">{colonnes[1]}</th></tr></thead>
           <tbody>
@@ -85,7 +85,7 @@ export function BarresHorizontales({ lignes }: { lignes: { cle: string; nom: Rea
           {/* SVG plutôt qu'une largeur en style : la politique de sécurité interdit les styles en ligne. */}
           <svg viewBox="0 0 100 2" preserveAspectRatio="none" aria-hidden className="h-2 w-full rtl:-scale-x-100">
             <rect width={100} height={2} rx={1} fill="var(--creux)" />
-            <rect width={Math.max(2, (Math.abs(l.valeur) / max) * 100)} height={2} rx={1} fill={l.ton === 'terre' ? 'var(--terre)' : 'var(--vert)'} />
+            <rect width={Math.max(2, (Math.abs(l.valeur) / max) * 100)} height={2} rx={1} fill={l.ton === 'terre' ? 'var(--terre)' : 'var(--prim)'} />
           </svg>
           {l.detail ? <p className="text-xs text-doux">{l.detail}</p> : null}
         </li>

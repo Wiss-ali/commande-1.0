@@ -35,7 +35,7 @@ export default async function ModuleBoutique() {
   const ouverte = (type: string) => demandes.find((d) => d.type === type && d.etat === 'nouvelle');
   const ecrit = s.commercant.etat === 'actif';
   const publies = produits.filter((p) => p.visible_boutique).length;
-  const champTexte = 'min-h-24 w-full rounded-lg border border-trait bg-surface px-3 py-2 text-base text-encre';
+  const champTexte = 'min-h-24 w-full rounded-xl border border-trait bg-surface px-3 py-2 text-base text-encre';
   const coordonnees = (
     <>
       <Champ libelle={t('demandeNom')} name="nom" defaultValue={s.utilisateur.nom} maxLength={120} required />
@@ -50,7 +50,7 @@ export default async function ModuleBoutique() {
         {/* ───── En ligne ou coupée ───── */}
         <Carte className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2"><Globe aria-hidden className="size-5 text-vert" /><h2 className="font-semibold">{t('etat')}</h2></div>
+            <div className="flex items-center gap-2"><Globe aria-hidden className="size-5 text-prim" /><h2 className="font-semibold">{t('etat')}</h2></div>
             <Pastille ton={r.enLigne ? 'vert' : 'neutre'}>{t(r.enLigne ? 'enLigne' : 'coupee')}</Pastille>
           </div>
           <p className="text-sm text-doux">{t(r.enLigne ? 'enLigneTexte' : 'coupeeTexte')}</p>
@@ -65,7 +65,7 @@ export default async function ModuleBoutique() {
         {/* ───── Adresse ───── */}
         <Carte className="flex flex-col gap-3">
           <h2 className="font-semibold">{t('adresseTitre')}</h2>
-          {adresse ? <p className="break-all text-sm font-semibold text-vert" dir="ltr">{adresse}</p> : <Message ton="info">{t('adresseVide')}</Message>}
+          {adresse ? <p className="break-all text-sm font-semibold text-prim" dir="ltr">{adresse}</p> : <Message ton="info">{t('adresseVide')}</Message>}
           {ecrit ? (
             <Formulaire action={choisirAdresse} bouton={tc('enregistrer')} style="secondaire" succes={tc('enregistre')} garder>
               <Champ libelle={t('sousDomaine')} name="sousDomaine" defaultValue={c.sous_domaine ?? ''} maxLength={40} dir="ltr" autoComplete="off" aide={t('sousDomaineAide')} required />
@@ -79,26 +79,26 @@ export default async function ModuleBoutique() {
           <fieldset className="flex flex-col gap-2">
             <legend className="sr-only">{t('modeleTitre')}</legend>
             {MODELES.map((m) => (
-              <label key={m} className="flex min-h-16 cursor-pointer items-start gap-3 rounded-xl border border-trait bg-surface p-3 has-[:checked]:border-vert has-[:checked]:bg-vert-pale">
-                <input type="radio" name="modele" value={m} defaultChecked={r.modele === m} className="mt-1 size-5 accent-vert" />
+              <label key={m} className="flex min-h-16 cursor-pointer items-start gap-3 rounded-2xl border border-trait bg-surface shadow-doux p-3 has-[:checked]:border-prim has-[:checked]:bg-prim-pale">
+                <input type="radio" name="modele" value={m} defaultChecked={r.modele === m} className="mt-1 size-5 accent-prim" />
                 <span><span className="block font-semibold">{t(`modele.${m}`)}</span><span className="block text-sm text-doux">{t(`modeleTexte.${m}`)}</span></span>
               </label>
             ))}
           </fieldset>
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-medium">{t('produitUnique')}</span>
-            <select name="produitUnique" defaultValue={r.produitUniqueId ?? ''} className="min-h-12 w-full rounded-lg border border-trait bg-surface px-3 text-base text-encre">
+            <select name="produitUnique" defaultValue={r.produitUniqueId ?? ''} className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre">
               <option value="">{t('premierProduit')}</option>
               {produits.filter((p) => p.visible_boutique).map((p) => <option key={p.id} value={p.id}>{nomLocal(p, langue)}</option>)}
             </select>
           </label>
         </Formulaire>
         <Carte className="flex flex-col gap-3 border-dashed">
-          <div className="flex items-center gap-2"><Sparkles aria-hidden className="size-5 text-vert" /><h2 className="font-semibold">{t('sitePersoTitre')}</h2></div>
+          <div className="flex items-center gap-2"><Sparkles aria-hidden className="size-5 text-prim" /><h2 className="font-semibold">{t('sitePersoTitre')}</h2></div>
           <p className="text-sm">{t('sitePersoTexte')}</p>
           {ouverte('site_personnalise') ? <Message ton="info">{t('demandeEnvoyee', { date: formaterDate(ouverte('site_personnalise')!.cree_le) })}</Message> : ecrit ? (
             <details>
-              <summary className="inline-flex min-h-11 cursor-pointer items-center font-semibold text-vert">{t('sitePersoBouton')}</summary>
+              <summary className="inline-flex min-h-11 cursor-pointer items-center font-semibold text-prim">{t('sitePersoBouton')}</summary>
               <Formulaire action={envoyerDemande} bouton={t('envoyerDemande')} succes={t('demandeOk')}>
                 <input type="hidden" name="type" value="site_personnalise" />
                 {coordonnees}
@@ -141,7 +141,7 @@ export default async function ModuleBoutique() {
             {SECTIONS.map((x) => (
               <label key={x} className="flex items-center justify-between gap-3">
                 <span className="text-sm">{t(`section.${x}`)}</span>
-                <select name={`position_${x}`} defaultValue={r.sections.indexOf(x) + 1} className="min-h-11 rounded-lg border border-trait bg-surface px-3">
+                <select name={`position_${x}`} defaultValue={r.sections.indexOf(x) + 1} className="min-h-11 rounded-xl border border-trait bg-surface px-3">
                   {SECTIONS.map((_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}
                 </select>
               </label>
@@ -157,7 +157,7 @@ export default async function ModuleBoutique() {
             <fieldset className="flex flex-col gap-2">
               <legend className="mb-1.5 text-sm font-medium">{t('ruptures')}</legend>
               {(['visible', 'masque'] as const).map((m) => (
-                <label key={m} className="flex min-h-11 cursor-pointer items-center gap-3"><input type="radio" name="ruptures" value={m} defaultChecked={r.ruptures === m} className="size-5 accent-vert" /><span className="text-sm">{t(`rupture_${m}`)}</span></label>
+                <label key={m} className="flex min-h-11 cursor-pointer items-center gap-3"><input type="radio" name="ruptures" value={m} defaultChecked={r.ruptures === m} className="size-5 accent-prim" /><span className="text-sm">{t(`rupture_${m}`)}</span></label>
               ))}
             </fieldset>
             <Champ libelle={t('plusQue')} name="plusQue" defaultValue={String(r.plusQue)} inputMode="numeric" dir="ltr" maxLength={2} aide={t('plusQueAide')} />
@@ -170,14 +170,14 @@ export default async function ModuleBoutique() {
         {produits.length ? (
           <ul className="flex flex-col gap-2">
             {produits.map((p) => (
-              <li key={p.id} className="flex min-h-14 flex-wrap items-center gap-2 rounded-xl border border-trait bg-surface px-3 py-2">
+              <li key={p.id} className="flex min-h-14 flex-wrap items-center gap-2 rounded-2xl border border-trait bg-surface shadow-doux px-3 py-2">
                 <Link href={`/stock/${p.id}`} className="min-w-0 flex-1 truncate font-semibold">{nomLocal(p, langue)}</Link>
                 {(['visible_boutique', 'nouveau'] as const).map((champ) => (
                   <form key={champ} action={basculerProduit}>
                     <input type="hidden" name="id" value={p.id} />
                     <input type="hidden" name="champ" value={champ} />
                     <input type="hidden" name="valeur" value={p[champ] ? 'non' : 'oui'} />
-                    <button type="submit" aria-pressed={p[champ]} aria-label={`${t(champ === 'nouveau' ? 'nouveau' : 'visible')} · ${nomLocal(p, langue)}`} className={`min-h-11 rounded-lg border px-3 text-sm font-semibold ${p[champ] ? 'border-vert bg-vert-pale text-vert' : 'border-trait text-doux'}`}>
+                    <button type="submit" aria-pressed={p[champ]} aria-label={`${t(champ === 'nouveau' ? 'nouveau' : 'visible')} · ${nomLocal(p, langue)}`} className={`min-h-11 rounded-lg border px-3 text-sm font-semibold ${p[champ] ? 'border-prim bg-prim-pale text-prim' : 'border-trait text-doux'}`}>
                       {t(champ === 'nouveau' ? 'nouveau' : 'visible')}
                     </button>
                   </form>
@@ -193,7 +193,7 @@ export default async function ModuleBoutique() {
           <p className="text-sm">{t(c.paiement_carte_actif ? 'carteActive' : 'carteInactive')}</p>
           {!c.paiement_carte_actif ? (ouverte('paiement_carte') ? <Message ton="info">{t('demandeEnvoyee', { date: formaterDate(ouverte('paiement_carte')!.cree_le) })}</Message> : ecrit ? (
             <details>
-              <summary className="inline-flex min-h-11 cursor-pointer items-center font-semibold text-vert">{t('demanderActivation')}</summary>
+              <summary className="inline-flex min-h-11 cursor-pointer items-center font-semibold text-prim">{t('demanderActivation')}</summary>
               <Formulaire action={envoyerDemande} bouton={t('envoyerDemande')} succes={t('demandeOk')}>
                 <input type="hidden" name="type" value="paiement_carte" />
                 {coordonnees}

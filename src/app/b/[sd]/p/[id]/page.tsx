@@ -25,13 +25,13 @@ export default async function ProduitBoutique({ params }: { params: Promise<{ sd
   const nom = nomLocal(p, langue);
   return (
     <>
-      <Link href={c.base || '/'} className="text-sm font-semibold text-vert underline">{t('retourBoutique')}</Link>
+      <Link href={c.base || '/'} className="text-sm font-semibold text-prim underline">{t('retourBoutique')}</Link>
       <div className="flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-creux">
         {p.photoId ? <img src={`${c.base}/photo/${p.photoId}`} alt="" className="size-full object-cover" /> : <ImageOff aria-hidden className="size-10 text-doux" />}
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <h1 className="text-2xl font-bold">{nom}</h1>
-        {p.nouveau ? <span className="rounded-full bg-vert px-2 py-0.5 text-xs font-bold text-sur-vert">{t('nouveau')}</span> : null}
+        {p.nouveau ? <span className="rounded-full bg-prim px-2 py-0.5 text-xs font-bold text-sur-prim">{t('nouveau')}</span> : null}
         {p.disponible > 0 && c.v.reglages.plusQue > 0 && p.disponible <= c.v.reglages.plusQue ? <span className="rounded-full bg-safran px-2 py-0.5 text-xs font-bold text-encre">{t('plusQue', { n: p.disponible })}</span> : null}
       </div>
       {p.categorie ? <p className="text-sm text-doux">{nomLocal(p.categorie, langue)}</p> : null}

@@ -15,11 +15,11 @@ export async function CarteProduit({ p, base, plusQue, large }: { p: ProduitPubl
   const barre = p.variantes.find((v) => v.prix === prix)?.prixBarre;
   const epuise = p.disponible <= 0;
   return (
-    <Link href={`${base}/p/${p.id}`} className={`flex flex-col overflow-hidden rounded-xl border border-trait bg-surface ${epuise ? 'opacity-75' : ''}`}>
+    <Link href={`${base}/p/${p.id}`} className={`flex flex-col overflow-hidden rounded-2xl border border-trait bg-surface shadow-doux ${epuise ? 'opacity-75' : ''}`}>
       <span className={`relative flex items-center justify-center bg-creux ${large ? 'aspect-[4/3]' : 'aspect-square'}`}>
         {p.photoId ? <img src={`${base}/photo/${p.photoId}${large ? '' : '?t=p'}`} alt="" loading="lazy" className="size-full object-cover" /> : <ImageOff aria-hidden className="size-8 text-doux" />}
         <span className="absolute start-2 top-2 flex flex-col items-start gap-1">
-          {p.nouveau ? <span className="rounded-full bg-vert px-2 py-0.5 text-xs font-bold text-sur-vert">{t('nouveau')}</span> : null}
+          {p.nouveau ? <span className="rounded-full bg-prim px-2 py-0.5 text-xs font-bold text-sur-prim">{t('nouveau')}</span> : null}
           {epuise ? <span className="rounded-full bg-terre px-2 py-0.5 text-xs font-bold text-white">{t('rupture')}</span>
             : plusQue > 0 && p.disponible <= plusQue ? <span className="rounded-full bg-safran px-2 py-0.5 text-xs font-bold text-encre">{t('plusQue', { n: p.disponible })}</span> : null}
         </span>

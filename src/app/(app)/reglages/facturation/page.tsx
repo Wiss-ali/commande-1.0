@@ -17,7 +17,7 @@ export default async function Facturation() {
   const baremeVide = lireBaremeTimbre(await reglageBrut('timbre')).tranches.length === 0;
   const coche = (nom: string, libelle: string, defaut: boolean) => (
     <label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-lg border border-trait px-3 py-2.5">
-      <input type="checkbox" name={nom} defaultChecked={defaut} className="mt-0.5 size-5 accent-vert" />
+      <input type="checkbox" name={nom} defaultChecked={defaut} className="mt-0.5 size-5 accent-prim" />
       <span className="text-sm">{libelle}</span>
     </label>
   );

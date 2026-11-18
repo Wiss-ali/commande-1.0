@@ -88,7 +88,7 @@ export default async function Produit({ params, searchParams }: { params: Promis
             {ecrit ? (
               <>
                 <details className="rounded-lg border border-trait">
-                  <summary className="flex min-h-12 cursor-pointer items-center px-3 font-semibold text-vert">{tm('entreeTitre')}</summary>
+                  <summary className="flex min-h-12 cursor-pointer items-center px-3 font-semibold text-prim">{tm('entreeTitre')}</summary>
                   <div className="p-3 pt-0">
                     <Formulaire action={mouvementStock} bouton={tm('entreeBouton')} succes={tm('enregistre')}>
                       <input type="hidden" name="sens" value="entree" />
@@ -111,7 +111,7 @@ export default async function Produit({ params, searchParams }: { params: Promis
                         <Champ libelle={tm('quantiteSortie')} name="quantite" inputMode="numeric" dir="ltr" maxLength={7} autoComplete="off" required />
                         <label className="flex flex-col gap-1.5">
                           <span className="text-sm font-medium">{tm('raison')}</span>
-                          <select name="motif" className="min-h-12 w-full rounded-lg border border-trait bg-surface px-3 text-base text-encre">
+                          <select name="motif" className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre">
                             {MOTIFS.map((m) => <option key={m} value={m}>{tm(`motif.${m}`)}</option>)}
                           </select>
                         </label>

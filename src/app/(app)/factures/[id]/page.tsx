@@ -64,7 +64,7 @@ export default async function Document({ params, searchParams }: { params: Promi
           {d.acheteur ? (
             <div className="border-t border-trait pt-2 text-sm">
               <p className="font-semibold">{d.acheteur.nom}</p>
-              {d.acheteur.telephone ? <p><a href={`tel:${d.acheteur.telephone}`} className="chiffres text-vert underline">{formaterTelephone(d.acheteur.telephone)}</a></p> : null}
+              {d.acheteur.telephone ? <p><a href={`tel:${d.acheteur.telephone}`} className="chiffres text-prim underline">{formaterTelephone(d.acheteur.telephone)}</a></p> : null}
               {d.acheteur.adresse ? <p className="text-doux">{d.acheteur.adresse}</p> : null}
               {d.acheteur.nif ? <p className="text-doux">{td('nif')} : <span className="chiffres">{d.acheteur.nif}</span></p> : null}
             </div>
@@ -72,7 +72,7 @@ export default async function Document({ params, searchParams }: { params: Promi
         </Carte>
 
         {d.lignes.length ? (
-          <ul className="flex flex-col divide-y divide-trait rounded-xl border border-trait bg-surface">
+          <ul className="flex flex-col divide-y divide-trait rounded-2xl border border-trait bg-surface shadow-doux">
             {d.lignes.map((l) => (
               <li key={l.id} className="flex items-start justify-between gap-3 px-4 py-3">
                 <div className="min-w-0">
@@ -102,9 +102,9 @@ export default async function Document({ params, searchParams }: { params: Promi
         </Carte>
 
         {commande ? (
-          <Link href={`/commandes/${commande.id}`} className="flex min-h-12 items-center justify-between gap-3 rounded-xl border border-trait bg-surface px-4 py-2 text-sm">
+          <Link href={`/commandes/${commande.id}`} className="flex min-h-12 items-center justify-between gap-3 rounded-2xl border border-trait bg-surface shadow-doux px-4 py-2 text-sm">
             <span className="text-doux">{t('commandeLiee')}</span>
-            <span className="chiffres font-semibold text-vert underline">{tc('numero', { n: commande.numero })}</span>
+            <span className="chiffres font-semibold text-prim underline">{tc('numero', { n: commande.numero })}</span>
           </Link>
         ) : null}
         {d.liens.length ? (
@@ -112,9 +112,9 @@ export default async function Document({ params, searchParams }: { params: Promi
             <TitreSection>{t('liens')}</TitreSection>
             <div className="flex flex-col gap-2">
               {d.liens.map((l) => (
-                <Link key={l.id} href={`/factures/${l.id}`} className="flex min-h-12 items-center justify-between gap-3 rounded-xl border border-trait bg-surface px-4 py-2 text-sm">
+                <Link key={l.id} href={`/factures/${l.id}`} className="flex min-h-12 items-center justify-between gap-3 rounded-2xl border border-trait bg-surface shadow-doux px-4 py-2 text-sm">
                   <span className="text-doux">{t(`lien.${l.sens}.${l.nature}`)}</span>
-                  <span className="font-semibold text-vert underline">{td(`type_${l.type}`)} <span className="chiffres">{numeroTexte(l)}</span></span>
+                  <span className="font-semibold text-prim underline">{td(`type_${l.type}`)} <span className="chiffres">{numeroTexte(l)}</span></span>
                 </Link>
               ))}
             </div>
@@ -169,8 +169,8 @@ export default async function Document({ params, searchParams }: { params: Promi
               </Carte>
             ) : null}
             {autres.length ? (
-              <details className="rounded-xl border border-trait bg-surface">
-                <summary className="flex min-h-12 cursor-pointer items-center px-4 font-semibold text-vert">{t('autresDocuments')}</summary>
+              <details className="rounded-2xl border border-trait bg-surface shadow-doux">
+                <summary className="flex min-h-12 cursor-pointer items-center px-4 font-semibold text-prim">{t('autresDocuments')}</summary>
                 <div className="flex flex-col gap-3 p-4 pt-0">
                   {autres.map((cible) => (
                     <Formulaire key={cible} action={transformerDocument} bouton={t('creer', { type: td(`type_${cible}`) })} style="secondaire" garder>
@@ -194,7 +194,7 @@ export default async function Document({ params, searchParams }: { params: Promi
             ) : null}
 
             {(d.type === 'facture' || d.type === 'ticket') && !annule && !commande && peut(s.utilisateur.role, 'stock.corriger') ? (
-              <details className="rounded-xl border border-trait bg-surface">
+              <details className="rounded-2xl border border-trait bg-surface shadow-doux">
                 <summary className="flex min-h-12 cursor-pointer items-center px-4 font-semibold text-terre">{t('annulerTitre')}</summary>
                 <div className="flex flex-col gap-3 p-4 pt-0">
                   <p className="text-sm text-doux">{t('annulerTexte')}</p>
@@ -202,7 +202,7 @@ export default async function Document({ params, searchParams }: { params: Promi
                     <input type="hidden" name="id" value={id} />
                     <input type="hidden" name="cle" value={randomUUID()} />
                     <label className="flex min-h-12 cursor-pointer items-center gap-3">
-                      <input type="checkbox" name="remettre" defaultChecked className="size-5 accent-vert" />
+                      <input type="checkbox" name="remettre" defaultChecked className="size-5 accent-prim" />
                       <span className="text-sm">{t('remettreStock')}</span>
                     </label>
                   </Formulaire>

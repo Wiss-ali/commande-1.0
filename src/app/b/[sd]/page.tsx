@@ -61,15 +61,15 @@ export default async function Boutique({ params, searchParams }: { params: Promi
         {r.modele === 'catalogue' ? (
           <>
             <form role="search" className="flex gap-2">
-              <input type="search" name="q" defaultValue={sp.q ?? ''} aria-label={t('chercher')} placeholder={t('chercher')} maxLength={60} className="min-h-12 min-w-0 flex-1 rounded-lg border border-trait bg-surface px-3 text-base" />
+              <input type="search" name="q" defaultValue={sp.q ?? ''} aria-label={t('chercher')} placeholder={t('chercher')} maxLength={60} className="min-h-12 min-w-0 flex-1 rounded-xl border border-trait bg-surface px-3 text-base" />
               {sp.cat ? <input type="hidden" name="cat" value={sp.cat} /> : null}
-              <button type="submit" aria-label={t('chercher')} className="inline-flex min-h-12 min-w-12 items-center justify-center rounded-lg border border-trait bg-surface"><Search aria-hidden className="size-5" /></button>
+              <button type="submit" aria-label={t('chercher')} className="inline-flex min-h-12 min-w-12 items-center justify-center rounded-xl border border-trait bg-surface"><Search aria-hidden className="size-5" /></button>
             </form>
             {categories.length ? (
               <nav aria-label={t('categories')} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-                <Link href={base || '/'} aria-current={!sp.cat ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-semibold ${!sp.cat ? 'border-vert bg-vert-pale text-vert' : 'border-trait bg-surface'}`}>{t('toutes')}</Link>
+                <Link href={base || '/'} aria-current={!sp.cat ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-semibold ${!sp.cat ? 'border-prim bg-prim-pale text-prim' : 'border-trait bg-surface'}`}>{t('toutes')}</Link>
                 {categories.map((k) => (
-                  <Link key={k.id} href={`${base}?cat=${k.id}`} aria-current={sp.cat === k.id ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-semibold ${sp.cat === k.id ? 'border-vert bg-vert-pale text-vert' : 'border-trait bg-surface'}`}>{nomLocal(k, langue)}</Link>
+                  <Link key={k.id} href={`${base}?cat=${k.id}`} aria-current={sp.cat === k.id ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-semibold ${sp.cat === k.id ? 'border-prim bg-prim-pale text-prim' : 'border-trait bg-surface'}`}>{nomLocal(k, langue)}</Link>
                 ))}
               </nav>
             ) : null}
@@ -83,13 +83,13 @@ export default async function Boutique({ params, searchParams }: { params: Promi
       </section>
     ),
     conditions: texte(r.livraison) || texte(r.retour) ? (
-      <section key="conditions" className="flex flex-col gap-3 rounded-xl border border-trait bg-surface p-4">
+      <section key="conditions" className="flex flex-col gap-3 rounded-2xl border border-trait bg-surface shadow-doux p-4">
         {texte(r.livraison) ? <div><h2 className="font-semibold">{t('conditionsLivraison')}</h2><p className="whitespace-pre-line text-sm">{texte(r.livraison)}</p></div> : null}
         {texte(r.retour) ? <div><h2 className="font-semibold">{t('conditionsRetour')}</h2><p className="whitespace-pre-line text-sm">{texte(r.retour)}</p></div> : null}
       </section>
     ) : null,
     contact: (
-      <section key="contact" className="flex flex-col gap-2 rounded-xl border border-trait bg-surface p-4">
+      <section key="contact" className="flex flex-col gap-2 rounded-2xl border border-trait bg-surface shadow-doux p-4">
         <h2 className="font-semibold">{t('contact')}</h2>
         <div className="grid grid-cols-2 gap-2">
           {v.telephone ? <a href={`tel:${v.telephone}`} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-trait px-3 text-sm font-semibold"><Phone aria-hidden className="size-4" />{t('appeler')}</a> : null}
@@ -98,7 +98,7 @@ export default async function Boutique({ params, searchParams }: { params: Promi
         {v.telephone ? <p className="chiffres text-sm text-doux" dir="ltr">{formaterTelephone(v.telephone)}</p> : null}
         {Object.entries(r.reseaux).length ? (
           <ul className="flex flex-wrap gap-3 text-sm">
-            {Object.entries(r.reseaux).map(([n, lien]) => <li key={n}><a href={lien} target="_blank" rel="noopener noreferrer" className="font-semibold text-vert underline">{t(`reseau_${n}`)}</a></li>)}
+            {Object.entries(r.reseaux).map(([n, lien]) => <li key={n}><a href={lien} target="_blank" rel="noopener noreferrer" className="font-semibold text-prim underline">{t(`reseau_${n}`)}</a></li>)}
           </ul>
         ) : null}
       </section>

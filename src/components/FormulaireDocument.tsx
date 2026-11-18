@@ -53,7 +53,7 @@ export function FormulaireDocument({ type, id, cle, lignes: initiales, client, n
         <Champ libelle={t('clientNom')} name="clientNom" defaultValue={client.nom} maxLength={120} autoComplete="off" />
         <Champ libelle={t('clientTelephone')} name="clientTelephone" defaultValue={client.telephone} type="tel" inputMode="tel" dir="ltr" maxLength={30} autoComplete="off" />
         <details open={Boolean(client.adresse || client.nif || client.rc || client.nis || client.ai)}>
-          <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm font-semibold text-vert">{t('clientPro')}</summary>
+          <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm font-semibold text-prim">{t('clientPro')}</summary>
           <div className="flex flex-col gap-3 pt-2">
             <Champ libelle={tl('adresse')} name="clientAdresse" defaultValue={client.adresse} maxLength={300} autoComplete="off" />
             <Champ libelle={tl('nif')} name="clientNif" defaultValue={client.nif} maxLength={40} dir="ltr" autoComplete="off" />
@@ -91,7 +91,7 @@ export function FormulaireDocument({ type, id, cle, lignes: initiales, client, n
                 e.preventDefault();
                 setTrouves(recherche.trim() ? await chercherTexte(recherche) : null);
               }}
-              className="min-h-12 w-full rounded-lg border border-trait bg-surface px-3 text-base text-encre"
+              className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre"
             />
           </label>
           <button type="button" aria-label={t('chercher')} onClick={async () => setTrouves(recherche.trim() ? await chercherTexte(recherche) : null)} className={`${classeBouton.secondaire} min-h-12 px-3`}><Search aria-hidden className="size-5" /></button>
@@ -124,7 +124,7 @@ export function FormulaireDocument({ type, id, cle, lignes: initiales, client, n
       </Carte>
 
       <Champ libelle={t('note')} name="note" defaultValue={note} maxLength={500} autoComplete="off" />
-      <p className="flex items-baseline justify-between rounded-xl border border-trait bg-surface px-4 py-3"><span className="text-sm text-doux">{t('total')}</span><span className="text-2xl font-bold">{formaterMontant(total, langue)}</span></p>
+      <p className="flex items-baseline justify-between rounded-2xl border border-trait bg-surface shadow-doux px-4 py-3"><span className="text-sm text-doux">{t('total')}</span><span className="text-2xl font-bold">{formaterMontant(total, langue)}</span></p>
     </Formulaire>
   );
 }

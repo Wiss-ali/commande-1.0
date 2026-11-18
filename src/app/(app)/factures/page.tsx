@@ -41,7 +41,7 @@ export default async function Factures({ searchParams }: { searchParams: Promise
       <Page>
         <nav aria-label={t('onglets')} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
           {(Object.keys(ONGLETS) as Onglet[]).map((o) => (
-            <Link key={o} href={`/factures?onglet=${o}`} aria-current={o === onglet ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold ${o === onglet ? 'border-vert bg-vert-pale text-vert' : 'border-trait bg-surface'}`}>
+            <Link key={o} href={`/factures?onglet=${o}`} aria-current={o === onglet ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold ${o === onglet ? 'border-prim bg-prim-pale text-prim' : 'border-trait bg-surface'}`}>
               {t(`onglet.${o}`)}
               {o === 'devis' && devisEnAttente ? <span className="chiffres rounded-full bg-safran px-1.5 text-xs text-encre">{devisEnAttente}</span> : null}
             </Link>
@@ -56,7 +56,7 @@ export default async function Factures({ searchParams }: { searchParams: Promise
         ) : null}
         <form action="/factures" role="search" className="flex gap-2">
           <input type="hidden" name="onglet" value={onglet} />
-          <input type="search" name="n" defaultValue={numero ?? ''} inputMode="numeric" aria-label={t('chercher')} placeholder={t('chercher')} maxLength={20} dir="ltr" className="min-h-12 min-w-0 flex-1 rounded-lg border border-trait bg-surface px-3 text-base text-encre placeholder:text-doux" />
+          <input type="search" name="n" defaultValue={numero ?? ''} inputMode="numeric" aria-label={t('chercher')} placeholder={t('chercher')} maxLength={20} dir="ltr" className="min-h-12 min-w-0 flex-1 rounded-xl border border-trait bg-surface px-3 text-base text-encre placeholder:text-doux" />
           <button type="submit" aria-label={t('chercher')} className={`${classeBouton.secondaire} min-h-12 px-3`}><Search aria-hidden className="size-5" /></button>
         </form>
 
@@ -64,7 +64,7 @@ export default async function Factures({ searchParams }: { searchParams: Promise
           <ul className="flex flex-col gap-2">
             {documents.slice(0, PAR_PAGE * page).map((d) => (
               <li key={d.id}>
-                <Link href={`/factures/${d.id}`} className="flex min-h-16 items-center gap-3 rounded-xl border border-trait bg-surface p-3">
+                <Link href={`/factures/${d.id}`} className="flex min-h-16 items-center gap-3 rounded-2xl border border-trait bg-surface shadow-doux p-3">
                   <span className="min-w-0 flex-1">
                     <span className="chiffres block font-semibold">{numeroTexte(d)}</span>
                     <span className="block truncate text-sm text-doux">

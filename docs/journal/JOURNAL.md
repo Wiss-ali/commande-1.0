@@ -2,6 +2,17 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 18/11/2026 — Mise en ligne d'essai sur le VPS Contabo, puis refonte visuelle
+
+- **Mise en ligne d'essai** : VPS Contabo (Ubuntu 24.04, 4 processeurs, 8 Go, 96 Go, hors d'Algérie, **données de démonstration seulement**), adresse gratuite `155-133-198-241.sslip.io` (copie de test : `test.155-133-198-241.sslip.io`). Le propriétaire a tapé les commandes lui-même, guidé pas à pas (aucun identifiant transmis). Guide suivi sans correction : `installer.sh proxy`, `environnement prod` et `test`, `deployer.sh test` (image Debian + Chromium construite sans réglage, migrations, première sauvegarde), compte administrateur créé. Clé privée et `app.env` du site réel copiés sur son ordinateur. Le propriétaire confirme : « tout a l'air fonctionnel, même le bip ».
+- Au passage, le mot de passe root du serveur est apparu dans un nom de fichier, et le mot de passe administrateur s'est affiché pendant sa saisie. Changement conseillé ; **le propriétaire préfère ne pas le faire** (serveur d'essai d'un mois). À refaire proprement sur le vrai serveur.
+- **Refonte visuelle** (demande : « design un peu vieux », « blanc, contours fins bleus, sombre plus stylé ») : recherche `docs/refonte-visuelle/01-recherche.md`.
+  - Couleur principale renommée `vert` → `prim` dans tout le code (`bg-prim`, `text-prim`, `prim-pale`, `sur-prim`, `prim-fort`) : bleu `#2563eb` (sombre `#60a5fa`). Nouveau jeton **`ok`** (vert) pour les bonnes nouvelles : pastilles « vert », messages de succès, quantités positives. La propriété `ton="vert"` des pastilles garde son nom (sens « tout va bien »).
+  - Fond quasi blanc, contours bleutés (`trait`, `trait-fort`), ombres légères (`shadow-doux`, `shadow-prim`), coins plus arrondis, en-tête et barre du bas translucides, halo bleu sur les champs actifs. Mode sombre bleu nuit `#0a0f1c` (sans noir pur).
+  - Police latine **Inter** (paquet `@fontsource-variable/inter`, servi par l'application, CSP inchangée) ; IBM Plex Sans Arabic garde l'arabe et reste la police des PDF.
+  - Icône, couleur du navigateur, manifeste et couleurs des PDF passés au bleu. La boutique en ligne garde la couleur choisie par le commerçant (`--prim` surchargé dans `b/[sd]/layout.tsx`).
+- Vérifications : typecheck ✅, 142 tests ✅, construction ✅, 74 parcours de bout en bout ✅. Sur trois passages complets, un passage a eu une fois l'échec de « aucune erreur de script… » (ventes) ; il n'a pas été reproduit (deux passages complets et deux passages du fichier, tous verts). À surveiller.
+
 ## 17/11/2026 — `main` mise à jour avec tout le travail (accord du propriétaire)
 
 - Le propriétaire a demandé de mettre le travail sur `main`. `main` (fin de l'étape 1) était un ancêtre de `claude/vigilant-gates-3k9mjn` : avance rapide, sans fusion ni réécriture d'historique. Les deux branches sont identiques à ce commit.

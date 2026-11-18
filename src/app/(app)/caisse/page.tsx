@@ -27,7 +27,7 @@ export default async function PageCaisse() {
 
   return (
     <>
-      <EnTete titre={t('titre')} fin={<Link href="/caisse/cloture" className="inline-flex min-h-11 items-center rounded-lg border border-trait bg-surface px-3 text-sm font-semibold">{t('cloture')}</Link>} />
+      <EnTete titre={t('titre')} fin={<Link href="/caisse/cloture" className="inline-flex min-h-11 items-center rounded-xl border border-trait bg-surface px-3 text-sm font-semibold">{t('cloture')}</Link>} />
       <Page>
         {s.commercant.etat !== 'actif' ? (
           <Message ton="info">{t('lectureSeule')}</Message>

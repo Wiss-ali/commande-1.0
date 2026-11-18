@@ -56,7 +56,7 @@ export function InventaireComptage({ inventaireId, lignes }: { inventaireId: str
       >
         <label className="flex min-w-0 flex-1 flex-col gap-1.5">
           <span className="text-sm font-medium">{t('chercher')}</span>
-          <input value={recherche} onChange={(e) => setRecherche(e.target.value)} type="search" maxLength={80} className="min-h-12 w-full rounded-lg border border-trait bg-surface px-3 text-base text-encre" />
+          <input value={recherche} onChange={(e) => setRecherche(e.target.value)} type="search" maxLength={80} className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre" />
         </label>
         <button type="submit" aria-label={t('chercher')} className={`${classeBouton.secondaire} min-h-12 px-3`}><Search aria-hidden className="size-5" /></button>
       </form>
@@ -64,7 +64,7 @@ export function InventaireComptage({ inventaireId, lignes }: { inventaireId: str
         trouves.length ? (
           <ul className="flex flex-col gap-2">
             {trouves.map((a) => (
-              <li key={a.varianteId} className="flex items-center gap-3 rounded-xl border border-trait bg-surface px-3 py-2">
+              <li key={a.varianteId} className="flex items-center gap-3 rounded-2xl border border-trait bg-surface shadow-doux px-3 py-2">
                 <span className="min-w-0 flex-1 truncate text-sm font-semibold">{libelle(a)}</span>
                 <button type="button" onClick={() => void compter({ varianteId: a.varianteId }, 'ajouter', 1)} className={classeBouton.secondaire}><Plus aria-hidden className="size-4" />{t('compterUn')}</button>
               </li>
@@ -79,7 +79,7 @@ export function InventaireComptage({ inventaireId, lignes }: { inventaireId: str
       {lignes.length ? (
         <ul className="flex flex-col gap-2">
           {lignes.map((l) => (
-            <li key={l.variante_id} className="flex items-center gap-2 rounded-xl border border-trait bg-surface px-3 py-2">
+            <li key={l.variante_id} className="flex items-center gap-2 rounded-2xl border border-trait bg-surface shadow-doux px-3 py-2">
               <span className="min-w-0 flex-1 text-sm font-semibold">{libelle(l)}</span>
               <button type="button" disabled={l.comptee === 0} onClick={() => void compter({ varianteId: l.variante_id }, 'fixer', l.comptee - 1)} aria-label={t('moins')} className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-trait disabled:opacity-40"><Minus aria-hidden className="size-4" /></button>
               <input
@@ -95,7 +95,7 @@ export function InventaireComptage({ inventaireId, lignes }: { inventaireId: str
                   else e.target.value = String(l.comptee);
                 }}
                 onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-                className="chiffres min-h-11 w-16 shrink-0 rounded-lg border border-trait bg-surface px-1 text-center text-lg font-bold"
+                className="chiffres min-h-11 w-16 shrink-0 rounded-xl border border-trait bg-surface px-1 text-center text-lg font-bold"
               />
               <button type="button" onClick={() => void compter({ varianteId: l.variante_id }, 'ajouter', 1)} aria-label={t('plus')} className="inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-trait"><Plus aria-hidden className="size-4" /></button>
               <form action={retirerLigne}>

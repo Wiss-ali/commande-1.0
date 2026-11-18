@@ -25,14 +25,14 @@ export default async function Clients({ searchParams }: { searchParams: Promise<
       <EnTete titre={t('titre')} retour="/plus" />
       <Page>
         <form action="/clients" role="search" className="flex gap-2">
-          <input type="search" name="q" defaultValue={recherche} aria-label={t('chercher')} placeholder={t('chercher')} maxLength={40} className="min-h-12 min-w-0 flex-1 rounded-lg border border-trait bg-surface px-3 text-base text-encre placeholder:text-doux" />
+          <input type="search" name="q" defaultValue={recherche} aria-label={t('chercher')} placeholder={t('chercher')} maxLength={40} className="min-h-12 min-w-0 flex-1 rounded-xl border border-trait bg-surface px-3 text-base text-encre placeholder:text-doux" />
           <button type="submit" aria-label={t('chercher')} className={`${classeBouton.secondaire} min-h-12 px-3`}><Search aria-hidden className="size-5" /></button>
         </form>
         {clients.length ? (
           <ul className="flex flex-col gap-2">
             {clients.slice(0, PAR_PAGE * page).map((c) => (
               <li key={c.id}>
-                <Link href={`/clients/${c.id}`} className="flex min-h-16 items-center gap-3 rounded-xl border border-trait bg-surface p-3">
+                <Link href={`/clients/${c.id}`} className="flex min-h-16 items-center gap-3 rounded-2xl border border-trait bg-surface shadow-doux p-3">
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-semibold">{c.nom}</span>
                     <span className="block truncate text-sm text-doux">

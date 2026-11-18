@@ -9,9 +9,9 @@ export function LienPartage({ lien, texte }: { lien: string; texte: string }) {
   const t = useTranslations('commun');
   const [copie, setCopie] = useState(false);
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-vert bg-vert-pale p-3">
-      {texte ? <p className="text-sm font-medium text-vert">{texte}</p> : null}
-      <input readOnly dir="ltr" value={lien} aria-label={t('copier')} onFocus={(e) => e.currentTarget.select()} className="min-h-11 w-full rounded-lg border border-trait bg-surface px-3 text-sm text-encre" />
+    <div className="flex flex-col gap-3 rounded-xl border border-prim bg-prim-pale p-3">
+      {texte ? <p className="text-sm font-medium text-prim">{texte}</p> : null}
+      <input readOnly dir="ltr" value={lien} aria-label={t('copier')} onFocus={(e) => e.currentTarget.select()} className="min-h-11 w-full rounded-xl border border-trait bg-surface px-3 text-sm text-encre" />
       <div className="flex flex-wrap gap-2">
         <button
           type="button"

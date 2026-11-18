@@ -43,7 +43,7 @@ export default async function Abonnement() {
         {paiements.length ? (
           <>
             <TitreSection>{t('paiements')}</TitreSection>
-            <ul className="flex flex-col divide-y divide-trait rounded-xl border border-trait bg-surface text-sm">
+            <ul className="flex flex-col divide-y divide-trait rounded-2xl border border-trait bg-surface shadow-doux text-sm">
               {paiements.map((p) => (
                 <li key={p.id} className="flex flex-col px-4 py-3">
                   <span className="flex justify-between gap-3"><span>{date(p.recu_le)} · {tmo(p.moyen)}</span><span className="font-semibold">{formaterMontant(BigInt(p.montant), langue)}</span></span>

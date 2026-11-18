@@ -31,12 +31,12 @@ export default async function Formules() {
         <legend className="mb-1 text-sm font-medium">{t('modules')}</legend>
         {MODULES.map((m) => (
           <label key={m} className="flex min-h-11 cursor-pointer items-center gap-3">
-            <input type="checkbox" name={`module_${m}`} defaultChecked={m === 'stock' || !!f?.modules.includes(m)} disabled={m === 'stock'} className="size-5 accent-vert" />
+            <input type="checkbox" name={`module_${m}`} defaultChecked={m === 'stock' || !!f?.modules.includes(m)} disabled={m === 'stock'} className="size-5 accent-prim" />
             <span className="text-sm">{tm(m)}{m === 'stock' ? ` · ${t('toujours')}` : ''}</span>
           </label>
         ))}
       </fieldset>
-      <label className="flex min-h-11 cursor-pointer items-center gap-3"><input type="checkbox" name="active" defaultChecked={f ? f.active : true} className="size-5 accent-vert" /><span className="text-sm">{t('active')}</span></label>
+      <label className="flex min-h-11 cursor-pointer items-center gap-3"><input type="checkbox" name="active" defaultChecked={f ? f.active : true} className="size-5 accent-prim" /><span className="text-sm">{t('active')}</span></label>
     </>
   );
   return (
@@ -45,7 +45,7 @@ export default async function Formules() {
       <Page>
         <p className="text-sm text-doux">{t('texte')}</p>
         {formules.map((f) => (
-          <details key={f.id} className="rounded-xl border border-trait bg-surface">
+          <details key={f.id} className="rounded-2xl border border-trait bg-surface shadow-doux">
             <summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 px-4 py-2">
               <span className="min-w-0"><span className="block font-semibold">{f.nom}</span><span className="block text-sm text-doux">{formaterMontant(BigInt(f.prix), langue)} · {t('jours', { n: f.duree_jours })} · {f.modules.map((m) => tm(m)).join(', ')}</span></span>
               <Pastille ton={f.active ? 'vert' : 'neutre'}>{t(f.active ? 'activeCourt' : 'inactive')}</Pastille>

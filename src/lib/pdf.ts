@@ -49,30 +49,30 @@ function polices(): string {
 
 const STYLE = `
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'IBM Plex Sans','IBM Plex Sans Arabic',sans-serif;font-size:10pt;line-height:1.45;color:#1b211f}
+body{font-family:'IBM Plex Sans','IBM Plex Sans Arabic',sans-serif;font-size:10pt;line-height:1.45;color:#0f172a}
 [dir=rtl] body{font-family:'IBM Plex Sans Arabic','IBM Plex Sans',sans-serif;line-height:1.7}
 .m{white-space:nowrap;font-variant-numeric:tabular-nums}
 .n{direction:ltr;unicode-bidi:isolate;display:inline-block;font-variant-numeric:tabular-nums}
-.tete{display:flex;justify-content:space-between;gap:10mm;border-bottom:1.5pt solid #0e6b4e;padding-bottom:5mm;margin-bottom:6mm}
+.tete{display:flex;justify-content:space-between;gap:10mm;border-bottom:1.5pt solid #2563eb;padding-bottom:5mm;margin-bottom:6mm}
 .vendeur{max-width:95mm}.vendeur .nom{font-size:15pt;font-weight:600}
-.titre{text-align:end}.titre h1{font-size:17pt;font-weight:600;color:#0e6b4e;text-transform:uppercase}
-.petit{font-size:8.5pt;color:#5a6360}
-.acheteur{border:.75pt solid #d6cdbc;border-radius:2mm;padding:3mm 4mm;margin-bottom:6mm;width:95mm;margin-inline-start:auto}
+.titre{text-align:end}.titre h1{font-size:17pt;font-weight:600;color:#2563eb;text-transform:uppercase}
+.petit{font-size:8.5pt;color:#55657d}
+.acheteur{border:.75pt solid #d9e3f2;border-radius:2mm;padding:3mm 4mm;margin-bottom:6mm;width:95mm;margin-inline-start:auto}
 .acheteur .nom{font-weight:600;font-size:11pt}
 table{width:100%;border-collapse:collapse;margin-bottom:5mm}
-th{background:#eee8dc;font-weight:600;font-size:8.5pt;text-align:start;padding:2mm}
-td{padding:2mm;border-bottom:.5pt solid #d6cdbc;vertical-align:top}
+th{background:#f1f5fb;font-weight:600;font-size:8.5pt;text-align:start;padding:2mm}
+td{padding:2mm;border-bottom:.5pt solid #d9e3f2;vertical-align:top}
 .d{text-align:end;white-space:nowrap}
 tr{break-inside:avoid}
 .totaux{width:80mm;margin-inline-start:auto;margin-bottom:5mm}
 .totaux div{display:flex;justify-content:space-between;gap:6mm;padding:1mm 2mm}
 .totaux .net{font-weight:600;font-size:12pt;border-top:1.5pt solid #1b211f;margin-top:1mm;padding-top:2mm}
-.lettres{border-inline-start:2.5pt solid #0e6b4e;padding:1.5mm 3mm;margin-bottom:5mm;break-inside:avoid}
+.lettres{border-inline-start:2.5pt solid #2563eb;padding:1.5mm 3mm;margin-bottom:5mm;break-inside:avoid}
 .lettres b{font-weight:600}
 .infos p{margin-bottom:1.2mm}
 .signature{margin-top:12mm;width:65mm;margin-inline-start:auto;text-align:center;break-inside:avoid}
-.signature div{height:22mm;border:.5pt dashed #d6cdbc;border-radius:2mm;margin-top:1.5mm}
-.pied{margin-top:8mm;padding-top:3mm;border-top:.5pt solid #d6cdbc;text-align:center}
+.signature div{height:22mm;border:.5pt dashed #d9e3f2;border-radius:2mm;margin-top:1.5mm}
+.pied{margin-top:8mm;padding-top:3mm;border-top:.5pt solid #d9e3f2;text-align:center}
 .ticket{font-size:9pt}.ticket .centre{text-align:center}.ticket .nom{font-size:12pt;font-weight:600}
 .ticket hr{border:0;border-top:.75pt dashed #1b211f;margin:2mm 0}
 .ticket .ligne{display:flex;justify-content:space-between;gap:2mm}

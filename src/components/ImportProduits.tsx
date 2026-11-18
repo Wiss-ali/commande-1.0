@@ -64,7 +64,7 @@ export function ImportProduits() {
     <>
       <label className="flex flex-col gap-1.5">
         <span className="text-sm font-medium">{t('choisir')}</span>
-        <input type="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={(e) => void choisir(e.target.files?.[0])} className="min-h-12 w-full rounded-lg border border-trait bg-surface p-2 text-sm file:me-3 file:min-h-9 file:rounded-md file:border-0 file:bg-vert-pale file:px-3 file:font-semibold file:text-vert" />
+        <input type="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={(e) => void choisir(e.target.files?.[0])} className="min-h-12 w-full rounded-xl border border-trait bg-surface p-2 text-sm file:me-3 file:min-h-9 file:rounded-md file:border-0 file:bg-prim-pale file:px-3 file:font-semibold file:text-prim" />
       </label>
       <div aria-live="polite" className="flex flex-col gap-4">
         {erreur ? <Message ton="erreur">{te(erreur)}</Message> : null}

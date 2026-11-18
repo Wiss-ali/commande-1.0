@@ -32,7 +32,7 @@ export default async function Mouvements({ searchParams }: { searchParams: Promi
       <Page>
         <nav aria-label={t('filtres')} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
           {[undefined, ...TYPES].map((x) => (
-            <Link key={x ?? 'tous'} href={adresse({ type: x })} aria-current={x === type ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-semibold ${x === type ? 'border-vert bg-vert-pale text-vert' : 'border-trait bg-surface'}`}>
+            <Link key={x ?? 'tous'} href={adresse({ type: x })} aria-current={x === type ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-semibold ${x === type ? 'border-prim bg-prim-pale text-prim' : 'border-trait bg-surface'}`}>
               {x ? t(`type.${x}`) : t('tous')}
             </Link>
           ))}

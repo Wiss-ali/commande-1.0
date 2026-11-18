@@ -25,7 +25,7 @@ export function GrilleFrais({ lignes: initiales }: { lignes: Ligne[] }) {
   const [tousDomicile, setTousDomicile] = useState('');
   const [tousRelais, setTousRelais] = useState('');
   const changer = (code: number, champ: 'domicile' | 'relais', v: string) => setLignes((x) => x.map((l) => (l.code === code ? { ...l, [champ]: v } : l)));
-  const champ = 'min-h-11 w-full min-w-0 rounded-lg border border-trait bg-surface px-2 text-base text-encre';
+  const champ = 'min-h-11 w-full min-w-0 rounded-xl border border-trait bg-surface px-2 text-base text-encre';
 
   return (
     <Formulaire action={enregistrerGrille} bouton={tc('enregistrer')} succes={tc('enregistre')} garder>
@@ -37,7 +37,7 @@ export function GrilleFrais({ lignes: initiales }: { lignes: Ligne[] }) {
         </div>
         <button type="button" onClick={() => setLignes((x) => x.map((l) => ({ ...l, domicile: tousDomicile, relais: tousRelais })))} className={classeBouton.secondaire}>{t('remplir')}</button>
       </Carte>
-      <div className="rounded-xl border border-trait bg-surface">
+      <div className="rounded-2xl border border-trait bg-surface shadow-doux">
         <div className="grid grid-cols-[1fr_6rem_6rem] gap-2 border-b border-trait px-3 py-2 text-xs font-semibold text-doux">
           <span>{t('wilaya')}</span><span>{t('domicile')}</span><span>{t('relais')}</span>
         </div>

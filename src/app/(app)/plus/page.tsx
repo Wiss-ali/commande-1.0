@@ -42,7 +42,7 @@ export default async function Plus() {
         <TitreSection>{t('theme')}</TitreSection>
         <form action={changerTheme} className="grid grid-cols-3 gap-2">
           {(['auto', 'clair', 'sombre'] as const).map((v) => (
-            <button key={v} type="submit" name="theme" value={v} aria-pressed={choix === v} className={`min-h-11 rounded-lg border px-2 text-sm font-semibold ${choix === v ? 'border-vert bg-vert-pale text-vert' : 'border-trait bg-surface'}`}>
+            <button key={v} type="submit" name="theme" value={v} aria-pressed={choix === v} className={`min-h-11 rounded-lg border px-2 text-sm font-semibold ${choix === v ? 'border-prim bg-prim-pale text-prim' : 'border-trait bg-surface'}`}>
               {t(v === 'auto' ? 'themeAuto' : v === 'clair' ? 'themeClair' : 'themeSombre')}
             </button>
           ))}

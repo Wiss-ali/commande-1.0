@@ -43,8 +43,8 @@ export default async function Cloture() {
             </Carte>
             {ecrit ? (
               <>
-                <details className="rounded-xl border border-trait bg-surface">
-                  <summary className="flex min-h-12 cursor-pointer items-center px-4 font-semibold text-vert">{t('changerFond')}</summary>
+                <details className="rounded-2xl border border-trait bg-surface shadow-doux">
+                  <summary className="flex min-h-12 cursor-pointer items-center px-4 font-semibold text-prim">{t('changerFond')}</summary>
                   <div className="p-4 pt-0">
                     <Formulaire action={definirFond} bouton={t('enregistrerFond')} succes={t('fondEnregistre')} style="secondaire" garder>
                       <Champ libelle={t('fondChamp')} name="fond" defaultValue={montantPourSaisie(ouverte.fond)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('fondAide')} />

@@ -63,7 +63,7 @@ export default async function Client({ params }: { params: Promise<{ id: string 
             <ul className="flex flex-col gap-2">
               {commandes.map((l) => (
                 <li key={l.id}>
-                  <Link href={`/commandes/${l.id}`} className="flex min-h-14 items-center justify-between gap-3 rounded-xl border border-trait bg-surface px-4 py-2">
+                  <Link href={`/commandes/${l.id}`} className="flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-trait bg-surface shadow-doux px-4 py-2">
                     <span className="min-w-0"><span className="chiffres block font-semibold">{tc('numero', { n: l.numero })}</span><span className="chiffres block text-sm text-doux">{formaterDate(l.cree_le)}</span></span>
                     <span className="flex shrink-0 flex-col items-end gap-1"><span className="font-bold">{formaterMontant(BigInt(l.total), langue)}</span><PastilleCommande statut={l.statut} /></span>
                   </Link>
@@ -74,13 +74,13 @@ export default async function Client({ params }: { params: Promise<{ id: string 
         ) : null}
 
         {!c.supprimeLe && autorise(s.utilisateur, 'reglages') && s.commercant.etat === 'actif' ? (
-          <details className="rounded-xl border border-trait bg-surface">
+          <details className="rounded-2xl border border-trait bg-surface shadow-doux">
             <summary className="flex min-h-12 cursor-pointer items-center px-4 font-semibold text-terre">{t('supprimerTitre')}</summary>
             <div className="p-4 pt-0">
               <Formulaire action={effacerClient} bouton={t('supprimerBouton')} style="danger">
                 <input type="hidden" name="id" value={c.id} />
                 <p className="text-sm text-doux">{t('supprimerTexte')}</p>
-                <label className="flex min-h-11 cursor-pointer items-center gap-3"><input type="checkbox" name="confirmer" required className="size-5 accent-vert" /><span className="text-sm">{t('supprimerConfirmer')}</span></label>
+                <label className="flex min-h-11 cursor-pointer items-center gap-3"><input type="checkbox" name="confirmer" required className="size-5 accent-prim" /><span className="text-sm">{t('supprimerConfirmer')}</span></label>
               </Formulaire>
             </div>
           </details>
@@ -91,7 +91,7 @@ export default async function Client({ params }: { params: Promise<{ id: string 
           <ul className="flex flex-col gap-2">
             {c.documents.map((d) => (
               <li key={d.id}>
-                <Link href={`/factures/${d.id}`} className="flex min-h-14 items-center justify-between gap-3 rounded-xl border border-trait bg-surface px-4 py-2">
+                <Link href={`/factures/${d.id}`} className="flex min-h-14 items-center justify-between gap-3 rounded-2xl border border-trait bg-surface shadow-doux px-4 py-2">
                   <span className="min-w-0"><span className="block text-sm text-doux">{td(`type_${d.type}`)}</span><span className="chiffres block font-semibold">{numeroTexte(d)}</span></span>
                   <span className="flex shrink-0 flex-col items-end gap-1"><span className="font-bold">{formaterMontant(d.total, langue)}</span>{d.annule ? <Pastille ton="terre">{tf('annule')}</Pastille> : null}</span>
                 </Link>

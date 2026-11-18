@@ -95,7 +95,7 @@ export default async function Etiquettes({ searchParams }: { searchParams: Promi
       <Page>
         {produitId ? null : (
           <form action="/stock/etiquettes" role="search" className="flex gap-2">
-            <input type="search" name="q" defaultValue={q} aria-label={t('chercher')} placeholder={t('chercher')} maxLength={80} className="min-h-12 min-w-0 flex-1 rounded-lg border border-trait bg-surface px-3 text-base text-encre placeholder:text-doux" />
+            <input type="search" name="q" defaultValue={q} aria-label={t('chercher')} placeholder={t('chercher')} maxLength={80} className="min-h-12 min-w-0 flex-1 rounded-xl border border-trait bg-surface px-3 text-base text-encre placeholder:text-doux" />
             <button type="submit" className={`${classeBouton.secondaire} min-h-12`}>{t('filtrer')}</button>
           </form>
         )}
@@ -137,7 +137,7 @@ export default async function Etiquettes({ searchParams }: { searchParams: Promi
                           <span className="block truncate text-sm font-semibold">{nomLocal(a, langue)}{a.libelle ? ` · ${a.libelle}` : ''}</span>
                           <span className="chiffres text-sm text-doux">{a.code_barres}</span>
                         </label>
-                        <input id={`n_${a.id}`} name={`n_${a.id}`} type="number" min={0} max={100} defaultValue={produitId ? 1 : 0} inputMode="numeric" dir="ltr" className="chiffres min-h-12 w-20 rounded-lg border border-trait bg-surface px-2 text-center text-base" />
+                        <input id={`n_${a.id}`} name={`n_${a.id}`} type="number" min={0} max={100} defaultValue={produitId ? 1 : 0} inputMode="numeric" dir="ltr" className="chiffres min-h-12 w-20 rounded-xl border border-trait bg-surface px-2 text-center text-base" />
                       </li>
                     ))}
                   </ul>
@@ -147,7 +147,7 @@ export default async function Etiquettes({ searchParams }: { searchParams: Promi
                     <legend className="mb-1.5 text-sm font-medium">{t('forme')}</legend>
                     {(['barres', 'qr'] as const).map((f) => (
                       <label key={f} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border border-trait px-3">
-                        <input type="radio" name="forme" value={f} defaultChecked={f === 'barres'} className="size-5 accent-vert" />
+                        <input type="radio" name="forme" value={f} defaultChecked={f === 'barres'} className="size-5 accent-prim" />
                         <span className="text-sm">{t(`forme_${f}`)}</span>
                       </label>
                     ))}
@@ -156,13 +156,13 @@ export default async function Etiquettes({ searchParams }: { searchParams: Promi
                     <legend className="mb-1.5 text-sm font-medium">{t('format')}</legend>
                     {FORMATS.map((f) => (
                       <label key={f} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border border-trait px-3">
-                        <input type="radio" name="format" value={f} defaultChecked={f === 'planche'} className="size-5 accent-vert" />
+                        <input type="radio" name="format" value={f} defaultChecked={f === 'planche'} className="size-5 accent-prim" />
                         <span className="text-sm">{t(`format_${f}`)}</span>
                       </label>
                     ))}
                   </fieldset>
                   <label className="flex min-h-12 cursor-pointer items-center gap-3">
-                    <input type="checkbox" name="prix" value="1" defaultChecked className="size-5 accent-vert" />
+                    <input type="checkbox" name="prix" value="1" defaultChecked className="size-5 accent-prim" />
                     <span className="text-sm">{t('avecPrix')}</span>
                   </label>
                 </Carte>

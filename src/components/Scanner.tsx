@@ -175,7 +175,7 @@ export function Scanner({ onCode }: { onCode: (code: string) => void }) {
       >
         <label className="flex min-w-0 flex-1 flex-col gap-1.5">
           <span className="text-sm font-medium">{t('saisieManuelle')}</span>
-          <input value={saisie} onChange={(e) => setSaisie(e.target.value)} inputMode="text" autoComplete="off" dir="ltr" maxLength={64} className="min-h-12 w-full rounded-lg border border-trait bg-surface px-3 text-base text-encre" />
+          <input value={saisie} onChange={(e) => setSaisie(e.target.value)} inputMode="text" autoComplete="off" dir="ltr" maxLength={64} className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre" />
         </label>
         <button type="submit" className={`${classeBouton.secondaire} min-h-12`}>{t('valider')}</button>
       </form>

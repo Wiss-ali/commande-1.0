@@ -107,7 +107,7 @@ export default async function AdminAccueil({ searchParams }: { searchParams: Pro
         <TitreSection>{t('commercants')}</TitreSection>
         <nav aria-label={t('filtres')} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
           {FILTRES.map((x) => (
-            <a key={x} href={`/admin?f=${x}`} aria-current={x === filtre ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-semibold ${x === filtre ? 'border-vert bg-vert-pale text-vert' : 'border-trait bg-surface'}`}>{t(`filtre.${x}`)}</a>
+            <a key={x} href={`/admin?f=${x}`} aria-current={x === filtre ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-semibold ${x === filtre ? 'border-prim bg-prim-pale text-prim' : 'border-trait bg-surface'}`}>{t(`filtre.${x}`)}</a>
           ))}
         </nav>
         {liste.length ? (

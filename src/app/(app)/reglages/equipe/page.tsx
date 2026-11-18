@@ -34,13 +34,13 @@ export default async function Equipe() {
               <legend className="mb-1.5 text-sm font-medium">{t('role')}</legend>
               {(['vendeur', 'preparateur'] as const).map((r) => (
                 <label key={r} className="flex min-h-12 cursor-pointer items-start gap-3 rounded-lg border border-trait px-3 py-2.5">
-                  <input type="radio" name="role" value={r} defaultChecked={r === 'vendeur'} className="mt-1 size-5 accent-vert" />
+                  <input type="radio" name="role" value={r} defaultChecked={r === 'vendeur'} className="mt-1 size-5 accent-prim" />
                   <span className="text-sm">{t(r === 'vendeur' ? 'roleVendeur' : 'rolePreparateur')}</span>
                 </label>
               ))}
             </fieldset>
             <label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-lg border border-trait px-3 py-2.5">
-              <input type="checkbox" name="gereProduits" className="mt-0.5 size-5 accent-vert" />
+              <input type="checkbox" name="gereProduits" className="mt-0.5 size-5 accent-prim" />
               <span className="text-sm">{t('droitProduits')}</span>
             </label>
           </Formulaire>
@@ -51,7 +51,7 @@ export default async function Equipe() {
             <TitreSection>{t('enAttente')}</TitreSection>
             <ul className="flex flex-col gap-2">
               {attente.map((i) => (
-                <li key={i.id} className="flex items-center gap-3 rounded-xl border border-trait bg-surface px-4 py-3">
+                <li key={i.id} className="flex items-center gap-3 rounded-2xl border border-trait bg-surface shadow-doux px-4 py-3">
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold">{i.nom}</p>
                     <p className="text-sm text-doux">
@@ -72,7 +72,7 @@ export default async function Equipe() {
         <TitreSection>{t('membres')}</TitreSection>
         <ul className="flex flex-col gap-2">
           {membres.map((m) => (
-            <li key={m.id} className="rounded-xl border border-trait bg-surface px-4 py-3">
+            <li key={m.id} className="rounded-2xl border border-trait bg-surface shadow-doux px-4 py-3">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="font-semibold">{m.nom}{m.id === s.utilisateur.id ? ` (${t('vous')})` : ''}</p>
                 <Pastille ton={m.role === 'proprietaire' ? 'vert' : 'bleu'}>{tr(m.role)}</Pastille>
@@ -82,7 +82,7 @@ export default async function Equipe() {
               <p className="chiffres text-sm text-doux">{formaterTelephone(m.telephone ?? '')}</p>
               {m.role !== 'proprietaire' ? (
                 <details className="mt-2">
-                  <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm font-semibold text-vert">{t('actions')}</summary>
+                  <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm font-semibold text-prim">{t('actions')}</summary>
                   <div className="flex flex-col gap-3 pt-2">
                     <div className="flex flex-wrap gap-2">
                       <form action={changerRole}>

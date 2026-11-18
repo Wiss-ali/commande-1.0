@@ -19,7 +19,7 @@ export async function BoutonLangue() {
   return (
     <form action={changerLangue}>
       <input type="hidden" name="langue" value={autre.code} />
-      <button type="submit" lang={autre.code} aria-label={`${t('changerLangue')} : ${autre.nom}`} className="inline-flex min-h-11 items-center gap-1.5 rounded-lg border border-trait bg-surface px-3 text-sm font-semibold">
+      <button type="submit" lang={autre.code} aria-label={`${t('changerLangue')} : ${autre.nom}`} className="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-trait bg-surface px-3 text-sm font-semibold">
         <Languages aria-hidden className="size-4" />
         {autre.nom}
       </button>
@@ -34,9 +34,9 @@ async function Cloche() {
   const n = await avecCommercant(s.commercant.id, (trx) => compterNonVues(trx, s.utilisateur.id));
   const t = await getTranslations('notifications');
   return (
-    <Link href="/notifications" aria-label={t('cloche', { n })} className="relative inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-trait bg-surface">
+    <Link href="/notifications" aria-label={t('cloche', { n })} className="relative inline-flex size-11 shrink-0 items-center justify-center rounded-xl border border-trait bg-surface">
       <Bell aria-hidden className="size-5" />
-      {n ? <span className="chiffres absolute -end-1.5 -top-1.5 rounded-full bg-safran px-1.5 text-xs font-bold text-encre">{n > 99 ? '99+' : n}</span> : null}
+      {n ? <span className="chiffres absolute -end-1.5 -top-1.5 rounded-full bg-terre px-1.5 text-xs font-bold text-white ring-2 ring-surface">{n > 99 ? '99+' : n}</span> : null}
     </Link>
   );
 }
@@ -44,13 +44,13 @@ async function Cloche() {
 export async function EnTete({ titre, retour, fin, admin }: { titre: string; retour?: string; fin?: ReactNode; admin?: boolean }) {
   const t = await getTranslations('commun');
   return (
-    <header className="sticky top-0 z-10 flex min-h-16 items-center gap-2 border-b border-trait bg-surface px-4">
+    <header className="sticky top-0 z-10 flex min-h-16 items-center gap-2 border-b border-trait bg-surface/85 px-4 backdrop-blur-md">
       {retour ? (
-        <Link href={retour} aria-label={t('retour')} className="-ms-2 inline-flex size-11 items-center justify-center rounded-lg">
+        <Link href={retour} aria-label={t('retour')} className="-ms-2 inline-flex size-11 items-center justify-center rounded-xl hover:bg-prim-pale">
           <ArrowLeft aria-hidden className="directionnelle size-5" />
         </Link>
       ) : null}
-      <h1 className="min-w-0 flex-1 truncate text-lg font-semibold">{titre}</h1>
+      <h1 className="min-w-0 flex-1 truncate text-lg font-semibold tracking-tight">{titre}</h1>
       {fin}
       {admin ? null : <Cloche />}
       <BoutonLangue />

@@ -21,7 +21,7 @@ export function NavBas({ visibles }: { visibles: CleNav[] }) {
   // « Plus » reste allumé pour les pages qui n'ont pas d'entrée propre.
   const aucun = !ENTREES.some((e) => e.cle !== 'plus' && visibles.includes(e.cle) && actif(e.href));
   return (
-    <nav aria-label={t('principale')} className="fixed inset-x-0 bottom-0 z-20 border-t border-trait bg-surface pb-[env(safe-area-inset-bottom)] md:inset-x-auto md:inset-y-0 md:start-0 md:w-56 md:border-e md:border-t-0 md:pt-4">
+    <nav aria-label={t('principale')} className="fixed inset-x-0 bottom-0 z-20 border-t border-trait bg-surface/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:inset-x-auto md:inset-y-0 md:start-0 md:w-60 md:border-e md:border-t-0 md:bg-surface md:pt-4">
       <ul className="flex md:flex-col md:gap-1 md:px-3">
         {ENTREES.filter((e) => visibles.includes(e.cle)).map(({ cle, href, Icone }) => {
           const ici = cle === 'plus' ? aucun : actif(href);
@@ -31,9 +31,9 @@ export function NavBas({ visibles }: { visibles: CleNav[] }) {
               <Link
                 href={href}
                 aria-current={ici ? 'page' : undefined}
-                className={`flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs md:min-h-12 md:flex-row md:justify-start md:gap-3 md:rounded-lg md:px-3 md:text-sm ${ici ? 'font-bold text-vert md:bg-vert-pale' : 'font-medium text-doux'}`}
+                className={`group flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] md:min-h-11 md:flex-row md:justify-start md:gap-3 md:rounded-xl md:px-3 md:text-sm ${ici ? 'font-semibold text-prim md:bg-prim-pale' : 'font-medium text-doux hover:text-encre'}`}
               >
-                <span className={scan ? '-mt-6 flex size-14 items-center justify-center rounded-full bg-vert text-sur-vert ring-4 ring-surface md:mt-0 md:size-auto md:bg-transparent md:text-current md:ring-0' : ''}>
+                <span className={scan ? '-mt-7 flex size-14 items-center justify-center rounded-2xl bg-prim text-sur-prim shadow-prim ring-4 ring-fond md:mt-0 md:size-auto md:bg-transparent md:text-current md:shadow-none md:ring-0' : `flex h-8 w-14 items-center justify-center rounded-full md:h-auto md:w-auto ${ici ? 'bg-prim-pale md:bg-transparent' : ''}`}>
                   <Icone aria-hidden className={scan ? 'size-7 md:size-5' : 'size-5'} />
                 </span>
                 {t(cle)}

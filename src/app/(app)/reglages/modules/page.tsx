@@ -31,10 +31,10 @@ export default async function Modules() {
               const permis = !ab.autorises || ab.autorises.has(m);
               return (
                 <li key={m}>
-                  <label className={`flex min-h-14 items-center gap-3 rounded-xl border border-trait bg-surface px-4 ${permis ? 'cursor-pointer' : 'opacity-60'}`}>
-                    <Icone aria-hidden className="size-5 text-vert" />
+                  <label className={`flex min-h-14 items-center gap-3 rounded-2xl border border-trait bg-surface shadow-doux px-4 ${permis ? 'cursor-pointer' : 'opacity-60'}`}>
+                    <Icone aria-hidden className="size-5 text-prim" />
                     <span className="flex-1"><span className="block font-semibold">{tm(m)}</span>{permis ? null : <span className="block text-sm text-doux">{t('nonCompris')}</span>}</span>
-                    {permis ? <input type="checkbox" name={m} defaultChecked={choisis[m]} className="size-6 accent-vert" /> : <>{choisis[m] ? <input type="hidden" name={m} value="on" /> : null}<input type="checkbox" disabled aria-label={tm(m)} className="size-6" /></>}
+                    {permis ? <input type="checkbox" name={m} defaultChecked={choisis[m]} className="size-6 accent-prim" /> : <>{choisis[m] ? <input type="hidden" name={m} value="on" /> : null}<input type="checkbox" disabled aria-label={tm(m)} className="size-6" /></>}
                   </label>
                 </li>
               );

@@ -81,12 +81,12 @@ export default async function Stock({ searchParams }: { searchParams: Promise<{ 
             {cree ? <Link href="/stock/nouveau" className={classeBouton.principal}><Plus aria-hidden className="size-5" />{t('ajouter')}</Link> : null}
             <form action="/stock" role="search" className="flex gap-2">
               {filtre !== 'tous' ? <input type="hidden" name="filtre" value={filtre} /> : null}
-              <input type="search" name="q" defaultValue={q} aria-label={t('chercher')} placeholder={t('chercher')} maxLength={80} className="min-h-12 min-w-0 flex-1 rounded-lg border border-trait bg-surface px-3 text-base text-encre placeholder:text-doux" />
+              <input type="search" name="q" defaultValue={q} aria-label={t('chercher')} placeholder={t('chercher')} maxLength={80} className="min-h-12 min-w-0 flex-1 rounded-xl border border-trait bg-surface px-3 text-base text-encre placeholder:text-doux" />
               <button type="submit" aria-label={t('chercher')} className={`${classeBouton.secondaire} min-h-12 px-3`}><Search aria-hidden className="size-5" /></button>
             </form>
             <nav aria-label={t('filtres')} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
               {FILTRES.map((f) => (
-                <Link key={f} href={adresse({ filtre: f })} aria-current={f === filtre ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold ${f === filtre ? 'border-vert bg-vert-pale text-vert' : 'border-trait bg-surface'}`}>
+                <Link key={f} href={adresse({ filtre: f })} aria-current={f === filtre ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold ${f === filtre ? 'border-prim bg-prim-pale text-prim' : 'border-trait bg-surface'}`}>
                   {t(`filtre.${f}`)}
                   {compte[f] !== undefined ? <span className="chiffres">{compte[f]}</span> : null}
                 </Link>
@@ -104,7 +104,7 @@ export default async function Stock({ searchParams }: { searchParams: Promise<{ 
               <ul className="flex flex-col gap-2">
                 {produits.slice(0, PAR_PAGE * page).map((p) => (
                   <li key={p.id}>
-                    <Link href={`/stock/${p.id}`} className="flex min-h-16 items-center gap-3 rounded-xl border border-trait bg-surface p-3">
+                    <Link href={`/stock/${p.id}`} className="flex min-h-16 items-center gap-3 rounded-2xl border border-trait bg-surface shadow-doux p-3">
                       <span className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-creux text-doux">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         {p.photo_id ? <img src={`/photos/${p.photo_id}?t=p`} alt="" loading="lazy" className="size-full object-cover" /> : <Package aria-hidden className="size-5" />}

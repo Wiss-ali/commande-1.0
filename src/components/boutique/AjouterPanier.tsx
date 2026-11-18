@@ -36,7 +36,7 @@ export function AjouterPanier({ sd, base, produitId, nom, variantes, direct }: {
           <legend className="mb-1.5 text-sm font-medium">{t('choisirVariante')}</legend>
           <div className="flex flex-wrap gap-2">
             {variantes.map((x) => (
-              <label key={x.varianteId} className={`inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg border px-3 text-sm font-semibold ${x.varianteId === choix ? 'border-vert bg-vert-pale text-vert' : 'border-trait'} ${x.disponible <= 0 ? 'line-through opacity-60' : ''}`}>
+              <label key={x.varianteId} className={`inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg border px-3 text-sm font-semibold ${x.varianteId === choix ? 'border-prim bg-prim-pale text-prim' : 'border-trait'} ${x.disponible <= 0 ? 'line-through opacity-60' : ''}`}>
                 <input type="radio" name="variante" value={x.varianteId} checked={x.varianteId === choix} onChange={() => { setChoix(x.varianteId); setQuantite(1); setAjoute(false); }} className="sr-only" />
                 {x.libelle}
               </label>
@@ -49,7 +49,7 @@ export function AjouterPanier({ sd, base, produitId, nom, variantes, direct }: {
       ) : (
         <label className="flex items-center gap-3">
           <span className="text-sm font-medium">{t('quantite')}</span>
-          <select value={quantite} onChange={(e) => setQuantite(Number(e.target.value))} className="min-h-11 rounded-lg border border-trait bg-surface px-3 text-base">
+          <select value={quantite} onChange={(e) => setQuantite(Number(e.target.value))} className="min-h-11 rounded-xl border border-trait bg-surface px-3 text-base">
             {Array.from({ length: Math.min(10, v.disponible) }, (_, i) => i + 1).map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
         </label>
@@ -62,14 +62,14 @@ export function AjouterPanier({ sd, base, produitId, nom, variantes, direct }: {
           setAjoute(true);
           if (direct) window.location.assign(`${base}/panier`);
         }}
-        className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-vert px-4 text-base font-semibold text-sur-vert disabled:opacity-50"
+        className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-prim shadow-prim hover:bg-prim-fort px-4 text-base font-semibold text-sur-prim disabled:opacity-50"
       >
         {t(direct ? 'commanderMaintenant' : 'ajouter')}
       </button>
       {ajoute && !direct ? (
         <p role="status" className="flex items-center justify-between gap-2 text-sm">
-          <span className="inline-flex items-center gap-1 text-vert"><Check aria-hidden className="size-4" />{t('ajoute')}</span>
-          <Link href={`${base}/panier`} className="font-semibold text-vert underline">{t('voirPanier')}</Link>
+          <span className="inline-flex items-center gap-1 text-prim"><Check aria-hidden className="size-4" />{t('ajoute')}</span>
+          <Link href={`${base}/panier`} className="font-semibold text-prim underline">{t('voirPanier')}</Link>
         </p>
       ) : null}
     </div>

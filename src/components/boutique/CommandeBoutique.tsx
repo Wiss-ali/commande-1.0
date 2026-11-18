@@ -44,7 +44,7 @@ export function CommandeBoutique({ sd, base, cle, wilayas, apercu }: { sd: strin
     ecrirePanier(sd, lignes.map((l) => (l.varianteId === varianteId ? { ...l, quantite: Math.max(0, Math.min(l.max, l.quantite + delta)) } : l)).filter((l) => l.quantite > 0));
   const articles = lignes.reduce((s, l) => s + l.prix * l.quantite, 0);
   const prixLivraison = (livraison === 'domicile' ? frais.domicile : frais.relais) ?? 0;
-  const champ = 'min-h-12 w-full rounded-lg border border-trait bg-surface px-3 text-base text-encre';
+  const champ = 'min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre';
 
   if (!lignes.length) {
     return (
@@ -66,7 +66,7 @@ export function CommandeBoutique({ sd, base, cle, wilayas, apercu }: { sd: strin
         <label>Site web<input type="text" name="site_web" tabIndex={-1} autoComplete="off" /></label>
       </div>
 
-      <ul className="flex flex-col divide-y divide-trait rounded-xl border border-trait bg-surface">
+      <ul className="flex flex-col divide-y divide-trait rounded-2xl border border-trait bg-surface shadow-doux">
         {lignes.map((l) => (
           <li key={l.varianteId} className="flex flex-col gap-2 px-4 py-3">
             <div className="flex items-start justify-between gap-3">
@@ -84,7 +84,7 @@ export function CommandeBoutique({ sd, base, cle, wilayas, apercu }: { sd: strin
         ))}
       </ul>
 
-      <section className="flex flex-col gap-3 rounded-xl border border-trait bg-surface p-4">
+      <section className="flex flex-col gap-3 rounded-2xl border border-trait bg-surface shadow-doux p-4">
         <h2 className="font-semibold">{t('vosCoordonnees')}</h2>
         <label className="flex flex-col gap-1.5"><span className="text-sm font-medium">{t('nom')}</span><input name="nom" required maxLength={120} autoComplete="name" className={champ} /></label>
         <label className="flex flex-col gap-1.5"><span className="text-sm font-medium">{t('telephone')}</span><input name="telephone" type="tel" inputMode="tel" required maxLength={30} autoComplete="tel" dir="ltr" placeholder="0550 12 34 56" className={champ} /></label>
@@ -101,7 +101,7 @@ export function CommandeBoutique({ sd, base, cle, wilayas, apercu }: { sd: strin
             <legend className="mb-1.5 text-sm font-medium">{t('livraison')}</legend>
             <div className="grid grid-cols-2 gap-2">
               {(['domicile', 'point_relais'] as const).map((m) => (
-                <label key={m} className={`flex min-h-12 cursor-pointer flex-col items-center justify-center rounded-lg border px-2 text-sm font-semibold ${livraison === m ? 'border-vert bg-vert-pale text-vert' : 'border-trait'}`}>
+                <label key={m} className={`flex min-h-12 cursor-pointer flex-col items-center justify-center rounded-lg border px-2 text-sm font-semibold ${livraison === m ? 'border-prim bg-prim-pale text-prim' : 'border-trait'}`}>
                   <input type="radio" name="livraison" value={m} checked={livraison === m} onChange={() => setLivraison(m)} className="sr-only" />
                   {t(`mode_${m}`)}
                   <span className="text-xs font-normal">{formaterMontant((m === 'domicile' ? frais.domicile : frais.relais) ?? 0, langue)}</span>
@@ -112,26 +112,26 @@ export function CommandeBoutique({ sd, base, cle, wilayas, apercu }: { sd: strin
         ) : <input type="hidden" name="livraison" value="domicile" />}
       </section>
 
-      <fieldset className="flex flex-col gap-2 rounded-xl border border-trait bg-surface p-4">
+      <fieldset className="flex flex-col gap-2 rounded-2xl border border-trait bg-surface shadow-doux p-4">
         <legend className="sr-only">{t('paiement')}</legend>
         <p className="font-semibold">{t('paiement')}</p>
         {(['livraison', 'carte'] as const).map((p) => (
-          <label key={p} className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border px-3 ${paiement === p ? 'border-vert bg-vert-pale' : 'border-trait'}`}>
-            <input type="radio" name="paiement" value={p} checked={paiement === p} onChange={() => setPaiement(p)} className="size-5 accent-vert" />
+          <label key={p} className={`flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border px-3 ${paiement === p ? 'border-prim bg-prim-pale' : 'border-trait'}`}>
+            <input type="radio" name="paiement" value={p} checked={paiement === p} onChange={() => setPaiement(p)} className="size-5 accent-prim" />
             <span className="text-sm font-semibold">{t(`paiement_${p}`)}</span>
           </label>
         ))}
         {paiement === 'carte' ? <p role="alert" className="rounded-lg border border-safran bg-safran-pale px-3 py-2.5 text-sm font-medium text-sur-safran">{t('carteInactive')}</p> : null}
       </fieldset>
 
-      <dl className="flex flex-col gap-1.5 rounded-xl border border-trait bg-surface px-4 py-3 text-sm">
+      <dl className="flex flex-col gap-1.5 rounded-2xl border border-trait bg-surface shadow-doux px-4 py-3 text-sm">
         <div className="flex justify-between gap-3"><dt className="text-doux">{t('articles')}</dt><dd>{formaterMontant(articles, langue)}</dd></div>
         <div className="flex justify-between gap-3"><dt className="text-doux">{t('fraisLivraison')}</dt><dd>{wilaya ? formaterMontant(prixLivraison, langue) : '—'}</dd></div>
         <div className="flex items-baseline justify-between gap-3 text-xl font-bold"><dt>{t('total')}</dt><dd>{formaterMontant(articles + prixLivraison, langue)}</dd></div>
       </dl>
       {apercu ? <p role="status" className="rounded-lg border border-safran bg-safran-pale px-3 py-2.5 text-sm text-sur-safran">{t('apercuCommande')}</p> : null}
       {etat.erreur ? <p role="alert" className="rounded-lg border border-terre bg-terre-pale px-3 py-2.5 text-sm font-medium text-terre">{etat.erreur === 'carte_inactive' ? t('carteInactive') : te.has(etat.erreur) ? te(etat.erreur) : te('inconnue')}</p> : null}
-      <button type="submit" disabled={enCours || paiement === 'carte'} className="inline-flex min-h-12 w-full items-center justify-center rounded-lg bg-vert px-4 text-base font-semibold text-sur-vert disabled:opacity-50">
+      <button type="submit" disabled={enCours || paiement === 'carte'} className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-prim shadow-prim hover:bg-prim-fort px-4 text-base font-semibold text-sur-prim disabled:opacity-50">
         {enCours ? t('patienter') : t('valider')}
       </button>
       <p className="text-center text-xs text-doux">{t('mentionPaiement')}</p>

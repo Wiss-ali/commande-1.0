@@ -65,7 +65,7 @@ export function NotificationsTelephone({ clePublique }: { clePublique: string | 
   if (etat === 'inconnu') return null;
   return (
     <div className="flex flex-col gap-2">
-      <p className="flex items-center gap-2 font-semibold"><BellRing aria-hidden className="size-5 text-vert" />{t('telephoneTitre')}</p>
+      <p className="flex items-center gap-2 font-semibold"><BellRing aria-hidden className="size-5 text-prim" />{t('telephoneTitre')}</p>
       {etat === 'actif' ? <><Message ton="succes">{t('telephoneActif')}</Message><button type="button" onClick={desactiver} disabled={enCours} className={classeBouton.secondaire}>{t('desactiver')}</button></> : null}
       {etat === 'inactif' ? <><p className="text-sm text-doux">{t('telephoneTexte')}</p><button type="button" onClick={activer} disabled={enCours} className={classeBouton.principal}>{t('activer')}</button></> : null}
       {etat === 'installer' ? <Message ton="info">{t('installerIphone')}</Message> : null}

@@ -85,7 +85,7 @@ export default async function Commande({ params }: { params: Promise<{ id: strin
           {c.tentatives ? <p className="text-sm text-doux">{t('appels', { n: c.tentatives })}{c.dernierAppel ? <> · <span className="chiffres">{formaterDate(c.dernierAppel)} {formaterHeure(c.dernierAppel)}</span></> : null}</p> : null}
         </Carte>
 
-        <ul className="flex flex-col divide-y divide-trait rounded-xl border border-trait bg-surface">
+        <ul className="flex flex-col divide-y divide-trait rounded-2xl border border-trait bg-surface shadow-doux">
           {c.lignes.map((l, i) => (
             <li key={i} className="flex items-start justify-between gap-3 px-4 py-3">
               <p className="min-w-0"><span className="chiffres">{l.quantite} ×</span> {l.designation}</p>
@@ -124,14 +124,14 @@ export default async function Commande({ params }: { params: Promise<{ id: strin
                 <Operation id={id} op="expedier" bouton={t('expedier')} style={c.statut === 'preparee' ? 'principal' : 'secondaire'}>
                   <label className="flex flex-col gap-1.5">
                     <span className="text-sm font-medium">{t('transporteur')}</span>
-                    <select name="transporteur" className="min-h-12 w-full rounded-lg border border-trait bg-surface px-3 text-base text-encre">
+                    <select name="transporteur" className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre">
                       <option value="">{t('sansTransporteur')}</option>
                       {transporteurs.map((tr) => <option key={tr.id} value={tr.id}>{tr.nom}</option>)}
                     </select>
                   </label>
                   <label className="flex flex-col gap-1.5">
                     <span className="text-sm font-medium">{t('suivi')}</span>
-                    <input name="suivi" maxLength={60} dir="ltr" autoComplete="off" className="min-h-12 w-full rounded-lg border border-trait bg-surface px-3 text-base text-encre" />
+                    <input name="suivi" maxLength={60} dir="ltr" autoComplete="off" className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre" />
                   </label>
                 </Operation>
               </Carte>
@@ -145,7 +145,7 @@ export default async function Commande({ params }: { params: Promise<{ id: strin
               </Carte>
             ) : null}
             {(aConfirmer || aExpedier) && vend ? (
-              <details className="rounded-xl border border-trait bg-surface">
+              <details className="rounded-2xl border border-trait bg-surface shadow-doux">
                 <summary className="flex min-h-12 cursor-pointer items-center px-4 font-semibold text-terre">{t('annuler')}</summary>
                 <div className="flex flex-col gap-3 p-4 pt-0">
                   <p className="text-sm text-doux">{t(c.facture ? 'annulerTexteFacture' : 'annulerTexte')}</p>
@@ -161,9 +161,9 @@ export default async function Commande({ params }: { params: Promise<{ id: strin
             <TitreSection>{t('documents')}</TitreSection>
             <div className="flex flex-col gap-2">
               {documents.map((d) => (
-                <Link key={d.id} href={`/factures/${d.id}`} className="flex min-h-12 items-center justify-between gap-3 rounded-xl border border-trait bg-surface px-4 py-2 text-sm">
+                <Link key={d.id} href={`/factures/${d.id}`} className="flex min-h-12 items-center justify-between gap-3 rounded-2xl border border-trait bg-surface shadow-doux px-4 py-2 text-sm">
                   <span className="text-doux">{td(`type_${d.type}`)}</span>
-                  <span className="chiffres font-semibold text-vert underline">{numeroTexte(d)}</span>
+                  <span className="chiffres font-semibold text-prim underline">{numeroTexte(d)}</span>
                 </Link>
               ))}
             </div>

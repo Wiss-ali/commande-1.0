@@ -42,7 +42,7 @@ export default async function Invitation({ params }: { params: Promise<{ jeton: 
         {i.type === 'commercant' ? (
           <>
             <Champ libelle={t('nomMagasin')} name="nomMagasin" defaultValue={i.nomCommercant} maxLength={120} required />
-            <details className="rounded-xl border border-trait bg-surface p-4">
+            <details className="rounded-2xl border border-trait bg-surface shadow-doux p-4">
               <summary className="min-h-11 cursor-pointer content-center font-semibold">{t('infosLegales')}</summary>
               <div className="flex flex-col gap-4 pt-3">
                 <p className="text-sm text-doux">{t('infosLegalesAide')}</p>

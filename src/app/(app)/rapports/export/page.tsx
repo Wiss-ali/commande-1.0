@@ -14,7 +14,7 @@ export default async function Export({ searchParams }: { searchParams: Promise<{
   const params = await searchParams;
   const code: CodePeriode = params.periode === 'mois_precedent' ? 'mois_precedent' : 'mois';
   const p = periode(code);
-  const champ = 'min-h-12 w-full rounded-lg border border-trait bg-surface px-3 text-base text-encre';
+  const champ = 'min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre';
   return (
     <>
       <EnTete titre={t('titre')} retour="/rapports" />

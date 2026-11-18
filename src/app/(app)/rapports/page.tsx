@@ -128,14 +128,14 @@ export default async function Rapports({ searchParams }: { searchParams: Promise
       <Page>
         <nav aria-label={t('onglets')} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
           {ONGLETS.map((o) => (
-            <Link key={o} href={lien(o, code)} aria-current={o === onglet ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-semibold ${o === onglet ? 'border-vert bg-vert-pale text-vert' : 'border-trait bg-surface'}`}>
+            <Link key={o} href={lien(o, code)} aria-current={o === onglet ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-semibold ${o === onglet ? 'border-prim bg-prim-pale text-prim' : 'border-trait bg-surface'}`}>
               {t(`onglet.${o}`)}
             </Link>
           ))}
         </nav>
         <nav aria-label={t('periode')} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
           {PERIODES.map((c) => (
-            <Link key={c} href={lien(onglet, c)} aria-current={c === code ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center rounded-lg border px-3 text-sm ${c === code ? 'border-vert font-semibold text-vert' : 'border-trait'}`}>
+            <Link key={c} href={lien(onglet, c)} aria-current={c === code ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center rounded-lg border px-3 text-sm ${c === code ? 'border-prim font-semibold text-prim' : 'border-trait'}`}>
               {t(`p.${c}`)}
             </Link>
           ))}

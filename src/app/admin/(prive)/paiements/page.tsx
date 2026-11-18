@@ -39,7 +39,7 @@ export default async function Paiements({ searchParams }: { searchParams: Promis
         {lignes.length ? (
           <ul className="flex flex-col gap-2">
             {lignes.map((l) => (
-              <li key={l.id} className="rounded-xl border border-trait bg-surface p-3">
+              <li key={l.id} className="rounded-2xl border border-trait bg-surface shadow-doux p-3">
                 <div className="flex items-start justify-between gap-3">
                   <Link href={`/admin/commercants/${l.commercant_id}`} className="min-w-0 font-semibold underline">{l.commercant}</Link>
                   <span className="shrink-0 font-bold">{formaterMontant(BigInt(l.montant), langue)}</span>

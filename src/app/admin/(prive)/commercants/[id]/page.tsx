@@ -69,19 +69,19 @@ export default async function FicheCommercant({ params }: { params: Promise<{ id
           ) : <p className="text-sm text-doux">{ta('sans')}</p>}
           {formules.length ? (
             <details>
-              <summary className="inline-flex min-h-11 cursor-pointer items-center font-semibold text-vert">{ta('saisirPaiement')}</summary>
+              <summary className="inline-flex min-h-11 cursor-pointer items-center font-semibold text-prim">{ta('saisirPaiement')}</summary>
               <Formulaire action={saisirPaiement} bouton={ta('enregistrerPaiement')} succes={ta('paiementOk')}>
                 <input type="hidden" name="id" value={c.id} />
                 <label className="flex flex-col gap-1.5">
                   <span className="text-sm font-medium">{ta('formule')}</span>
-                  <select name="formule" defaultValue={formuleProposee} className="min-h-12 w-full rounded-lg border border-trait bg-surface px-3 text-base text-encre">
+                  <select name="formule" defaultValue={formuleProposee} className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre">
                     {formules.map((f) => <option key={f.id} value={f.id}>{`${f.nom} · ${formaterMontant(BigInt(f.prix), langue)} · ${ta('jours', { n: f.duree_jours })}${f.active ? '' : ` (${ta('inactive')})`}`}</option>)}
                   </select>
                 </label>
                 <Champ libelle={ta('montant')} name="montant" inputMode="decimal" dir="ltr" maxLength={12} autoComplete="off" aide={ta('montantAide')} />
                 <label className="flex flex-col gap-1.5">
                   <span className="text-sm font-medium">{ta('moyen')}</span>
-                  <select name="moyen" className="min-h-12 w-full rounded-lg border border-trait bg-surface px-3 text-base text-encre">
+                  <select name="moyen" className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre">
                     {MOYENS.map((m) => <option key={m} value={m}>{tmo(m)}</option>)}
                   </select>
                 </label>
@@ -102,7 +102,7 @@ export default async function FicheCommercant({ params }: { params: Promise<{ id
             {MODULES.filter((m) => m !== 'stock').map((m) => (
               <label key={m} className="flex items-center justify-between gap-3">
                 <span className="text-sm">{tm(m)}</span>
-                <select name={`retouche_${m}`} defaultValue={ab.ajoutes.includes(m) ? 'ajoute' : ab.retires.includes(m) ? 'retire' : 'formule'} className="min-h-11 rounded-lg border border-trait bg-surface px-2 text-sm">
+                <select name={`retouche_${m}`} defaultValue={ab.ajoutes.includes(m) ? 'ajoute' : ab.retires.includes(m) ? 'retire' : 'formule'} className="min-h-11 rounded-xl border border-trait bg-surface px-2 text-sm">
                   {(['formule', 'ajoute', 'retire'] as const).map((v) => <option key={v} value={v}>{ta(`retouche.${v}`)}</option>)}
                 </select>
               </label>

@@ -8,7 +8,7 @@ export async function EcartsInventaire({ lignes }: { lignes: LigneInventaire[] }
   const t = await getTranslations('inventaire');
   const langue = (await getLocale()) as Langue;
   return (
-    <div className="overflow-hidden rounded-xl border border-trait bg-surface">
+    <div className="overflow-hidden rounded-2xl border border-trait bg-surface shadow-doux">
       <table className="w-full text-sm">
         <thead className="bg-creux text-doux">
           <tr>
@@ -26,7 +26,7 @@ export async function EcartsInventaire({ lignes }: { lignes: LigneInventaire[] }
                 <th scope="row" className="px-3 py-2 text-start font-medium">{nomLocal(l, langue)}{l.libelle ? ` · ${l.libelle}` : ''}</th>
                 <td className="px-2 py-2 text-end"><span className="chiffres">{l.comptee}</span></td>
                 <td className="px-2 py-2 text-end"><span className="chiffres">{l.theorique}</span></td>
-                <td className={`px-3 py-2 text-end font-bold ${ecart === 0 ? 'text-doux' : ecart > 0 ? 'text-vert' : 'text-terre'}`}>
+                <td className={`px-3 py-2 text-end font-bold ${ecart === 0 ? 'text-doux' : ecart > 0 ? 'text-ok' : 'text-terre'}`}>
                   <span className="chiffres">{ecart === 0 ? '0' : ecart > 0 ? `+${ecart}` : `−${-ecart}`}</span>
                 </td>
               </tr>

@@ -96,7 +96,7 @@ export function FormulaireCommande({ cle, wilayas, communes }: { cle: string; wi
         <Champ libelle={t('nom')} name="nom" maxLength={120} autoComplete="off" required />
         <label className="flex flex-col gap-1.5">
           <span className="text-sm font-medium">{t('wilaya')}</span>
-          <select name="wilaya" required value={wilaya || ''} onChange={(e) => setWilaya(Number(e.target.value))} className="min-h-12 w-full rounded-lg border border-trait bg-surface px-3 text-base text-encre">
+          <select name="wilaya" required value={wilaya || ''} onChange={(e) => setWilaya(Number(e.target.value))} className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre">
             <option value="">{t('choisirWilaya')}</option>
             {wilayas.map((w) => <option key={w.code} value={w.code}>{`${String(w.code).padStart(2, '0')} · ${nomLocal(w, langue)}`}</option>)}
           </select>
@@ -107,7 +107,7 @@ export function FormulaireCommande({ cle, wilayas, communes }: { cle: string; wi
           <legend className="mb-1.5 text-sm font-medium">{t('livraison')}</legend>
           <div className="grid grid-cols-2 gap-2">
             {(['domicile', 'point_relais'] as const).map((m) => (
-              <label key={m} className={`flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-lg border px-2 text-sm font-semibold ${livraison === m ? 'border-vert bg-vert-pale text-vert' : 'border-trait bg-surface'}`}>
+              <label key={m} className={`flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-lg border px-2 text-sm font-semibold ${livraison === m ? 'border-prim bg-prim-pale text-prim' : 'border-trait bg-surface'}`}>
                 <input type="radio" name="livraison" value={m} checked={livraison === m} onChange={() => setLivraison(m)} className="sr-only" />
                 {t(`mode_${m}`)}
               </label>
@@ -129,7 +129,7 @@ export function FormulaireCommande({ cle, wilayas, communes }: { cle: string; wi
                 e.preventDefault();
                 void chercher();
               }}
-              className="min-h-12 w-full rounded-lg border border-trait bg-surface px-3 text-base text-encre"
+              className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre"
             />
           </label>
           <button type="button" aria-label={t('chercherArticle')} onClick={() => void chercher()} className={`${classeBouton.secondaire} min-h-12 px-3`}><Search aria-hidden className="size-5" /></button>
@@ -170,7 +170,7 @@ export function FormulaireCommande({ cle, wilayas, communes }: { cle: string; wi
 
       <Champ libelle={t('frais')} name="frais" value={frais} onChange={(e) => setFrais(e.target.value)} inputMode="decimal" dir="ltr" maxLength={12} autoComplete="off" aide={wilaya && fraisGrille === null ? t('fraisAbsents') : undefined} />
       <Champ libelle={t('note')} name="note" maxLength={500} autoComplete="off" />
-      <p className="flex items-baseline justify-between rounded-xl border border-trait bg-surface px-4 py-3">
+      <p className="flex items-baseline justify-between rounded-2xl border border-trait bg-surface shadow-doux px-4 py-3">
         <span className="text-sm text-doux">{t('totalClient')}</span>
         <span className="text-2xl font-bold">{formaterMontant(total, langue)}</span>
       </p>

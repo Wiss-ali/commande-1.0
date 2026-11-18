@@ -171,7 +171,7 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
         )}
         <dl className="grid grid-cols-2 gap-3">
           <div><dt className="text-sm text-doux">{t('total')}</dt><dd className="text-2xl font-bold">{formaterMontant(fin.etat === 'envoyee' ? fin.resultat.total : fin.total, langue)}</dd></div>
-          {fin.rendu !== null ? <div><dt className="text-sm text-doux">{t('aRendre')}</dt><dd className="text-2xl font-bold text-vert">{formaterMontant(fin.rendu, langue)}</dd></div> : null}
+          {fin.rendu !== null ? <div><dt className="text-sm text-doux">{t('aRendre')}</dt><dd className="text-2xl font-bold text-prim">{formaterMontant(fin.rendu, langue)}</dd></div> : null}
         </dl>
         <button type="button" onClick={() => setFin(null)} className={classeBouton.principal}>{t('nouvelleVente')}</button>
         {fin.etat === 'envoyee' ? (
@@ -197,7 +197,7 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
           <span className="text-sm font-medium">{t('chercher')}</span>
           <span className="relative block">
             <Search aria-hidden className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-doux" />
-            <input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} maxLength={80} autoComplete="off" className="min-h-12 w-full rounded-lg border border-trait bg-surface ps-9 pe-3 text-base text-encre" />
+            <input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} maxLength={80} autoComplete="off" className="min-h-12 w-full rounded-xl border border-trait bg-surface ps-9 pe-3 text-base text-encre" />
           </span>
         </label>
         <button type="button" onClick={() => setScan((s) => !s)} aria-pressed={scan} className={`${classeBouton.secondaire} min-h-12`}>
@@ -210,7 +210,7 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
           <ul className="flex flex-col gap-1">
             {trouves.map((a) => (
               <li key={a.id}>
-                <button type="button" onClick={() => { ajouter(a.id); setRecherche(''); }} className="flex min-h-12 w-full items-center justify-between gap-3 rounded-lg border border-trait bg-surface px-3 py-2 text-start">
+                <button type="button" onClick={() => { ajouter(a.id); setRecherche(''); }} className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-trait bg-surface px-3 py-2 text-start">
                   <span className="min-w-0 truncate text-sm font-semibold">{nom(a)}</span>
                   <span className="shrink-0 text-sm">{formaterMontant(a.prix, langue)}</span>
                 </button>
@@ -227,7 +227,7 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
       {lignes.length ? (
         <ul className="flex flex-col gap-2">
           {lignes.map(({ article, quantite }) => (
-            <li key={article.id} className="rounded-xl border border-trait bg-surface p-3">
+            <li key={article.id} className="rounded-2xl border border-trait bg-surface shadow-doux p-3">
               <div className="flex items-start justify-between gap-3">
                 <p className="min-w-0 font-semibold">{nom(article)}</p>
                 <p className="shrink-0 font-bold">{formaterMontant(article.prix * quantite, langue)}</p>
@@ -246,12 +246,12 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
         <p className="rounded-xl border border-dashed border-trait px-4 py-8 text-center text-sm text-doux">{t('panierVide')}</p>
       )}
 
-      <div className="sticky bottom-24 z-10 flex items-center gap-3 rounded-xl border border-trait bg-surface p-3 shadow-lg md:bottom-4">
+      <div className="sticky bottom-24 z-10 flex items-center gap-3 rounded-2xl border border-trait bg-surface shadow-doux p-3 shadow-lg md:bottom-4">
         <div className="min-w-0 flex-1">
           <p className="text-sm text-doux">{t('total')}</p>
           <p className="text-2xl font-bold">{formaterMontant(total, langue)}</p>
         </div>
-        <button type="button" disabled={!lignes.length} onClick={() => setPaiement(true)} className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-lg bg-vert px-6 text-base font-semibold text-sur-vert disabled:opacity-60">{t('encaisser')}</button>
+        <button type="button" disabled={!lignes.length} onClick={() => setPaiement(true)} className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-xl bg-prim shadow-prim hover:bg-prim-fort px-6 text-base font-semibold text-sur-prim disabled:opacity-60">{t('encaisser')}</button>
       </div>
 
       {paiement ? (
@@ -259,18 +259,18 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
           <div className="mx-auto flex max-w-2xl flex-col gap-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">{t('encaisser')}</h2>
-              <button type="button" onClick={() => setPaiement(false)} aria-label={t('fermer')} className="inline-flex size-11 items-center justify-center rounded-lg border border-trait bg-surface"><X aria-hidden className="size-5" /></button>
+              <button type="button" onClick={() => setPaiement(false)} aria-label={t('fermer')} className="inline-flex size-11 items-center justify-center rounded-xl border border-trait bg-surface"><X aria-hidden className="size-5" /></button>
             </div>
             <Carte className="flex flex-col gap-3">
               <div><p className="text-sm text-doux">{t('aPayer')}</p><p className="text-3xl font-bold">{formaterMontant(total, langue)}</p></div>
               <Champ libelle={t('recu')} value={recu} onChange={(e) => setRecu(e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('recuAide')} />
-              {rendu !== null && rendu >= total ? <p className="text-lg font-bold text-vert">{t('aRendre')} : {formaterMontant(rendu - total, langue)}</p> : null}
+              {rendu !== null && rendu >= total ? <p className="text-lg font-bold text-prim">{t('aRendre')} : {formaterMontant(rendu - total, langue)}</p> : null}
             </Carte>
             <fieldset className="flex flex-col gap-2">
               <legend className="mb-1.5 text-sm font-medium">{t('document')}</legend>
               {[false, true].map((f) => (
-                <label key={String(f)} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-lg border border-trait bg-surface px-3">
-                  <input type="radio" name="document" checked={facture === f} onChange={() => setFacture(f)} className="size-5 accent-vert" />
+                <label key={String(f)} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border border-trait bg-surface px-3">
+                  <input type="radio" name="document" checked={facture === f} onChange={() => setFacture(f)} className="size-5 accent-prim" />
                   <span className="text-sm">{t(f ? 'avecFacture' : 'avecTicket')}</span>
                 </label>
               ))}
@@ -280,7 +280,7 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
                 <Champ libelle={t('clientNom')} value={client.nom ?? ''} onChange={(e) => setClient({ ...client, nom: e.target.value })} maxLength={120} autoComplete="off" />
                 <Champ libelle={t('clientTelephone')} value={client.telephone ?? ''} onChange={(e) => setClient({ ...client, telephone: e.target.value })} type="tel" inputMode="tel" dir="ltr" maxLength={30} autoComplete="off" />
                 <details>
-                  <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm font-semibold text-vert">{t('clientPro')}</summary>
+                  <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm font-semibold text-prim">{t('clientPro')}</summary>
                   <div className="flex flex-col gap-3 pt-2">
                     {(['adresse', 'nif', 'rc', 'nis', 'ai'] as const).map((c) => (
                       <Champ key={c} libelle={tl(c)} value={client[c] ?? ''} onChange={(e) => setClient({ ...client, [c]: e.target.value })} maxLength={c === 'adresse' ? 300 : 40} autoComplete="off" dir={c === 'adresse' ? undefined : 'ltr'} />

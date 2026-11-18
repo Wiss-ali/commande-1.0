@@ -1,70 +1,86 @@
 @import 'tailwindcss';
-@import '@fontsource/ibm-plex-sans/400.css';
-@import '@fontsource/ibm-plex-sans/500.css';
-@import '@fontsource/ibm-plex-sans/600.css';
-@import '@fontsource/ibm-plex-sans/700.css';
+@import '@fontsource-variable/inter/index.css';
 @import '@fontsource/ibm-plex-sans-arabic/400.css';
 @import '@fontsource/ibm-plex-sans-arabic/500.css';
 @import '@fontsource/ibm-plex-sans-arabic/600.css';
 @import '@fontsource/ibm-plex-sans-arabic/700.css';
 
-/* Identité Hanout : papier chaud, encre, vert émeraude, safran pour les alertes, terre cuite pour les erreurs. */
+/* Identité Hanout : blanc, contours fins bleutés, bleu pour l'action ; vert = bonne nouvelle, orange = à surveiller,
+   rouge = erreur. Mode sombre bleu nuit (jamais de noir pur). Voir docs/refonte-visuelle/01-recherche.md. */
 :root {
-  --fond: #f6f2ea;
+  --fond: #fafbfe;
   --surface: #ffffff;
-  --creux: #eee8dc;
-  --encre: #1b211f;
-  --doux: #5a6360;
-  --trait: #d6cdbc;
-  --vert: #0e6b4e;
-  --sur-vert: #ffffff;
-  --vert-pale: #dcefe6;
-  --safran: #f2b33d;
-  --safran-pale: #fcefcf;
-  --sur-safran: #3d2a00;
-  --terre: #a63a24;
-  --terre-pale: #f7e0da;
-  --bleu: #1f4e79;
-  --bleu-pale: #dde8f3;
+  --creux: #f1f5fb;
+  --encre: #0f172a;
+  --doux: #55657d;
+  --trait: #d9e3f2;
+  --trait-fort: #b9cbe8;
+  --prim: #2563eb;
+  --prim-fort: #1d4ed8;
+  --sur-prim: #ffffff;
+  --prim-pale: #eaf1fe;
+  --ok: #15803d;
+  --ok-pale: #e6f6eb;
+  --safran: #f59e0b;
+  --safran-pale: #fef3c7;
+  --sur-safran: #78350f;
+  --terre: #dc2626;
+  --terre-pale: #fdecec;
+  --bleu: #4338ca;
+  --bleu-pale: #eef0ff;
+  --ombre: 0 1px 2px rgb(15 23 42 / 0.04), 0 1px 3px rgb(37 99 235 / 0.05);
+  --ombre-prim: 0 1px 2px rgb(37 99 235 / 0.25), 0 4px 12px -2px rgb(37 99 235 / 0.3);
   color-scheme: light;
 }
 :root[data-theme='sombre'] {
-  --fond: #111614;
-  --surface: #1a211e;
-  --creux: #232c28;
-  --encre: #ece7dd;
-  --doux: #a5ada9;
-  --trait: #3a4842;
-  --vert: #4fc79c;
-  --sur-vert: #08261b;
-  --vert-pale: #173a2d;
-  --safran: #f2b33d;
-  --safran-pale: #3e3011;
-  --sur-safran: #fbe3a8;
-  --terre: #f08c76;
-  --terre-pale: #45201a;
-  --bleu: #9cc4ea;
-  --bleu-pale: #1c2e40;
+  --fond: #0a0f1c;
+  --surface: #111a2d;
+  --creux: #182339;
+  --encre: #e6ebf5;
+  --doux: #97a6bf;
+  --trait: #22304a;
+  --trait-fort: #34466a;
+  --prim: #60a5fa;
+  --prim-fort: #93c5fd;
+  --sur-prim: #0a0f1c;
+  --prim-pale: #132a4d;
+  --ok: #4ade80;
+  --ok-pale: #0f2e1d;
+  --safran: #fbbf24;
+  --safran-pale: #3a2c0c;
+  --sur-safran: #fde68a;
+  --terre: #f87171;
+  --terre-pale: #3a1518;
+  --bleu: #a5b4fc;
+  --bleu-pale: #1e2350;
+  --ombre: 0 0 0 1px rgb(255 255 255 / 0.02);
+  --ombre-prim: 0 4px 16px -4px rgb(96 165 250 / 0.45);
   color-scheme: dark;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='clair']) {
-    --fond: #111614;
-    --surface: #1a211e;
-    --creux: #232c28;
-    --encre: #ece7dd;
-    --doux: #a5ada9;
-    --trait: #3a4842;
-    --vert: #4fc79c;
-    --sur-vert: #08261b;
-    --vert-pale: #173a2d;
-    --safran: #f2b33d;
-    --safran-pale: #3e3011;
-    --sur-safran: #fbe3a8;
-    --terre: #f08c76;
-    --terre-pale: #45201a;
-    --bleu: #9cc4ea;
-    --bleu-pale: #1c2e40;
+    --fond: #0a0f1c;
+    --surface: #111a2d;
+    --creux: #182339;
+    --encre: #e6ebf5;
+    --doux: #97a6bf;
+    --trait: #22304a;
+    --trait-fort: #34466a;
+    --prim: #60a5fa;
+    --prim-fort: #93c5fd;
+    --sur-prim: #0a0f1c;
+    --prim-pale: #132a4d;
+    --ok: #4ade80;
+    --ok-pale: #0f2e1d;
+    --safran: #fbbf24;
+    --safran-pale: #3a2c0c;
+    --sur-safran: #fde68a;
+    --terre: #f87171;
+    --terre-pale: #3a1518;
+    --bleu: #a5b4fc;
+    --bleu-pale: #1e2350;
+    --ombre: 0 0 0 1px rgb(255 255 255 / 0.02);
+    --ombre-prim: 0 4px 16px -4px rgb(96 165 250 / 0.45);
     color-scheme: dark;
   }
 }
@@ -76,9 +92,13 @@
   --color-encre: var(--encre);
   --color-doux: var(--doux);
   --color-trait: var(--trait);
-  --color-vert: var(--vert);
-  --color-sur-vert: var(--sur-vert);
-  --color-vert-pale: var(--vert-pale);
+  --color-trait-fort: var(--trait-fort);
+  --color-prim: var(--prim);
+  --color-prim-fort: var(--prim-fort);
+  --color-sur-prim: var(--sur-prim);
+  --color-prim-pale: var(--prim-pale);
+  --color-ok: var(--ok);
+  --color-ok-pale: var(--ok-pale);
   --color-safran: var(--safran);
   --color-safran-pale: var(--safran-pale);
   --color-sur-safran: var(--sur-safran);
@@ -86,7 +106,9 @@
   --color-terre-pale: var(--terre-pale);
   --color-bleu: var(--bleu);
   --color-bleu-pale: var(--bleu-pale);
-  --font-sans: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, 'Segoe UI', Tahoma, sans-serif;
+  --shadow-doux: var(--ombre);
+  --shadow-prim: var(--ombre-prim);
+  --font-sans: 'Inter Variable', 'IBM Plex Sans Arabic', system-ui, 'Segoe UI', Tahoma, sans-serif;
 }
 
 html {
@@ -95,7 +117,7 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 html[lang='ar'] {
-  font-family: 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, Tahoma, sans-serif;
+  font-family: 'IBM Plex Sans Arabic', 'Inter Variable', system-ui, Tahoma, sans-serif;
   line-height: 1.7;
 }
 body {
@@ -113,7 +135,7 @@ body {
   transform: scaleX(-1);
 }
 :focus-visible {
-  outline: 3px solid var(--vert);
+  outline: 3px solid var(--prim);
   outline-offset: 2px;
 }
 @media (prefers-reduced-motion: reduce) {

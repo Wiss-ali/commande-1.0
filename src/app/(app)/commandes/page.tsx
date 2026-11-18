@@ -40,7 +40,7 @@ export default async function Commandes({ searchParams }: { searchParams: Promis
           {FILTRES.map((f) => {
             const n = f in compteurs ? compteurs[f as keyof typeof compteurs] : 0;
             return (
-              <Link key={f} href={`/commandes?f=${f}`} aria-current={f === filtre && !recherche ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold ${f === filtre && !recherche ? 'border-vert bg-vert-pale text-vert' : 'border-trait bg-surface'}`}>
+              <Link key={f} href={`/commandes?f=${f}`} aria-current={f === filtre && !recherche ? 'true' : undefined} className={`inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold ${f === filtre && !recherche ? 'border-prim bg-prim-pale text-prim' : 'border-trait bg-surface'}`}>
                 {t(`filtre.${f}`)}
                 {n ? <span className="chiffres rounded-full bg-safran px-1.5 text-xs text-encre">{n}</span> : null}
               </Link>
@@ -48,7 +48,7 @@ export default async function Commandes({ searchParams }: { searchParams: Promis
           })}
         </nav>
         <form action="/commandes" role="search" className="flex gap-2">
-          <input type="search" name="q" defaultValue={recherche} aria-label={t('chercher')} placeholder={t('chercher')} maxLength={40} className="min-h-12 min-w-0 flex-1 rounded-lg border border-trait bg-surface px-3 text-base text-encre placeholder:text-doux" />
+          <input type="search" name="q" defaultValue={recherche} aria-label={t('chercher')} placeholder={t('chercher')} maxLength={40} className="min-h-12 min-w-0 flex-1 rounded-xl border border-trait bg-surface px-3 text-base text-encre placeholder:text-doux" />
           <button type="submit" aria-label={t('chercher')} className={`${classeBouton.secondaire} min-h-12 px-3`}><Search aria-hidden className="size-5" /></button>
         </form>
 
@@ -56,7 +56,7 @@ export default async function Commandes({ searchParams }: { searchParams: Promis
           <ul className="flex flex-col gap-2">
             {commandes.slice(0, PAR_PAGE * page).map((c) => (
               <li key={c.id}>
-                <Link href={`/commandes/${c.id}`} className="flex min-h-16 items-center gap-3 rounded-xl border border-trait bg-surface p-3">
+                <Link href={`/commandes/${c.id}`} className="flex min-h-16 items-center gap-3 rounded-2xl border border-trait bg-surface shadow-doux p-3">
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-2">
                       <span className="chiffres font-semibold">{t('numero', { n: c.numero })}</span>

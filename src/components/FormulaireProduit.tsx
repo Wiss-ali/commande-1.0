@@ -61,7 +61,7 @@ export function FormulaireProduit({ produit, variantes: initiales, categories, v
           <Champ libelle={t('nomAr')} name="nomAr" defaultValue={produit?.nomAr} maxLength={120} autoComplete="off" lang="ar" dir="rtl" aide={t('nomAide')} />
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-medium">{t('categorie')}</span>
-            <select name="categorieId" value={categorie} onChange={(e) => setCategorie(e.target.value)} className="min-h-12 w-full rounded-lg border border-trait bg-surface px-3 text-base text-encre">
+            <select name="categorieId" value={categorie} onChange={(e) => setCategorie(e.target.value)} className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre">
               <option value="">{t('sansCategorie')}</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
               <option value={NOUVELLE}>{t('nouvelleCategorie')}</option>
@@ -72,8 +72,8 @@ export function FormulaireProduit({ produit, variantes: initiales, categories, v
           <ChampPhoto actuelle={produit?.photo ?? null} />
         </Carte>
 
-        <label className="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border border-trait bg-surface px-4 py-3">
-          <input type="checkbox" checked={plusieurs} onChange={(e) => setPlusieurs(e.target.checked)} className="size-5 accent-vert" />
+        <label className="flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl border border-trait bg-surface shadow-doux px-4 py-3">
+          <input type="checkbox" checked={plusieurs} onChange={(e) => setPlusieurs(e.target.checked)} className="size-5 accent-prim" />
           <span className="text-sm font-medium">{t('plusieurs')}</span>
         </label>
 
@@ -130,7 +130,7 @@ export function FormulaireProduit({ produit, variantes: initiales, categories, v
         <div role="dialog" aria-modal="true" aria-label={t('scanner')} className="fixed inset-0 z-30 flex flex-col gap-3 overflow-y-auto bg-fond p-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold">{t('scannerTitre')}</h2>
-            <button type="button" onClick={() => setScan(null)} aria-label={t('fermer')} className="inline-flex size-11 items-center justify-center rounded-lg border border-trait bg-surface">
+            <button type="button" onClick={() => setScan(null)} aria-label={t('fermer')} className="inline-flex size-11 items-center justify-center rounded-xl border border-trait bg-surface">
               <X aria-hidden className="size-5" />
             </button>
           </div>

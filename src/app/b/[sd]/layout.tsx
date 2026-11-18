@@ -27,9 +27,9 @@ export default async function CadreBoutique({ params, children }: { params: Prom
   const { v, base } = c;
   const couleur = PALETTE[v.reglages.couleur] ?? PALETTE.emeraude!;
   // Couleur de la boutique : feuille de style avec le nonce de la page (les styles en ligne sont interdits par la CSP).
-  const css = `.boutique{--vert:${couleur.fond};--vert-pale:${couleur.pale};--sur-vert:#fff}`
-    + `@media (prefers-color-scheme:dark){:root:not([data-theme=clair]) .boutique{--vert:${couleur.pale};--sur-vert:${couleur.fond};--vert-pale:${couleur.fond}}}`
-    + `:root[data-theme=sombre] .boutique{--vert:${couleur.pale};--sur-vert:${couleur.fond};--vert-pale:${couleur.fond}}`;
+  const css = `.boutique{--prim:${couleur.fond};--prim-fort:${couleur.fond};--prim-pale:${couleur.pale};--sur-prim:#fff;--ombre-prim:none}`
+    + `@media (prefers-color-scheme:dark){:root:not([data-theme=clair]) .boutique{--prim:${couleur.pale};--prim-fort:${couleur.pale};--sur-prim:${couleur.fond};--prim-pale:${couleur.fond}}}`
+    + `:root[data-theme=sombre] .boutique{--prim:${couleur.pale};--prim-fort:${couleur.pale};--sur-prim:${couleur.fond};--prim-pale:${couleur.fond}}`;
 
   // Boutique coupée : cadre réduit (pas de panier). Chaque page affiche « momentanément indisponible »,
   // sauf le ticket d'un acheteur, qui reste consultable par son lien privé.

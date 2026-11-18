@@ -1,13 +1,15 @@
 # État du projet
 
-Dernière mise à jour : 17/11/2026, fin de l'étape 8 (dernière étape du plan).
+Dernière mise à jour : 18/11/2026 — essai en ligne sur un VPS, puis refonte visuelle.
 
 ## Où on en est
 
 - **Les 8 étapes sont construites et testées.** Étapes 0 à 7 validées par le propriétaire ; il a choisi de tout vérifier à la fin.
 - **Étape 8 (sécurité, installation, exploitation) : terminée.** Bilan : `docs/etape-8/02-bilan.md`.
 - **À faire par le propriétaire maintenant** : `docs/VERIFICATION-FINALE.md` (tout ce qu'il faut essayer, et les questions à trancher), en installant d'abord le serveur avec `docs/GUIDE-INSTALLATION.md`.
-- **`main` est à jour** (17/11/2026, accord du propriétaire) : identique à la branche de travail `claude/vigilant-gates-3k9mjn`. Le guide installe depuis `main`.
+- **`main` est à jour** : identique à la branche de travail `claude/vigilant-gates-3k9mjn`. Le guide installe depuis `main`.
+- **Essai en ligne (18/11/2026)** : VPS Contabo `155.133.198.241` (hors d'Algérie, données de démonstration seulement), copie de test en service sur `https://test.155-133-198-241.sslip.io`, compte administrateur créé. **Le site réel (`./deployer.sh prod`) n'est pas encore lancé** ; alertes ntfy et `installer.sh cron` pas encore faits. Les secrets restent sur le serveur (`/srv/hanout/deploiement/secrets/`) ; la clé privée de sauvegarde de prod est copiée chez le propriétaire mais **pas encore effacée du serveur**.
+- **Refonte visuelle (18/11/2026)** : blanc, contours bleutés, bleu principal, sombre bleu nuit, police Inter. Voir `docs/refonte-visuelle/01-recherche.md`. Pour l'avoir sur le serveur : `cd /srv/hanout && git pull && cd deploiement && ./deployer.sh test`.
 
 ## Façon de travailler (décidée par le propriétaire le 16/11/2026)
 
@@ -19,6 +21,7 @@ Dernière mise à jour : 17/11/2026, fin de l'étape 8 (dernière étape du plan
 
 ## Prochaine action
 
+0. Faire mettre à jour la copie de test du VPS (`git pull` puis `./deployer.sh test`), recueillir l'avis du propriétaire sur le nouveau design, puis lancer `./deployer.sh prod`, `./outils.sh prod admin …`, les alertes ntfy et `./installer.sh cron`, et faire effacer les clés privées du serveur.
 1. Obtenir les réponses du propriétaire aux questions de `docs/VERIFICATION-FINALE.md` (en particulier : longueur des mots de passe des commerçants). Proposition faite pour un essai gratuit : Oracle Cloud « Always Free » + adresse sslip.io, avec des données de démonstration seulement.
 2. Aider le propriétaire à louer le serveur et à suivre le guide ; corriger ce que l'installation réelle révèle (image Debian + Chromium, Let's Encrypt, second serveur, notifications sur un vrai téléphone).
 3. Puis, selon ses retours : avoir partiel, versements du transporteur, facture d'abonnement, rappels par SMS, script de re-chiffrement des données, alertes sur comportements suspects, liste des communes.

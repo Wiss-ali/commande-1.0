@@ -1,6 +1,6 @@
 # État du projet
 
-Dernière mise à jour : 18/11/2026 — revue d'ensemble : sécurité de la connexion, caisse en grille, menu sur ordinateur, langue dans « Plus ».
+Dernière mise à jour : 18/11/2026 — revue des modules (rapport `docs/revue-modules/01-rapport.md`, rien codé).
 
 ## Où on en est
 
@@ -23,6 +23,7 @@ Dernière mise à jour : 18/11/2026 — revue d'ensemble : sécurité de la conn
 
 ## Prochaine action
 
+- **Revue des modules (18/11/2026)** : attendre les réponses du propriétaire aux six questions de `docs/revue-modules/01-rapport.md` (section 15) et son choix des ajouts à faire (proposition : les 10 du résumé, dans l'ordre).
 0. La revue du 18/11 est dans `main` : la mettre sur le serveur (`git pull` puis `./deployer.sh test`) et recueillir l'avis du propriétaire. **Le propriétaire doit effacer la clé privée du serveur** : `rm /srv/hanout/deploiement/secrets/*/CLE-PRIVEE-A-RECUPERER.asc` (après avoir vérifié qu'il en a bien une copie).
 1. Faire mettre à jour la copie de test du VPS (`git pull` puis `./deployer.sh test`), recueillir l'avis du propriétaire sur le nouveau design, puis lancer `./deployer.sh prod`, `./outils.sh prod admin …`, les alertes ntfy et `./installer.sh cron`, et faire effacer les clés privées du serveur.
 2. Obtenir les réponses du propriétaire aux questions de `docs/VERIFICATION-FINALE.md` (en particulier : longueur des mots de passe des commerçants). Proposition faite pour un essai gratuit : Oracle Cloud « Always Free » + adresse sslip.io, avec des données de démonstration seulement.

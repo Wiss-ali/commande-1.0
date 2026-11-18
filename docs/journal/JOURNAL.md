@@ -2,6 +2,13 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 18/11/2026 — Revue des modules : ce qui manque, ce qu'il faudrait déplacer ou ajouter
+
+- Demande du propriétaire : vérifier chaque module avec une recherche web et faire un rapport détaillé. **Aucun code modifié.**
+- Rapport : `docs/revue-modules/01-rapport.md` (verdict par module, listes indispensable / utile / plus tard, déplacements, sources, questions).
+- Complets : tableau de bord, scan, réglages. À compléter : caisse (remise, retour d'un article, crédit, moyens de paiement, sorties d'espèces), factures (moyen de paiement : le timbre ne s'applique qu'aux espèces d'après plusieurs sources ; paiements partiels, avoir partiel), commandes (communes, versements du transporteur, frais de retour), boutique (pixel Facebook/TikTok, plusieurs photos), stock (fournisseurs et réceptions), rapports (dépenses), administration (« voir comme le commerçant »).
+- Proposé : un module « Argent » (crédit clients, dettes fournisseurs, versements transporteur, dépenses). Six questions posées au propriétaire (section 15 du rapport).
+
 ## 18/11/2026 — Caisse : cadre gris retiré, tout mis dans `main`
 
 - Demande du propriétaire : le cadre gris en pointillés de la caisse (« Touchez un produit plus bas… ») ne sert à rien ; retiré (texte `caisse.panierVide` supprimé en fr/ar). La grille des produits suffit.

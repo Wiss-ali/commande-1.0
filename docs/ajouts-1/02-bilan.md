@@ -29,6 +29,14 @@ Pas fait, à sa demande : l'alerte de stock sur le téléphone. En attente de sa
 | + | **Export pour le comptable depuis Factures** (bouton « Exporter » en haut) ; accessible avec le module Factures ou Rapports ; colonne « Reste dû » dans `clients.csv` | Factures |
 | + | **Barre du bas au choix** : chaque personne choisit ses 4 entrées parmi ce qu'elle peut ouvrir ; « Plus » reste à la fin ; par défaut Accueil, Caisse, Scan, Stock, complétée par Commandes si la caisse n'est pas ouverte | Plus › Barre du bas ; Réglages › Barre du bas |
 
+### Retouche de la caisse demandée par le propriétaire (18/11/2026)
+
+- Écran d'encaissement simplifié : **Espèces** et **Carte** en gros boutons ; chèque, virement, CCP / BaridiMob, autre et
+  « À crédit » dans un **menu déroulant** ; « Payer avec deux moyens » devient un lien discret.
+- **Carte** : visible mais **pas encore activée** (« Le paiement par carte n'est pas encore activé. Choisissez un autre
+  moyen. »), la vente ne peut pas être validée avec. Rien n'est enregistré ni traité ; à activer plus tard.
+- Un **ticket de caisse** est toujours remis ; la facture seulement en cochant « Faire aussi une facture (le client la demande) ».
+
 ## Règles garanties par la base
 
 - Un paiement, un arrivage, ses lignes et un paiement de fournisseur ne se modifient ni ne s'effacent.
@@ -56,7 +64,7 @@ La reprise des anciennes ventes a été vérifiée : chaque vente payée, reçu 
 ## Pas fait, ou différent
 
 - **« Voir comme le commerçant »** : en attente de votre réponse (question ci-dessous).
-- **Moyen « TPE (terminal de la banque) »** : pas ajouté, question encore ouverte.
+- **Carte** : bouton visible à la caisse, pas encore activé (décision du propriétaire : on le fera plus tard).
 - **Timbre d'un paiement fait plus tard en espèces** (vente à crédit réglée en espèces) : pas de timbre ajouté, la facture étant figée. À confirmer avec un comptable.
 - **Un retour partiel d'un colis pas encore expédié** n'est pas possible : on modifie la commande, ou on l'annule.
 - **Versements** : le prix réel payé au transporteur ne remplace pas encore les frais de livraison dans la marge (les frais retenus sont gardés à part).

@@ -2,6 +2,14 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 18/11/2026 — Caisse simplifiée, puis lot d'ajouts n° 1 mis dans `main`
+
+- Demande du propriétaire : encaissement simple et rapide. Espèces et Carte en gros boutons, les autres moyens (chèque, virement, CCP, autre, à crédit) dans un menu déroulant, « deux moyens » en lien discret ; ticket toujours, facture seulement si on coche « Faire aussi une facture ».
+- **Carte** : « pas encore activée » (décision du propriétaire, à faire plus tard). Une première version qui ajoutait un moyen « carte » en base (migration 0018) a été arrêtée à sa demande, annulée dans la base de travail et supprimée : rien n'est enregistré pour la carte.
+- Défaut corrigé : le menu et le bouton Carte débordaient de l'écran (un `fieldset` s'élargit au texte le plus long ; `min-w-0`).
+- Tests : 174 ✅ ; 86 parcours ✅ (un 404 aléatoire déjà connu vu une fois dans `ventes.spec.ts`, absent sur deux relances).
+- **Mis dans `main` avec l'accord du propriétaire** (« Et après met sur main »).
+
 ## 18/11/2026 — Lot d'ajouts n° 1 : les 10 ajouts de la revue, export dans Factures, barre du bas au choix
 
 - **Décision du propriétaire** : faire les ajouts 1 à 10 de la revue ; seul déplacement : l'export pour le comptable (ajouté dans Factures) ; réglage pour choisir les 4 entrées de la barre du bas ; pas d'alerte de stock sur le téléphone. Questions encore ouvertes : TPE, pixel, commandes abandonnées (choix par défaut prudents appliqués), « voir comme le commerçant » (question reposée : vraie boutique en lecture seule ou écrans sans données ?), pas codé.

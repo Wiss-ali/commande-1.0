@@ -746,9 +746,6 @@
     "aPayer": "À payer",
     "recu": "Montant reçu (DA)",
     "recuAide": "Facultatif : pour calculer la monnaie à rendre.",
-    "document": "Document remis au client",
-    "avecFacture": "Facture (le client la demande)",
-    "avecTicket": "Ticket de caisse",
     "clientNom": "Nom du client",
     "clientTelephone": "Téléphone du client",
     "clientPro": "Client professionnel : adresse, NIF, RC…",
@@ -779,7 +776,11 @@
     "deuxMoyens": "Payer avec deux moyens",
     "secondFaux": "Vérifiez le second moyen : un autre moyen, et un montant plus petit que le total.",
     "clientCredit": "Pour une vente à crédit, notez qui doit l'argent.",
-    "depenses": "Dépenses"
+    "depenses": "Dépenses",
+    "mode_carte": "Carte",
+    "carteInactive": "Le paiement par carte n'est pas encore activé. Choisissez un autre moyen.",
+    "autreMoyen": "Autre moyen : chèque, virement, CCP, crédit…",
+    "genererFacture": "Faire aussi une facture (le client la demande)"
   },
   "cloture": {
     "titre": "Clôture de caisse",

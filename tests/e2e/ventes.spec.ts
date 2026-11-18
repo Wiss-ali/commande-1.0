@@ -112,7 +112,7 @@ test('facture à la caisse, et vente qui passe même si le stock connu manque', 
   await salim.getByRole('button', { name: 'Ajouter un : Thé vert' }).click();
   await expect(salim.getByText('stock connu : 0')).toBeVisible();
   await salim.getByRole('button', { name: 'Encaisser' }).click();
-  await salim.getByLabel('Facture (le client la demande)').check();
+  await salim.getByLabel('Faire aussi une facture (le client la demande)').check();
   await salim.getByRole('button', { name: 'Valider la vente' }).click();
   await expect(salim.locator('p[role=alert]')).toContainText('Indiquez le nom du client');
   await salim.getByLabel('Nom du client').fill('Sarl Atlas');
@@ -328,7 +328,7 @@ test('TVA : une fois activée, la facture sépare le hors taxe et la taxe', asyn
     await salim.getByRole('button', { name: new RegExp(produit === 'café' ? 'Café moulu' : 'Thé vert') }).click();
   }
   await salim.getByRole('button', { name: 'Encaisser' }).click();
-  await salim.getByLabel('Facture (le client la demande)').check();
+  await salim.getByLabel('Faire aussi une facture (le client la demande)').check();
   await salim.getByLabel('Nom du client').fill('Client TVA');
   await salim.getByRole('button', { name: 'Valider la vente' }).click();
   await salim.getByRole('link', { name: 'Voir le document' }).click();

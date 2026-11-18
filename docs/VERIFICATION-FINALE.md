@@ -93,7 +93,7 @@ plusieurs photos, barre du bas, export depuis Factures.
 | 7 | **Déclaration à l'ANPDP** (loi 18-07 / 25-11) | Démarche à faire de votre côté |
 | 8 | **Facture d'abonnement** de vous au commerçant, rappels par SMS ou e-mail | Plus tard |
 | 9 | **« Voir comme le commerçant »** : voir son vrai compte en lecture seule (pour l'aider), ou seulement ses écrans sans ses données ? | Pas fait, en attente de votre réponse |
-| 10 | **Moyen « TPE (terminal de la banque) »** à la caisse (on note seulement le moyen, aucune carte n'entre) | Pas ajouté |
+| 10 | ~~Moyen carte à la caisse~~ | **Tranché le 18/11/2026** : bouton « Carte » visible, « pas encore activé », à faire plus tard |
 | 11 | **Pixel publicitaire** : désactivé par défaut, activé par le commerçant, mention dans la boutique (choix appliqué) — d'accord ? | Désactivé par défaut |
 | 12 | **Commandes abandonnées** (garder le téléphone d'un acheteur qui n'a pas validé) | Pas fait |
 | 13 | **Timbre** : seulement sur la part payée en espèces au moment de la vente ; rien sur un paiement plus tard (à confirmer avec un comptable) | Appliqué ainsi |

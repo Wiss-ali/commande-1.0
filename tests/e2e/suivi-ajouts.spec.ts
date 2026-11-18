@@ -117,7 +117,11 @@ test('vente à crédit : le client doit, il paie plus tard en une fois', async (
   await karima.getByRole('button', { name: /Sucre 1 kg/ }).click();
   await karima.getByRole('button', { name: 'Ajouter un : Sucre 1 kg' }).click();
   await karima.getByRole('button', { name: 'Encaisser' }).click();
-  await karima.locator('label', { hasText: 'À crédit' }).click();
+  // La carte est visible mais pas encore activée : la vente ne peut pas être validée avec elle.
+  await karima.locator('label', { hasText: 'Carte' }).click();
+  await expect(karima.getByText('Le paiement par carte n\'est pas encore activé. Choisissez un autre moyen.')).toBeVisible();
+  await expect(karima.getByRole('button', { name: 'Valider la vente' })).toBeDisabled();
+  await karima.getByRole('combobox', { name: /Autre moyen/ }).selectOption('credit');
   await karima.getByRole('button', { name: 'Valider la vente' }).click();
   await expect(karima.locator('p[role=alert]')).toHaveText('Pour une vente à crédit, indiquez le nom du client.');
   await karima.getByLabel('Payé maintenant en espèces (DA)').fill('40');

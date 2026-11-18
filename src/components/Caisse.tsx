@@ -40,8 +40,10 @@ interface VenteEnAttente {
   /** Absent : tout en espèces. */
   encaisse?: Encaisse[];
 }
-type ChoixPaiement = ModeEncaissement | 'credit';
-const CHOIX: readonly ChoixPaiement[] = [...MODES_ENCAISSEMENT, 'credit'];
+// « Carte » est affichée mais pas encore activée : elle ne peut pas servir à valider une vente.
+type ChoixPaiement = ModeEncaissement | 'credit' | 'carte';
+/** Moyens rangés dans le menu déroulant, pour garder l'écran simple (espèces et carte restent en vue). */
+const AUTRES_CHOIX: readonly ChoixPaiement[] = [...MODES_ENCAISSEMENT.filter((m) => m !== 'especes'), 'credit'];
 
 /** « 500 » → 500 DA ; « 10 % » → 10 % de la base. Null si la saisie est fausse ; 0 si vide. */
 function lireRemise(saisie: string, base: number): number | null {
@@ -174,6 +176,7 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
   /** Sommes reçues selon le choix, ou un message d'erreur. Absent : tout en espèces. */
   function encaissement(): { encaisse?: Encaisse[]; especes: number } | { erreur: string } {
     const ref = reference.trim() || undefined;
+    if (choix === 'carte') return { erreur: t('carteInactive') };
     if (choix === 'credit') {
       const paye = payeMaintenant.trim() ? analyserMontant(payeMaintenant) : 0;
       if (paye === null || paye >= total) return { erreur: t('payeMaintenantFaux') };
@@ -182,7 +185,7 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
     if (second) {
       const m2 = analyserMontant(second.montant);
       if (m2 === null || m2 <= 0 || m2 >= total || second.mode === choix) return { erreur: t('secondFaux') };
-      const premier = { mode: choix, montant: total - m2, reference: ref };
+      const premier = { mode: choix as ModeEncaissement, montant: total - m2, reference: ref };
       return { encaisse: [premier, { mode: second.mode, montant: m2 }], especes: choix === 'especes' ? total - m2 : second.mode === 'especes' ? m2 : 0 };
     }
     if (choix === 'especes') return { especes: total };
@@ -377,17 +380,23 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
               {sousTotal !== total ? <p className="text-sm text-doux">{t('sousTotal')} : <span className="line-through">{formaterMontant(sousTotal, langue)}</span></p> : null}
               <div><p className="text-sm text-doux">{t('aPayer')}</p><p className="text-3xl font-bold">{formaterMontant(total, langue)}</p></div>
             </Carte>
-            <fieldset className="flex flex-col gap-2">
+            <fieldset className="flex min-w-0 flex-col gap-2">
               <legend className="mb-1.5 text-sm font-medium">{t('modePaiement')}</legend>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {CHOIX.map((c) => (
-                  <label key={c} className={`flex min-h-12 cursor-pointer items-center gap-2 rounded-xl border bg-surface px-3 ${choix === c ? 'border-prim ring-1 ring-prim' : 'border-trait'}`}>
-                    <input type="radio" name="choix" checked={choix === c} onChange={() => { setChoix(c); if (c === 'credit') setSecond(null); }} className="size-5 accent-prim" />
-                    <span className="text-sm">{t(`mode_${c}`)}</span>
+              {/* Les deux moyens de tous les jours en vue ; les autres dans un menu déroulant. */}
+              <div className="grid grid-cols-2 gap-2">
+                {(['especes', 'carte'] as const).map((c) => (
+                  <label key={c} className={`flex min-h-14 cursor-pointer items-center justify-center gap-2 rounded-xl border bg-surface px-3 text-base font-semibold ${choix === c ? 'border-prim bg-prim-pale text-prim ring-1 ring-prim' : 'border-trait'}`}>
+                    <input type="radio" name="choix" checked={choix === c} onChange={() => { setChoix(c); setSecond(null); }} className="sr-only" />
+                    {t(`mode_${c}`)}
                   </label>
                 ))}
               </div>
+              <select aria-label={t('autreMoyen')} value={AUTRES_CHOIX.includes(choix) && choix !== 'carte' ? choix : ''} onChange={(e) => { const c = (e.target.value || 'especes') as ChoixPaiement; setChoix(c); if (c === 'credit') setSecond(null); }} className={`min-h-12 w-full min-w-0 rounded-xl border bg-surface px-3 text-base ${AUTRES_CHOIX.includes(choix) && choix !== 'carte' ? 'border-prim ring-1 ring-prim' : 'border-trait'}`}>
+                <option value="">{t('autreMoyen')}</option>
+                {AUTRES_CHOIX.filter((c) => c !== 'carte').map((c) => <option key={c} value={c}>{t(`mode_${c}`)}</option>)}
+              </select>
             </fieldset>
+            {choix === 'carte' ? <Message ton="info">{t('carteInactive')}</Message> : (
             <Carte className="flex flex-col gap-3">
               {choix === 'credit' ? (
                 <>
@@ -406,11 +415,9 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
                         </select>
                       </label>
                       <Champ libelle={t('montantSecond')} value={second.montant} onChange={(e) => setSecond({ ...second, montant: e.target.value })} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('montantSecondAide', { mode: t(`mode_${choix}`) })} />
-                      <button type="button" onClick={() => setSecond(null)} className={classeBouton.secondaire}>{t('unSeulMoyen')}</button>
+                      <button type="button" onClick={() => setSecond(null)} className="min-h-11 self-start text-sm font-semibold text-prim underline">{t('unSeulMoyen')}</button>
                     </div>
-                  ) : (
-                    <button type="button" onClick={() => setSecond({ mode: choix === 'especes' ? 'ccp' : 'especes', montant: '' })} className={classeBouton.secondaire}>{t('deuxMoyens')}</button>
-                  )}
+                  ) : null}
                 </>
               )}
               {partEspeces > 0 ? (
@@ -419,16 +426,17 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
                   {rendu !== null && rendu >= partEspeces ? <p className="text-lg font-bold text-prim">{t('aRendre')} : {formaterMontant(rendu - partEspeces, langue)}</p> : null}
                 </>
               ) : null}
+              {/* Payer avec deux moyens : rare, donc discret. */}
+              {!second && choix !== 'credit' ? (
+                <button type="button" onClick={() => setSecond({ mode: choix === 'especes' ? 'ccp' : 'especes', montant: '' })} className="min-h-11 self-start text-sm font-semibold text-prim underline">{t('deuxMoyens')}</button>
+              ) : null}
             </Carte>
-            <fieldset className="flex flex-col gap-2">
-              <legend className="mb-1.5 text-sm font-medium">{t('document')}</legend>
-              {[false, true].map((f) => (
-                <label key={String(f)} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border border-trait bg-surface px-3">
-                  <input type="radio" name="document" checked={facture === f} onChange={() => setFacture(f)} className="size-5 accent-prim" />
-                  <span className="text-sm">{t(f ? 'avecFacture' : 'avecTicket')}</span>
-                </label>
-              ))}
-            </fieldset>
+            )}
+            {/* Un ticket de caisse est toujours remis ; la facture seulement si le client la demande. */}
+            <label className="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border border-trait bg-surface px-3">
+              <input type="checkbox" checked={facture} onChange={(e) => setFacture(e.target.checked)} className="size-5 accent-prim" />
+              <span className="text-sm">{t('genererFacture')}</span>
+            </label>
             {facture || choix === 'credit' ? (
               <Carte className="flex flex-col gap-3">
                 {choix === 'credit' ? <p className="text-sm text-doux">{t('clientCredit')}</p> : null}
@@ -445,7 +453,7 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
               </Carte>
             ) : null}
             {message ? <Message ton={message.ton}>{message.texte}</Message> : null}
-            <button type="button" onClick={valider} disabled={envoi} className={classeBouton.principal}>{envoi ? t('envoi') : t('valider')}</button>
+            <button type="button" onClick={valider} disabled={envoi || choix === 'carte'} className={classeBouton.principal}>{envoi ? t('envoi') : t('valider')}</button>
           </div>
         </div>
       ) : null}

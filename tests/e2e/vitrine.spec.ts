@@ -195,6 +195,7 @@ test('les quatre modèles, et le produit épuisé masqué sur réglage', async (
   for (const [modele, nom] of [['Catalogue', 'catalogue'], ['Grandes photos', 'grandes-photos'], ['Produit unique', 'produit-unique'], ['Vitrine', 'vitrine']] as const) {
     await yasmine.goto('/boutique');
     await yasmine.getByText(modele, { exact: true }).click();
+    if (nom === 'produit-unique') await yasmine.locator('select[name=produitUnique]').selectOption({ label: 'Robe kabyle' });
     await yasmine.getByRole('button', { name: 'Choisir ce modèle' }).click();
     await expect(yasmine.getByText('Modifications enregistrées.').first()).toBeVisible();
     await acheteur.goto(`/b/${sd}`);

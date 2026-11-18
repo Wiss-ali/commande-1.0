@@ -242,7 +242,7 @@ test('plusieurs photos par produit, en galerie dans la boutique', async () => {
     const photo = await sharp({ create: { width: 800, height: 800, channels: 3, background: couleur } }).png().toBuffer();
     await karima.locator('details input[type=file]').first().setInputFiles({ name: 'photo.png', mimeType: 'image/png', buffer: photo });
     await karima.getByRole('button', { name: 'Ajouter cette photo' }).click();
-    await expect(karima.locator('details img[alt^="Photo "]')).toHaveCount(couleur === '#0e6b4e' ? 1 : 2);
+    await expect(karima.locator('details img[alt^="Photo "]')).toHaveCount(couleur === '#0e6b4e' ? 1 : 2, { timeout: 15_000 });
   }
   await expect(karima.getByText('Principale')).toBeVisible();
   await sansDebordement(karima);

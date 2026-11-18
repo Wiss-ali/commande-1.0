@@ -254,7 +254,8 @@ export async function catalogue(trx: Trx, o: { commercantId: string; reglages: R
     .where('p.visible_boutique', '=', true)
     .where('p.archive_le', 'is', null);
   if (o.produitId) q = q.where('p.id', '=', o.produitId);
-  const lignes = await q.orderBy('p.cree_le', 'desc').orderBy('v.ordre').limit(2000).execute();
+  // Les plus récents d'abord ; à égalité (produits créés ensemble, import), par nom : l'ordre ne change jamais d'une visite à l'autre.
+  const lignes = await q.orderBy('p.cree_le', 'desc').orderBy('p.nom_fr').orderBy('p.id').orderBy('v.ordre').limit(2000).execute();
   const parProduit = new Map<string, ProduitPublic>();
   for (const l of lignes) {
     let p = parProduit.get(l.id);

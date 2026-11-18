@@ -29,6 +29,7 @@ export interface Commercants {
   reglages_documents: ColumnType<unknown, string | undefined, string>;
   modules_ajoutes: ColumnType<NomModule[], string | undefined, string>;
   modules_retires: ColumnType<NomModule[], string | undefined, string>;
+  demo: Generated<boolean>;
   cree_le: Generated<Date>;
   modifie_le: Generated<Date>;
 }

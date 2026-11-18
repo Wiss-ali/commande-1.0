@@ -29,6 +29,13 @@ export default async function EspaceCommercant({ children }: { children: React.R
   }
   return (
     <div className="pb-24 md:pb-0 md:ps-60">
+      {/* Boutique de démonstration de l'administrateur : données fictives, retour à l'administration d'un toucher. */}
+      {s.commercant.demo ? (
+        <p role="status" className="flex flex-wrap items-center justify-center gap-x-3 bg-safran px-4 py-2 text-center text-sm font-semibold text-encre">
+          {t('demoBandeau')}
+          <a href="/admin" className="underline">{t('demoRetour')}</a>
+        </p>
+      ) : null}
       {s.commercant.etat === 'lecture_seule' ? <div className="p-3"><Message ton="info">{t('lectureSeule')}</Message></div> : null}
       {rappel ? <div className="p-3"><Link href="/reglages/abonnement" className="block"><Message ton="info">{rappel}</Message></Link></div> : null}
       {children}

@@ -331,6 +331,29 @@ test("l'administrateur saisit le barème du droit de timbre : aucune valeur n'es
   await expect(admin.getByText('Modifications enregistrées.')).toBeVisible();
 });
 
+test("boutique de démonstration : ouverte d'un bouton, jamais comptée, remise à zéro à la demande", async () => {
+  await admin.goto('/admin');
+  const actifs = await admin.getByRole('link', { name: 'Abonnements actifs' }).textContent();
+  await admin.getByRole('button', { name: 'Ouvrir la boutique de démonstration' }).click();
+  await expect(admin.getByRole('heading', { name: /^Bonjour/ })).toBeVisible();
+  await expect(admin.getByText('Boutique de démonstration : données fictives.')).toBeVisible();
+  await admin.goto('/stock');
+  await expect(admin.getByRole('link', { name: /Huile 5 L/ })).toBeVisible();
+  await sansDebordement(admin);
+  // La session de l'administration est restée ouverte ; la démo n'est comptée nulle part.
+  await admin.getByRole('link', { name: "Retour à l'administration" }).click();
+  await expect(admin.getByRole('heading', { name: 'Administration' })).toBeVisible();
+  await expect(admin.getByRole('link', { name: 'Abonnements actifs' })).toHaveText(actifs ?? '');
+  await expect(admin.getByRole('link', { name: /Boutique de démonstration/ })).toHaveCount(0);
+  await admin.getByText('Remettre à zéro', { exact: true }).click();
+  await admin.getByRole('button', { name: 'Remettre la démo à zéro' }).click();
+  await expect(admin.locator('p[role=alert]')).toHaveText('Cochez la case pour confirmer.');
+  await admin.getByLabel('Je veux remettre la démo à zéro').check();
+  await admin.getByRole('button', { name: 'Remettre la démo à zéro' }).click();
+  await expect(admin.getByText('La démo est comme neuve.')).toBeVisible();
+  await sansDebordement(admin);
+});
+
 test('aucune erreur de script ni violation de la politique de sécurité pendant tout le parcours', async () => {
   expect(problemes).toEqual([]);
 });

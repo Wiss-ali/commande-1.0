@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { action, actionSimple, secret, texte } from '@/lib/actions';
 import { enregistrerFormule, enregistrerPaiement, MOYENS, retoucherModules } from '@/lib/abonnements';
 import { bd } from '@/lib/bd';
+import { assurerDemo, remettreDemo } from '@/lib/demo';
 import { MODULES } from '@/lib/droits';
 import type { MoyenPaiement, NomModule } from '@/lib/types-bd';
 import { activerTotp, connecterAdmin, preparerTotp, verifierCode } from '@/lib/comptes';
@@ -292,3 +293,31 @@ export const enregistrerCommunes = action(async (f) => {
   revalidatePath(`/admin/wilayas/${wilaya}`);
   return { ok: true };
 });
+
+// ───────────── Boutique de démonstration ─────────────
+
+/**
+ * Ouvre la boutique de démonstration (créée si besoin) comme son propriétaire, dans le même navigateur.
+ * Réservé à l'administrateur connecté avec sa double authentification ; noté dans le journal. La session de
+ * l'administration reste ouverte (cookie séparé).
+ */
+export const ouvrirDemo = actionSimple(async () => {
+  const s = await exigerAdmin();
+  const demo = await assurerDemo(s.administrateur.id);
+  const { ip } = await infoRequete();
+  await bd('plateforme').transaction().execute((trx) => journaliser(trx, { commercantId: null, acteurType: 'administrateur', acteurId: s.administrateur.id, action: 'demo.ouverte', objetType: 'commercant', objetId: demo.commercantId, ip }));
+  await ouvrirSession(demo, true);
+  redirect('/');
+});
+
+/** Remet la démo à zéro, seulement quand l'administrateur le décide (case à cocher pour éviter un toucher par erreur). */
+export const remettreDemoAction = action(async (f) => {
+  const s = await exigerAdmin();
+  if (f.get('confirmer') !== 'on') return { erreur: 'confirmation_requise' };
+  await remettreDemo(s.administrateur.id);
+  const { ip } = await infoRequete();
+  await bd('plateforme').transaction().execute((trx) => journaliser(trx, { commercantId: null, acteurType: 'administrateur', acteurId: s.administrateur.id, action: 'demo.remise_a_zero', ip }));
+  revalidatePath('/admin');
+  return { ok: true };
+});
+

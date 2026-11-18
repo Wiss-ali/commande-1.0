@@ -1,13 +1,14 @@
 import { CalendarClock, Map as Carte2, Receipt, Settings, Tags } from 'lucide-react';
 import { sql } from 'kysely';
 import { getLocale, getTranslations } from 'next-intl/server';
-import { creerCommercant, traiterDemande } from '@/app/actions/admin';
+import { creerCommercant, ouvrirDemo, remettreDemoAction, traiterDemande } from '@/app/actions/admin';
 import { EnTete } from '@/components/EnTete';
 import { Formulaire } from '@/components/Formulaire';
 import { Page } from '@/components/Page';
 import { Carte, Champ, classeBouton, EtatVide, LigneLien, Pastille, TitreSection } from '@/components/ui';
 import { appliquerEcheances, etatDepuisFin, jourAlger, lireDelais, tableauAbonnements, type EtatAbonnement } from '@/lib/abonnements';
 import { bd } from '@/lib/bd';
+import { demoActive, SOUS_DOMAINE_DEMO } from '@/lib/demo';
 import { formaterDate, formaterMontant, formaterTelephone } from '@/lib/formats';
 import { reglage } from '@/lib/reglages-plateforme';
 import type { EtatCommercant, Langue } from '@/lib/types-bd';
@@ -34,13 +35,14 @@ export default async function AdminAccueil({ searchParams }: { searchParams: Pro
       EXISTS (SELECT 1 FROM invitations i WHERE i.commercant_id = c.id AND i.type = 'commercant' AND i.utilisee_le IS NULL AND i.annulee_le IS NULL AND i.expire_le > now()) AS en_attente,
       (SELECT to_char(a.fin, 'YYYY-MM-DD') FROM abonnements a WHERE a.commercant_id = c.id ORDER BY a.fin DESC LIMIT 1) AS fin,
       (SELECT f.nom FROM abonnements a JOIN formules f ON f.id = a.formule_id WHERE a.commercant_id = c.id ORDER BY a.fin DESC LIMIT 1) AS formule
-    FROM commercants c ORDER BY c.cree_le DESC LIMIT 500`.execute(bd('plateforme'));
+    FROM commercants c WHERE NOT c.demo ORDER BY c.cree_le DESC LIMIT 500`.execute(bd('plateforme'));
   const liste = rows.map((c) => ({ ...c, abonnement: etatDepuisFin(c.fin, aujourdhui, delais) }))
     .filter((c) => filtre === 'tous' || c.abonnement === filtre || (filtre === 'lecture_seule' && c.abonnement === 'archive'));
   const demandes = await bd('plateforme')
     .selectFrom('demandes as d').innerJoin('commercants as c', 'c.id', 'd.commercant_id')
     .select(['d.id', 'd.type', 'd.nom', 'd.telephone', 'd.message', 'd.cree_le', 'c.nom as commercant', 'c.id as commercant_id'])
-    .where('d.etat', '=', 'nouvelle').orderBy('d.cree_le').limit(100).execute();
+    .where('d.etat', '=', 'nouvelle').where('c.demo', '=', false).orderBy('d.cree_le').limit(100).execute();
+  const demo = await demoActive();
   const tuiles = [
     { cle: 'actifs', valeur: String(tableau.actifs), lien: '/admin?f=tous' },
     { cle: 'bientot', valeur: String(tableau.bientot), lien: '/admin?f=bientot', alerte: tableau.bientot > 0 },
@@ -68,6 +70,26 @@ export default async function AdminAccueil({ searchParams }: { searchParams: Pro
           <LigneLien href="/admin/wilayas" titre={t('wilayas')} aide={t('wilayasAide')} icone={<Carte2 aria-hidden className="size-5" />} />
           <LigneLien href="/admin/reglages" titre={t('reglages')} aide={t('reglagesAide')} icone={<Settings aria-hidden className="size-5" />} />
         </div>
+
+        {/* Boutique de démonstration : pour essayer et montrer l'application sans toucher aux données d'un vrai commerçant. */}
+        <Carte className="flex flex-col gap-3">
+          <h2 className="font-semibold">{t('demoTitre')}</h2>
+          <p className="text-sm text-doux">{t('demoTexte')}</p>
+          <form action={ouvrirDemo}><button type="submit" className={`${classeBouton.principal} w-full`}>{t('demoOuvrir')}</button></form>
+          {demo ? (
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
+              <a href={`/admin/commercants/${demo.commercantId}`} className="font-semibold text-prim underline">{t('demoModules')}</a>
+              <a href={`/b/${SOUS_DOMAINE_DEMO}`} target="_blank" rel="noopener" className="font-semibold text-prim underline">{t('demoBoutique')}</a>
+            </div>
+          ) : null}
+          <details>
+            <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm font-semibold text-terre">{t('demoRemettre')}</summary>
+            <Formulaire action={remettreDemoAction} bouton={t('demoRemettreBouton')} style="danger" succes={t('demoRemise')}>
+              <p className="text-sm text-doux">{t('demoRemettreTexte')}</p>
+              <label className="flex min-h-12 cursor-pointer items-center gap-3"><input type="checkbox" name="confirmer" className="size-5 accent-prim" /><span className="text-sm">{t('demoConfirmer')}</span></label>
+            </Formulaire>
+          </details>
+        </Carte>
 
         <TitreSection>{t('demandes', { n: demandes.length })}</TitreSection>
         {demandes.length ? (

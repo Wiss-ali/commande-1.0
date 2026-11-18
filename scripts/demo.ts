@@ -2,12 +2,11 @@
 //   npm run demo
 // Crée (une seule fois) un administrateur de service, un commerçant, un vendeur et quelques produits.
 // À ne jamais lancer sur le site réel : les mots de passe ci-dessous sont publics.
-import { avecCommercant, bd, fermerBD } from '../src/lib/bd.ts';
+// Sur le serveur, utiliser plutôt la boutique de démonstration de l'administration (aucun mot de passe connu).
+import { bd, fermerBD } from '../src/lib/bd.ts';
 import { accepterInvitation, inviterCommercant, inviterEmploye } from '../src/lib/invitations.ts';
 import { hacher } from '../src/lib/mots-de-passe.ts';
-import { changerSousDomaine, enregistrerReglages, mettreEnLigne, REGLAGES_DEFAUT } from '../src/lib/boutique.ts';
-import { ajouterTransporteur, confirmerCommande, creerCommande, enregistrerFrais, listerWilayas } from '../src/lib/commandes.ts';
-import { creerProduit, lireProduit } from '../src/lib/stock.ts';
+import { remplirMagasin } from '../src/lib/demo.ts';
 import pg from 'pg';
 
 const PROPRIETAIRE = { telephone: '0550000001', motDePasse: 'hanout demo' };
@@ -35,41 +34,8 @@ if (deja) {
   const ctx = { commercantId: acc.commercantId, utilisateurId: acc.utilisateurId };
   const employe = await inviterEmploye({ commercantId: ctx.commercantId, parUtilisateur: ctx.utilisateurId, nom: 'Lina', telephone: VENDEUR.telephone, role: 'vendeur' });
   if (employe.ok) await accepterInvitation(employe.jeton, { motDePasse: VENDEUR.motDePasse });
-  const simple = (nomFr: string, nomAr: string, codeBarres: string | null, prixAchat: number, prixVente: number, stockInitial: number, seuil: number) =>
-    ({ nomFr, nomAr, categorieId: null, variantes: [{ libelle: '', codeBarres, prixAchat: prixAchat * 100, prixVente: prixVente * 100, seuil, stockInitial }] });
-  await avecCommercant(ctx.commercantId, async (trx) => {
-    for (const p of [
-      simple('Café moulu 250 g', 'قهوة مطحونة 250 غ', '6130000000015', 180, 250, 24, 6),
-      simple('Thé vert 100 g', 'شاي أخضر 100 غ', '6130000000022', 80, 120, 3, 5),
-      simple('Sucre 1 kg', 'سكر 1 كغ', null, 95, 110, 40, 10),
-      simple('Savon de Marseille', 'صابون', null, 60, 90, 0, 4),
-      { nomFr: 'T-shirt uni', nomAr: 'قميص سادة', categorieId: null, variantes: ['S', 'M', 'L'].map((libelle, i) => ({ libelle, codeBarres: null, prixAchat: 50_000, prixVente: 90_000, seuil: 1, stockInitial: [4, 6, 0][i]! })) },
-    ]) {
-      const r = await creerProduit(trx, ctx, p);
-      if (!r.ok) throw new Error(r.raison);
-    }
-  });
-  // Livraison et deux commandes : une à confirmer, une confirmée à expédier.
-  await avecCommercant(ctx.commercantId, async (trx) => {
-    await ajouterTransporteur(trx, ctx, 'Yalidine');
-    const grille = (await listerWilayas(trx)).map((w) => ({ wilaya: w.code, domicile: w.code === 31 ? 40_000 : 70_000, pointRelais: w.code === 31 ? 25_000 : 45_000 }));
-    await enregistrerFrais(trx, ctx, grille);
-    const tshirt = await trx.selectFrom('produits').select('id').where('nom_fr', '=', 'T-shirt uni').executeTakeFirstOrThrow();
-    const m = (await lireProduit(trx, tshirt.id))!.variantes.find((v) => v.libelle === 'M')!.id;
-    const cafe = await trx.selectFrom('variantes as v').innerJoin('produits as p', 'p.id', 'v.produit_id').select('v.id').where('p.nom_fr', '=', 'Café moulu 250 g').executeTakeFirstOrThrow();
-    const a = await creerCommande(trx, ctx, { client: { nom: 'Amina', telephone: '0661000001' }, wilaya: 16, commune: 'Bab Ezzouar', livraison: 'domicile', lignes: [{ varianteId: m, quantite: 2 }], cle: crypto.randomUUID(), libelleLivraison: 'Livraison' });
-    const b = await creerCommande(trx, ctx, { client: { nom: 'Yacine', telephone: '0770000002' }, wilaya: 31, commune: 'Bir El Djir', livraison: 'point_relais', lignes: [{ varianteId: cafe.id, quantite: 3 }], cle: crypto.randomUUID(), libelleLivraison: 'Livraison' });
-    if (!a.ok || !b.ok) throw new Error('commande refusée');
-    await confirmerCommande(trx, ctx, b.id, 'envoi', crypto.randomUUID());
-  });
-  // Boutique en ligne : module activé, adresse « magasin-demo » (/b/magasin-demo), produits publiés.
-  await avecCommercant(ctx.commercantId, async (trx) => {
-    await trx.updateTable('commercants').set({ modules: JSON.stringify({ stock: true, caisse: true, factures: true, commandes: true, clients: true, rapports: true, boutique: true }) }).execute();
-    await trx.updateTable('produits').set({ visible_boutique: true }).execute();
-    await changerSousDomaine(trx, 'magasin-demo');
-    await enregistrerReglages(trx, ctx, { ...REGLAGES_DEFAUT, accueil: { fr: 'Épicerie et vêtements, livrés dans les 69 wilayas.', ar: 'بقالة وملابس، توصيل إلى 69 ولاية.' }, livraison: { fr: 'Livraison en 48 à 72 heures. Paiement à la livraison.', ar: 'التوصيل خلال 48 إلى 72 ساعة. الدفع عند الاستلام.' }, whatsapp: '0550000001' });
-    await mettreEnLigne(trx, ctx, true);
-  });
+  // Même contenu que la boutique de démonstration de l'administrateur (src/lib/demo.ts).
+  await remplirMagasin(ctx, { sousDomaine: 'magasin-demo', whatsapp: PROPRIETAIRE.telephone });
   console.log('Magasin de démonstration créé.');
 }
 console.log(`Propriétaire : ${PROPRIETAIRE.telephone} / ${PROPRIETAIRE.motDePasse}`);

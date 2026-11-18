@@ -208,7 +208,8 @@ export async function tableauAbonnements(via: Kysely<BD>): Promise<TableauAbonne
   const d = await lireDelais();
   const aujourdhui = jourAlger();
   const r = await sql<{ fin: string | null }>`
-    SELECT to_char(max(a.fin), 'YYYY-MM-DD') AS fin FROM commercants c LEFT JOIN abonnements a ON a.commercant_id = c.id GROUP BY c.id`.execute(via);
+    SELECT to_char(max(a.fin), 'YYYY-MM-DD') AS fin FROM commercants c LEFT JOIN abonnements a ON a.commercant_id = c.id
+    WHERE NOT c.demo GROUP BY c.id`.execute(via);
   const t: TableauAbonnements = { actifs: 0, bientot: 0, delai: 0, lectureSeule: 0, archives: 0, sans: 0, revenuMois: 0, paiementsMois: 0 };
   for (const l of r.rows) {
     const e = etatDepuisFin(l.fin, aujourdhui, d);

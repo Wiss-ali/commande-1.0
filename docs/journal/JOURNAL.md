@@ -2,6 +2,15 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 18/11/2026 — Boutique de démonstration de l'administrateur (remplace « voir comme le commerçant »)
+
+- Choix du propriétaire : une boutique fictive remplie, pour essayer et montrer l'application sans créer de compte ni voir les données d'un vrai commerçant. Remise à zéro seulement quand il le décide ; accès réservé à l'administrateur ; réutiliser l'existant.
+- Migration `0018_demo` : `commercants.demo` (une seule démo active, index unique partiel). La démo est exclue du tableau, de la liste des commerçants et des demandes de l'administration.
+- `src/lib/demo.ts` : `remplirMagasin` (10 produits dont des tailles, rupture et stock bas, ventes du jour, une vente à crédit, 3 commandes à différentes étapes, fournisseur et arrivage, dépense, boutique en ligne `boutique-demo`), partagé avec `npm run demo` (script raccourci) ; `assurerDemo` (compte au mot de passe aléatoire que personne ne connaît, numéro fictif) ; `remettreDemo` (l'ancienne est archivée, son adresse libérée, ses sessions fermées ; les documents ne s'effacent jamais).
+- Administration : carte « Boutique de démonstration » (Ouvrir, Choisir ses modules = fiche existante, Voir sa boutique en ligne, Remettre à zéro avec case à cocher). Ouverture : `ouvrirSession` existant, administrateur connecté avec double authentification, noté dans le journal ; la session de l'administration reste ouverte (cookie séparé). Bandeau « Boutique de démonstration : données fictives » + « Retour à l'administration » dans l'espace commerçant.
+- Défaut ancien trouvé en testant : les produits créés au même instant n'avaient pas d'ordre fixe dans la boutique (le modèle « Produit unique » pouvait prendre un autre produit). Tri complété par le nom.
+- Tests : 176 ✅ (2 nouveaux) ; 87 parcours ✅ (1 nouveau). Mis dans `main`.
+
 ## 18/11/2026 — Caisse : « Payer avec deux moyens » rangé dans le menu
 
 - Demande du propriétaire : le paiement en deux moyens est rare en Algérie, il ne doit pas être sous les yeux. Le lien a été retiré ; c'est maintenant une option du menu « Autre moyen ». Choisir Espèces ou Carte l'annule.

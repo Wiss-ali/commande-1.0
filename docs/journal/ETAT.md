@@ -1,6 +1,6 @@
 # État du projet
 
-Dernière mise à jour : 18/11/2026 — lot d'ajouts n° 1 terminé (bilan `docs/ajouts-1/02-bilan.md`) et caisse simplifiée ; **mis dans `main`** (identique à `claude/gracious-euler-kwf1eo`).
+Dernière mise à jour : 18/11/2026 — lot d'ajouts n° 1 terminé (bilan `docs/ajouts-1/02-bilan.md`) caisse simplifiée, boutique de démonstration de l'administrateur ; **mis dans `main`** (identique à `claude/gracious-euler-kwf1eo`).
 
 ## Où on en est
 
@@ -11,7 +11,7 @@ Dernière mise à jour : 18/11/2026 — lot d'ajouts n° 1 terminé (bilan `docs
 - **Essai en ligne (18/11/2026)** : VPS Contabo `155.133.198.241` (hors d'Algérie, données de démonstration seulement), copie de test en service sur `https://test.155-133-198-241.sslip.io`, compte administrateur créé. **Le site réel (`./deployer.sh prod`) n'est pas encore lancé** ; alertes ntfy et `installer.sh cron` pas encore faits. Les secrets restent sur le serveur (`/srv/hanout/deploiement/secrets/`) ; la clé privée de sauvegarde de prod est copiée chez le propriétaire mais **pas encore effacée du serveur**.
 - **Notifications (18/11/2026)** : ouvrir une notification la marque comme lue (migration 0010). À mettre sur le serveur avec la même commande que ci-dessous.
 - **Revue d'ensemble (18/11/2026)**, mise dans `main` avec l'accord du propriétaire : un inconnu ne peut plus bloquer le compte d'un commerçant (blocage par adresse ou appareil, appareils reconnus), code de double authentification à usage unique (migration 0011), caisse avec la grille de tous les produits (les plus vendus en haut), menu complet sur ordinateur, langue choisie dans « Plus ». `deployer.sh` rappelle d'effacer la clé privée tant qu'elle est sur le serveur. Détail dans le journal.
-- **Lot d'ajouts n° 1 (18/11/2026)**, demandé par le propriétaire après la revue des modules (`docs/revue-modules/01-rapport.md`) : moyens de paiement (timbre seulement sur les espèces), remises, retour d'une partie (avoir partiel), vente à crédit et versements, 1 541 communes, pixel Facebook/TikTok (désactivé par défaut), fournisseurs et arrivages (coût moyen pondéré), argent des colis livrés, dépenses et bénéfice net, 6 photos par produit, export dans Factures, barre du bas au choix. Migrations 0012 à 0017. 174 tests et 86 parcours passent. Caisse simplifiée à sa demande (Espèces / Carte « pas encore activée » / menu déroulant ; facture seulement si cochée). **Dans `main`** : à mettre sur le serveur (`git pull` puis `./deployer.sh test` : les migrations 0012 à 0017 passent toutes seules).
+- **Lot d'ajouts n° 1 (18/11/2026)**, demandé par le propriétaire après la revue des modules (`docs/revue-modules/01-rapport.md`) : moyens de paiement (timbre seulement sur les espèces), remises, retour d'une partie (avoir partiel), vente à crédit et versements, 1 541 communes, pixel Facebook/TikTok (désactivé par défaut), fournisseurs et arrivages (coût moyen pondéré), argent des colis livrés, dépenses et bénéfice net, 6 photos par produit, export dans Factures, barre du bas au choix. Migrations 0012 à 0017. 174 tests et 86 parcours passent. Caisse simplifiée à sa demande (Espèces / Carte « pas encore activée » / menu déroulant ; facture seulement si cochée). **Dans `main`** : à mettre sur le serveur (`git pull` puis `./deployer.sh test` : les migrations 0012 à 0018 passent toutes seules).
 - **Refonte visuelle (18/11/2026)** : blanc, contours bleutés, bleu principal, sombre bleu nuit, police Inter. Voir `docs/refonte-visuelle/01-recherche.md`. Pour l'avoir sur le serveur : `cd /srv/hanout && git pull && cd deploiement && ./deployer.sh test`.
 
 ## Façon de travailler (décidée par le propriétaire le 16/11/2026)
@@ -24,7 +24,7 @@ Dernière mise à jour : 18/11/2026 — lot d'ajouts n° 1 terminé (bilan `docs
 
 ## Prochaine action
 
-- **Lot d'ajouts n° 1** : faire essayer au propriétaire (liste dans `docs/ajouts-1/02-bilan.md`), le mettre sur le serveur de test. Questions ouvertes : « voir comme le commerçant » (vraie boutique en lecture seule, ou seulement ses écrans sans données ? rien codé tant qu'il n'a pas répondu), activation de la carte (plus tard), pixel, commandes abandonnées, timbre d'un paiement fait plus tard (comptable). Elles sont aussi dans `docs/VERIFICATION-FINALE.md` (questions 9 à 13).
+- **Lot d'ajouts n° 1** : faire essayer au propriétaire (liste dans `docs/ajouts-1/02-bilan.md`), le mettre sur le serveur de test. **Boutique de démonstration** faite (Administration › Boutique de démonstration ; remplace « voir comme le commerçant ») : à lui faire essayer. Questions ouvertes : activation de la carte (plus tard), pixel, commandes abandonnées, timbre d'un paiement fait plus tard (comptable). Elles sont aussi dans `docs/VERIFICATION-FINALE.md` (questions 9 à 13).
 0. La revue du 18/11 est dans `main` : la mettre sur le serveur (`git pull` puis `./deployer.sh test`) et recueillir l'avis du propriétaire. **Le propriétaire doit effacer la clé privée du serveur** : `rm /srv/hanout/deploiement/secrets/*/CLE-PRIVEE-A-RECUPERER.asc` (après avoir vérifié qu'il en a bien une copie).
 1. Faire mettre à jour la copie de test du VPS (`git pull` puis `./deployer.sh test`), recueillir l'avis du propriétaire sur le nouveau design, puis lancer `./deployer.sh prod`, `./outils.sh prod admin …`, les alertes ntfy et `./installer.sh cron`, et faire effacer les clés privées du serveur.
 2. Obtenir les réponses du propriétaire aux questions de `docs/VERIFICATION-FINALE.md` (en particulier : longueur des mots de passe des commerçants). Proposition faite pour un essai gratuit : Oracle Cloud « Always Free » + adresse sslip.io, avec des données de démonstration seulement.
@@ -59,7 +59,7 @@ d'installation et serveur de test préparés à l'étape 8 ; 4 → plus tard ; 5
 
 ## Magasin de démonstration
 
-`npm run demo` crée (une seule fois) un magasin rempli : propriétaire `0550000001` / `hanout demo`, vendeuse `0550000002` / `hanout vente`, cinq produits, un transporteur, les frais des 69 wilayas, deux commandes et la boutique en ligne `/b/magasin-demo`. Mots de passe publics : **jamais sur le site réel**. Puis `npm run build` et `npx next start -p 3000`.
+Sur le serveur : utiliser la **boutique de démonstration de l'administration** (aucun mot de passe connu). En développement, `npm run demo` crée (une seule fois) un magasin rempli (même contenu, `src/lib/demo.ts`) : propriétaire `0550000001` / `hanout demo`, vendeuse `0550000002` / `hanout vente`, cinq produits, un transporteur, les frais des 69 wilayas, deux commandes et la boutique en ligne `/b/magasin-demo`. Mots de passe publics : **jamais sur le site réel**. Puis `npm run build` et `npx next start -p 3000`.
 
 ## Points à vérifier plus tard (sources officielles non joignables)
 

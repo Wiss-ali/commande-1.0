@@ -80,6 +80,13 @@ La liste complète « à essayer » est dans `docs/ajouts-1/02-bilan.md` : remis
 retour d'une partie, communes, pixel, fournisseurs et arrivages, dépenses et bénéfice net, argent des colis livrés,
 plusieurs photos, barre du bas, export depuis Factures.
 
+## I. Boutique de démonstration (18/11/2026)
+
+- [ ] Administration › « Ouvrir la boutique de démonstration » : vous arrivez dans une boutique remplie (bandeau jaune « données fictives »).
+- [ ] Faire une vente, une commande, regarder les rapports ; « Retour à l'administration ».
+- [ ] « Choisir ses modules » : retirer un module, rouvrir la démo et vérifier qu'il a disparu.
+- [ ] « Remettre à zéro » (cocher la case) : la démo redevient neuve.
+
 ## Questions à trancher (choix par défaut appliqués en attendant)
 
 | # | Question | Choix par défaut aujourd'hui |
@@ -92,7 +99,7 @@ plusieurs photos, barre du bas, export depuis Factures.
 | 6 | **Hébergeur** : lequel choisir (ICOSNET, Djaweb, Octenium…) ; le guide fonctionne avec tous | À choisir |
 | 7 | **Déclaration à l'ANPDP** (loi 18-07 / 25-11) | Démarche à faire de votre côté |
 | 8 | **Facture d'abonnement** de vous au commerçant, rappels par SMS ou e-mail | Plus tard |
-| 9 | **« Voir comme le commerçant »** : voir son vrai compte en lecture seule (pour l'aider), ou seulement ses écrans sans ses données ? | Pas fait, en attente de votre réponse |
+| 9 | ~~« Voir comme le commerçant »~~ | **Tranché le 18/11/2026** : remplacé par la boutique de démonstration (Administration › Boutique de démonstration) |
 | 10 | ~~Moyen carte à la caisse~~ | **Tranché le 18/11/2026** : bouton « Carte » visible, « pas encore activé », à faire plus tard |
 | 11 | **Pixel publicitaire** : désactivé par défaut, activé par le commerçant, mention dans la boutique (choix appliqué) — d'accord ? | Désactivé par défaut |
 | 12 | **Commandes abandonnées** (garder le téléphone d'un acheteur qui n'a pas validé) | Pas fait |

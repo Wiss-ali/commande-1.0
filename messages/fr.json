@@ -132,7 +132,9 @@
       "boutiqueOn": "En ligne"
     },
     "rappelBientot": "Votre abonnement se termine le {date} ({n, plural, one {dans # jour} other {dans # jours}}). Contactez l'administrateur pour le renouveler.",
-    "rappelDelai": "Votre abonnement est terminé. Le compte passera en lecture seule le {date} : renouvelez-le avant."
+    "rappelDelai": "Votre abonnement est terminé. Le compte passera en lecture seule le {date} : renouvelez-le avant.",
+    "demoBandeau": "Boutique de démonstration : données fictives.",
+    "demoRetour": "Retour à l'administration"
   },
   "aVenir": {
     "titre": "Ce module arrive bientôt",
@@ -321,7 +323,17 @@
       "archive": "Archivé",
       "sans": "Sans abonnement"
     },
-    "jusquau": "jusqu'au {date}"
+    "jusquau": "jusqu'au {date}",
+    "demoTitre": "Boutique de démonstration",
+    "demoTexte": "Une boutique fictive, remplie de produits, de ventes et de commandes, pour essayer ou montrer l'application comme un commerçant. Elle n'est comptée ni dans vos commerçants ni dans votre revenu, et personne d'autre que vous ne peut y entrer.",
+    "demoOuvrir": "Ouvrir la boutique de démonstration",
+    "demoModules": "Choisir ses modules",
+    "demoBoutique": "Voir sa boutique en ligne",
+    "demoRemettre": "Remettre à zéro",
+    "demoRemettreTexte": "La boutique de démonstration redevient comme neuve : tout ce que vous y avez fait disparaît de la démo.",
+    "demoConfirmer": "Je veux remettre la démo à zéro",
+    "demoRemettreBouton": "Remettre la démo à zéro",
+    "demoRemise": "La démo est comme neuve."
   },
   "erreurs": {
     "identifiants": "Numéro ou mot de passe incorrect.",
@@ -401,7 +413,8 @@
     "colis_invalides": "Choisissez des colis livrés qui ne sont pas encore reversés.",
     "caisse_cloturee": "La caisse de cette journée est déjà clôturée : ce n'est plus modifiable.",
     "trop_de_photos": "6 photos au plus par produit. Retirez-en une d'abord.",
-    "barre_invalide": "Choisissez de 1 à 4 entrées différentes."
+    "barre_invalide": "Choisissez de 1 à 4 entrées différentes.",
+    "confirmation_requise": "Cochez la case pour confirmer."
   },
   "pageErreur": {
     "titre": "Quelque chose n'a pas marché",

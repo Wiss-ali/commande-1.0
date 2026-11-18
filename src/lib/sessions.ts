@@ -11,7 +11,7 @@ export interface SessionUtilisateur {
   id: string;
   complete: boolean; // faux tant que le code de double authentification n'est pas saisi
   utilisateur: { id: string; nom: string; role: Role; langue: Langue; totpActif: boolean; gereProduits: boolean; peutRemiser: boolean; barreBas: string[] | null };
-  commercant: { id: string; nom: string; etat: EtatCommercant; modules: Modules };
+  commercant: { id: string; nom: string; etat: EtatCommercant; modules: Modules; demo: boolean };
 }
 export interface SessionAdmin {
   type: 'administrateur';
@@ -56,7 +56,7 @@ export async function trouverSession(jeton: string): Promise<Session | null> {
     .select([
       's.id', 's.mfa_ok', 's.vue_le', 's.utilisateur_id', 's.administrateur_id',
       'u.nom as u_nom', 'u.role', 'u.langue', 'u.totp_actif as u_totp', 'u.gere_produits', 'u.peut_remiser', 'u.barre_bas', 'u.desactive', 'u.supprime_le',
-      'c.id as c_id', 'c.nom as c_nom', 'c.etat', 'c.modules',
+      'c.id as c_id', 'c.nom as c_nom', 'c.etat', 'c.modules', 'c.demo',
       'a.identifiant', 'a.totp_actif as a_totp',
     ])
     .where('s.jeton_hash', '=', hacherJeton(jeton))
@@ -90,7 +90,7 @@ export async function trouverSession(jeton: string): Promise<Session | null> {
       id: s.id,
       complete: s.mfa_ok,
       utilisateur: { id: s.utilisateur_id, nom: s.u_nom, role: s.role, langue: s.langue, totpActif: !!s.u_totp, gereProduits: !!s.gere_produits, peutRemiser: !!s.peut_remiser, barreBas: s.barre_bas ?? null },
-      commercant: { id: s.c_id, nom: s.c_nom ?? '', etat, modules: modulesEffectifs(s.modules, ab.autorises) },
+      commercant: { id: s.c_id, nom: s.c_nom ?? '', etat, modules: modulesEffectifs(s.modules, ab.autorises), demo: !!s.demo },
     };
   }
   return null;

@@ -2,6 +2,14 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 18/11/2026 — Notifications : ouvrir une notification la marque comme lue
+
+- Retour du propriétaire : « quand on ouvre les notifications et qu'on va dessus, elles restent ». Avant, seule l'action « Tout marquer comme vu » les retirait.
+- Migration `0010_notifications_lues` (table `notifications_lues`, une ligne par personne et par notification, RLS forcée, `hanout_app` en lecture et ajout seulement). Chaque notification de la liste est maintenant un bouton qui envoie l'action `ouvrirUneNotification` (POST, pour garder la règle « aucun effet de bord sur un GET »), puis affiche la commande.
+- Une notification n'est plus « nouvelle » non plus quand la commande a déjà été traitée par quelqu'un (statut autre que `nouvelle` ou `a_confirmer`) : c'est le cas quand on arrive par la notification du téléphone ou quand une collègue confirme.
+- Tests : 143 tests (dont un nouveau sur la lecture une par une, l'isolation et les commandes traitées) ; table ajoutée au test d'isolation ; parcours « vitrine » adapté (ouvrir la notification → commande, cloche à zéro) ; 74 parcours ✅.
+- Question du propriétaire sur les « Formules » de l'administration : expliqué (offres d'abonnement : prix, durée, modules ; utilisées pour enregistrer les paiements).
+
 ## 18/11/2026 — Mise en ligne d'essai sur le VPS Contabo, puis refonte visuelle
 
 - **Mise en ligne d'essai** : VPS Contabo (Ubuntu 24.04, 4 processeurs, 8 Go, 96 Go, hors d'Algérie, **données de démonstration seulement**), adresse gratuite `155-133-198-241.sslip.io` (copie de test : `test.155-133-198-241.sslip.io`). Le propriétaire a tapé les commandes lui-même, guidé pas à pas (aucun identifiant transmis). Guide suivi sans correction : `installer.sh proxy`, `environnement prod` et `test`, `deployer.sh test` (image Debian + Chromium construite sans réglage, migrations, première sauvegarde), compte administrateur créé. Clé privée et `app.env` du site réel copiés sur son ordinateur. Le propriétaire confirme : « tout a l'air fonctionnel, même le bip ».

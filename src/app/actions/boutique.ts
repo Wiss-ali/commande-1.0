@@ -1,10 +1,11 @@
 'use server';
 // Actions du commerçant sur sa boutique (droit « reglages », module Boutique), ses notifications et ses demandes.
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 import { action, actionSimple, texte } from '@/lib/actions';
 import { avecCommercant } from '@/lib/bd';
 import {
-  changerSousDomaine, demander, enregistrerAbonnement, enregistrerReglages, fixerImage, lireReglages, marquerVues, mettreEnLigne, MODELES, RESEAUX, retirerAbonnement,
+  changerSousDomaine, demander, enregistrerAbonnement, enregistrerReglages, fixerImage, lireReglages, marquerVues, mettreEnLigne, ouvrirNotification, MODELES, RESEAUX, retirerAbonnement,
   SECTIONS, type Section,
 } from '@/lib/boutique';
 import { journaliser } from '@/lib/journal';
@@ -131,6 +132,16 @@ export const notificationsVues = actionSimple(async () => {
   const s = await exigerUtilisateur('vendre');
   await avecCommercant(s.commercant.id, (trx) => marquerVues(trx, ctxDe(s)));
   revalidatePath('/', 'layout');
+});
+
+/** Ouvre une notification : elle est marquée comme lue, puis la commande s'affiche. */
+export const ouvrirUneNotification = actionSimple(async (f) => {
+  const s = await exigerUtilisateur('vendre');
+  const id = texte(f, 'id', 36);
+  if (!UUID.test(id)) redirect('/notifications');
+  const commande = await avecCommercant(s.commercant.id, (trx) => ouvrirNotification(trx, ctxDe(s), id));
+  revalidatePath('/', 'layout');
+  redirect(commande ? `/commandes/${commande}` : '/notifications');
 });
 
 /** Abonnement du téléphone aux notifications (Web Push). L'adresse doit être celle d'un service connu. */

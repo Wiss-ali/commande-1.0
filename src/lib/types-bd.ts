@@ -454,6 +454,13 @@ export interface NotificationsVues {
   vu_le: Horodatage;
 }
 
+export interface NotificationsLues {
+  commercant_id: string;
+  utilisateur_id: string;
+  notification_id: string;
+  lu_le: Generated<Horodatage>;
+}
+
 export interface AbonnementsPush {
   id: Generated<string>;
   commercant_id: string;
@@ -507,6 +514,7 @@ export interface BD {
   demandes: Demandes;
   notifications: Notifications;
   notifications_vues: NotificationsVues;
+  notifications_lues: NotificationsLues;
   abonnements_push: AbonnementsPush;
   wilayas: Wilayas;
   communes: Communes;

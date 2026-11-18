@@ -4,7 +4,7 @@ import { createDecipheriv, createECDH, createHmac, createPublicKey, verify } fro
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { avecCommercant, bd, fermerBD } from '../../src/lib/bd.ts';
 import {
-  catalogue, changerSousDomaine, compterNonVues, creerTicket, demander, enregistrerAbonnement, enregistrerReglages, lireReglages, lireTicket, marquerVues,
+  catalogue, changerSousDomaine, compterNonVues, creerTicket, demander, enregistrerAbonnement, enregistrerReglages, lireReglages, lireTicket, listerNotifications, marquerVues, ouvrirNotification,
   mettreEnLigne, PALETTE, REGLAGES_DEFAUT, trouverBoutique, verifierSousDomaine, type SaisieTicket, type Vitrine,
 } from '../../src/lib/boutique.ts';
 import { confirmerCommande, expirerTickets, lireCommande } from '../../src/lib/commandes.ts';
@@ -162,6 +162,27 @@ describe('catalogue et tickets', () => {
     expect(c.historique[0]).toMatchObject({ evenement: 'expiree', nouveau: 'annulee' });
     const etat = await chez(A, (trx) => trx.selectFrom('documents').select('etat').where('id', '=', c.devis.id).executeTakeFirstOrThrow());
     expect(etat.etat).toBe('expire');
+  });
+
+  it('ouvrir une notification la marque comme lue pour cette personne seulement ; une commande traitée n\'est plus « nouvelle »', async () => {
+    const pull = await produit(A, 'Pull', 5, true);
+    const r = await creerTicket(await vitrine(), ticket({ lignes: [{ varianteId: pull, quantite: 1 }] }));
+    if (!r.ok) throw new Error(r.raison);
+    const avant = await chez(A, (trx) => compterNonVues(trx, A.utilisateurId));
+    const n = (await chez(A, (trx) => listerNotifications(trx, A.utilisateurId))).find((x) => x.commande_id === r.commandeId)!;
+    expect(n.nouvelle).toBe(true);
+    expect(await chez(A, (trx) => ouvrirNotification(trx, A, n.id))).toBe(r.commandeId);
+    await chez(A, (trx) => ouvrirNotification(trx, A, n.id)); // deux fois : sans erreur
+    expect(await chez(A, (trx) => compterNonVues(trx, A.utilisateurId))).toBe(avant - 1);
+    expect((await chez(A, (trx) => listerNotifications(trx, A.utilisateurId))).find((x) => x.id === n.id)!.nouvelle).toBe(false);
+    // Un autre commerçant ne peut pas ouvrir cette notification.
+    expect(await chez(B, (trx) => ouvrirNotification(trx, B, n.id))).toBeNull();
+    // Commande annulée par quelqu'un d'autre : plus rien à faire, elle n'est plus comptée.
+    const r2 = await creerTicket(await vitrine(), ticket({ lignes: [{ varianteId: pull, quantite: 1 }] }));
+    if (!r2.ok) throw new Error(r2.raison);
+    const avec = await chez(A, (trx) => compterNonVues(trx, A.utilisateurId));
+    await chez(A, (trx) => trx.updateTable('commandes').set({ statut: 'annulee' }).where('id', '=', r2.commandeId).execute());
+    expect(await chez(A, (trx) => compterNonVues(trx, A.utilisateurId))).toBe(avec - 1);
   });
 
   it('produit épuisé : affiché en rupture, ou masqué selon le réglage', async () => {

@@ -9,6 +9,7 @@ Dernière mise à jour : 18/11/2026 — essai en ligne sur un VPS, puis refonte 
 - **À faire par le propriétaire maintenant** : `docs/VERIFICATION-FINALE.md` (tout ce qu'il faut essayer, et les questions à trancher), en installant d'abord le serveur avec `docs/GUIDE-INSTALLATION.md`.
 - **`main` est à jour** : identique à la branche de travail `claude/vigilant-gates-3k9mjn`. Le guide installe depuis `main`.
 - **Essai en ligne (18/11/2026)** : VPS Contabo `155.133.198.241` (hors d'Algérie, données de démonstration seulement), copie de test en service sur `https://test.155-133-198-241.sslip.io`, compte administrateur créé. **Le site réel (`./deployer.sh prod`) n'est pas encore lancé** ; alertes ntfy et `installer.sh cron` pas encore faits. Les secrets restent sur le serveur (`/srv/hanout/deploiement/secrets/`) ; la clé privée de sauvegarde de prod est copiée chez le propriétaire mais **pas encore effacée du serveur**.
+- **Notifications (18/11/2026)** : ouvrir une notification la marque comme lue (migration 0010). À mettre sur le serveur avec la même commande que ci-dessous.
 - **Refonte visuelle (18/11/2026)** : blanc, contours bleutés, bleu principal, sombre bleu nuit, police Inter. Voir `docs/refonte-visuelle/01-recherche.md`. Pour l'avoir sur le serveur : `cd /srv/hanout && git pull && cd deploiement && ./deployer.sh test`.
 
 ## Façon de travailler (décidée par le propriétaire le 16/11/2026)

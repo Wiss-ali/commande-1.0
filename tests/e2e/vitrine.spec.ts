@@ -170,8 +170,12 @@ test('le vendeur est prévenu, retrouve le devis par le numéro du ticket, et co
   await expect(yasmine.getByRole('link', { name: 'Notifications : 1 nouvelle' })).toBeVisible();
   await yasmine.getByRole('link', { name: 'Notifications : 1 nouvelle' }).click();
   await yasmine.screenshot({ path: `${CAPTURES}/notifications-fr-clair.png`, fullPage: true });
-  await yasmine.getByRole('button', { name: 'Tout marquer comme vu' }).click();
+  // Ouvrir la notification mène à la commande, et elle ne compte plus comme nouvelle.
+  await yasmine.getByRole('button', { name: /Commande boutique n° 1/ }).click();
+  await expect(yasmine).toHaveURL(/\/commandes\/[0-9a-f-]{36}$/);
   await expect(yasmine.getByRole('link', { name: 'Notifications', exact: true })).toBeVisible();
+  await yasmine.goto('/notifications');
+  await expect(yasmine.getByRole('button', { name: 'Tout marquer comme vu' })).toHaveCount(0);
 
   await yasmine.goto('/factures?onglet=devis&n=1');
   const devis = yasmine.getByRole('link', { name: /DV-/ });

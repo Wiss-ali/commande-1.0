@@ -1,6 +1,5 @@
-import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
-import { notificationsVues } from '@/app/actions/boutique';
+import { notificationsVues, ouvrirUneNotification } from '@/app/actions/boutique';
 import { EnTete } from '@/components/EnTete';
 import { NotificationsTelephone } from '@/components/NotificationsTelephone';
 import { Page } from '@/components/Page';
@@ -33,7 +32,9 @@ export default async function Notifications() {
           <ul className="flex flex-col gap-2">
             {liste.map((n) => (
               <li key={n.id}>
-                <Link href={`/commandes/${n.commande_id}`} className={`flex min-h-16 items-center gap-3 rounded-xl border bg-surface p-3 ${n.nouvelle ? 'border-safran' : 'border-trait'}`}>
+                <form action={ouvrirUneNotification}>
+                <input type="hidden" name="id" value={n.id} />
+                <button type="submit" className={`flex min-h-16 w-full items-center gap-3 rounded-2xl border bg-surface p-3 text-start shadow-doux hover:border-trait-fort ${n.nouvelle ? 'border-safran/60' : 'border-trait opacity-80'}`}>
                   {n.nouvelle ? <span aria-label={t('nouvelle')} className="size-2.5 shrink-0 rotate-45 bg-safran" /> : null}
                   <span className="min-w-0 flex-1">
                     <span className="block font-semibold">{t('commandeBoutique', { n: n.numero })}</span>
@@ -43,7 +44,8 @@ export default async function Notifications() {
                     <span className="font-bold">{formaterMontant(BigInt(n.total), langue)}</span>
                     <PastilleCommande statut={n.statut} />
                   </span>
-                </Link>
+                </button>
+                </form>
               </li>
             ))}
           </ul>

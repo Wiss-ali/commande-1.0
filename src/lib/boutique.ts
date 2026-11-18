@@ -359,20 +359,38 @@ export const fraisPublics = (commercantId: string, wilaya: number, livraison: Mo
 
 // ───────────── Notifications du vendeur ─────────────
 
+// Une notification est « nouvelle » pour une personne tant que : elle est arrivée après son dernier « Tout marquer
+// comme vu », elle ne l'a pas ouverte, et la commande attend encore une confirmation (si quelqu'un l'a déjà traitée,
+// il n'y a plus rien à faire).
+const A_TRAITER = ['nouvelle', 'a_confirmer'] as const;
+
 export async function compterNonVues(trx: Trx, utilisateurId: string): Promise<number> {
   const r = await sql<{ n: number }>`
     SELECT count(*)::int AS n FROM notifications n
-    WHERE n.cree_le > coalesce((SELECT vu_le FROM notifications_vues WHERE utilisateur_id = ${utilisateurId}), '-infinity')`.execute(trx);
+    JOIN commandes c ON c.id = n.commande_id
+    WHERE n.cree_le > coalesce((SELECT vu_le FROM notifications_vues WHERE utilisateur_id = ${utilisateurId}), '-infinity')
+      AND c.statut IN ('nouvelle', 'a_confirmer')
+      AND NOT EXISTS (SELECT 1 FROM notifications_lues l WHERE l.notification_id = n.id AND l.utilisateur_id = ${utilisateurId})`.execute(trx);
   return r.rows[0]!.n;
 }
 
 export async function listerNotifications(trx: Trx, utilisateurId: string) {
   const vu = (await trx.selectFrom('notifications_vues').select('vu_le').where('utilisateur_id', '=', utilisateurId).executeTakeFirst())?.vu_le ?? null;
+  const lues = new Set((await trx.selectFrom('notifications_lues').select('notification_id').where('utilisateur_id', '=', utilisateurId).execute()).map((l) => l.notification_id));
   const lignes = await trx
     .selectFrom('notifications as n').innerJoin('commandes as c', 'c.id', 'n.commande_id').innerJoin('documents as d', 'd.id', 'c.devis_id').innerJoin('clients as cl', 'cl.id', 'c.client_id')
     .select(['n.id', 'n.type', 'n.cree_le', 'c.id as commande_id', 'c.numero', 'c.statut', 'd.total', 'cl.nom'])
     .orderBy('n.cree_le', 'desc').limit(50).execute();
-  return lignes.map((l) => ({ ...l, nouvelle: !vu || l.cree_le > vu }));
+  return lignes.map((l) => ({ ...l, nouvelle: (!vu || l.cree_le > vu) && !lues.has(l.id) && (A_TRAITER as readonly string[]).includes(l.statut) }));
+}
+
+/** Ouvrir une notification la marque comme lue pour cette personne ; renvoie la commande à afficher. */
+export async function ouvrirNotification(trx: Trx, ctx: Contexte, notificationId: string): Promise<string | null> {
+  const n = await trx.selectFrom('notifications').select('commande_id').where('id', '=', notificationId).executeTakeFirst();
+  if (!n) return null;
+  await trx.insertInto('notifications_lues').values({ commercant_id: ctx.commercantId, utilisateur_id: ctx.utilisateurId, notification_id: notificationId })
+    .onConflict((oc) => oc.columns(['utilisateur_id', 'notification_id']).doNothing()).execute();
+  return n.commande_id;
 }
 
 export async function marquerVues(trx: Trx, ctx: Contexte): Promise<void> {

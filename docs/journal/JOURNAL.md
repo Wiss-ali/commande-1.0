@@ -2,6 +2,11 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 18/11/2026 — Caisse : « Payer avec deux moyens » rangé dans le menu
+
+- Demande du propriétaire : le paiement en deux moyens est rare en Algérie, il ne doit pas être sous les yeux. Le lien a été retiré ; c'est maintenant une option du menu « Autre moyen ». Choisir Espèces ou Carte l'annule.
+- Tests : 86 parcours ✅. Mis dans `main` (même accord que le lot précédent).
+
 ## 18/11/2026 — Caisse simplifiée, puis lot d'ajouts n° 1 mis dans `main`
 
 - Demande du propriétaire : encaissement simple et rapide. Espèces et Carte en gros boutons, les autres moyens (chèque, virement, CCP, autre, à crédit) dans un menu déroulant, « deux moyens » en lien discret ; ticket toujours, facture seulement si on coche « Faire aussi une facture ».

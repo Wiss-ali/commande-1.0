@@ -32,7 +32,8 @@ Pas fait, à sa demande : l'alerte de stock sur le téléphone. En attente de sa
 ### Retouche de la caisse demandée par le propriétaire (18/11/2026)
 
 - Écran d'encaissement simplifié : **Espèces** et **Carte** en gros boutons ; chèque, virement, CCP / BaridiMob, autre et
-  « À crédit » dans un **menu déroulant** ; « Payer avec deux moyens » devient un lien discret.
+  « À crédit » dans un **menu déroulant** ; « Payer avec deux moyens » est aussi une option de ce menu (rare en Algérie :
+  rien ne s'affiche tant qu'on ne la choisit pas).
 - **Carte** : visible mais **pas encore activée** (« Le paiement par carte n'est pas encore activé. Choisissez un autre
   moyen. »), la vente ne peut pas être validée avec. Rien n'est enregistré ni traité ; à activer plus tard.
 - Un **ticket de caisse** est toujours remis ; la facture seulement en cochant « Faire aussi une facture (le client la demande) ».

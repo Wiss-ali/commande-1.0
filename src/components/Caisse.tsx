@@ -391,9 +391,18 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
                   </label>
                 ))}
               </div>
-              <select aria-label={t('autreMoyen')} value={AUTRES_CHOIX.includes(choix) && choix !== 'carte' ? choix : ''} onChange={(e) => { const c = (e.target.value || 'especes') as ChoixPaiement; setChoix(c); if (c === 'credit') setSecond(null); }} className={`min-h-12 w-full min-w-0 rounded-xl border bg-surface px-3 text-base ${AUTRES_CHOIX.includes(choix) && choix !== 'carte' ? 'border-prim ring-1 ring-prim' : 'border-trait'}`}>
+              {/* Les cas rares (autre moyen, crédit, paiement en deux moyens) sont des options du menu. */}
+              <select aria-label={t('autreMoyen')} value={second ? 'deux' : AUTRES_CHOIX.includes(choix) && choix !== 'carte' ? choix : ''}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (v === 'deux') { setChoix('especes'); setSecond({ mode: 'ccp', montant: '' }); return; }
+                  setSecond(null);
+                  setChoix((v || 'especes') as ChoixPaiement);
+                }}
+                className={`min-h-12 w-full min-w-0 rounded-xl border bg-surface px-3 text-base ${second || (AUTRES_CHOIX.includes(choix) && choix !== 'carte') ? 'border-prim ring-1 ring-prim' : 'border-trait'}`}>
                 <option value="">{t('autreMoyen')}</option>
                 {AUTRES_CHOIX.filter((c) => c !== 'carte').map((c) => <option key={c} value={c}>{t(`mode_${c}`)}</option>)}
+                <option value="deux">{t('deuxMoyens')}</option>
               </select>
             </fieldset>
             {choix === 'carte' ? <Message ton="info">{t('carteInactive')}</Message> : (
@@ -425,10 +434,6 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
                   <Champ libelle={t('recu')} value={recu} onChange={(e) => setRecu(e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('recuAide')} />
                   {rendu !== null && rendu >= partEspeces ? <p className="text-lg font-bold text-prim">{t('aRendre')} : {formaterMontant(rendu - partEspeces, langue)}</p> : null}
                 </>
-              ) : null}
-              {/* Payer avec deux moyens : rare, donc discret. */}
-              {!second && choix !== 'credit' ? (
-                <button type="button" onClick={() => setSecond({ mode: choix === 'especes' ? 'ccp' : 'especes', montant: '' })} className="min-h-11 self-start text-sm font-semibold text-prim underline">{t('deuxMoyens')}</button>
               ) : null}
             </Carte>
             )}

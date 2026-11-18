@@ -82,7 +82,9 @@ test('caisse : remise sur un article et sur le total, paiement en deux moyens, m
   await karima.getByRole('button', { name: 'Encaisser' }).click();
   await karima.getByLabel('Remise sur le total').fill('160');
   await expect(karima.getByRole('dialog').getByText('2 000 DA', { exact: true })).toBeVisible();
-  await karima.getByRole('button', { name: 'Payer avec deux moyens' }).click();
+  // Paiement en deux moyens : rare, donc rangé dans le menu « Autre moyen ».
+  await expect(karima.getByRole('button', { name: 'Payer avec deux moyens' })).toHaveCount(0);
+  await karima.getByRole('combobox', { name: /Autre moyen/ }).selectOption('deux');
   await karima.getByRole('combobox', { name: /Second moyen/ }).selectOption('ccp');
   await karima.getByLabel('Montant payé par ce second moyen (DA)').fill('500');
   await karima.getByLabel('Montant reçu (DA)').fill('2000');

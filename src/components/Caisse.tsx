@@ -233,9 +233,7 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
             </li>
           ))}
         </ul>
-      ) : (
-        <p className="rounded-xl border border-dashed border-trait px-4 py-4 text-center text-sm text-doux">{t('panierVide')}</p>
-      )}
+      ) : null}
 
       <section aria-labelledby="caisse-produits" className="flex flex-col gap-2">
         <h2 id="caisse-produits" className="text-xs font-semibold uppercase tracking-wide text-doux">{t('produits')}</h2>

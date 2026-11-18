@@ -69,7 +69,6 @@ test.beforeAll(async ({ browser }) => {
 
 test('vente en caisse : recherche, scan, monnaie à rendre, ticket', async () => {
   await salim.goto('/caisse');
-  await expect(salim.getByText('Touchez un produit plus bas, scannez ou cherchez pour commencer la vente.')).toBeVisible();
   // Tous les produits sont affichés, sans rien chercher.
   await expect(salim.getByRole('heading', { name: 'Produits' })).toBeVisible();
   await expect(salim.getByRole('button', { name: 'Encaisser' })).toBeDisabled();

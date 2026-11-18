@@ -2,6 +2,11 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 18/11/2026 — Caisse : cadre gris retiré, tout mis dans `main`
+
+- Demande du propriétaire : le cadre gris en pointillés de la caisse (« Touchez un produit plus bas… ») ne sert à rien ; retiré (texte `caisse.panierVide` supprimé en fr/ar). La grille des produits suffit.
+- Accord du propriétaire pour mettre la branche `claude/wizardly-newton-jszkps` dans `main` : fait. Tests : 145 ✅, parcours de la caisse ✅.
+
 ## 18/11/2026 — Revue d'ensemble, sécurité de la connexion, caisse en grille, menu sur ordinateur, langue dans « Plus »
 
 - **Revue demandée par le propriétaire** (simplicité, liens entre modules, défauts, sécurité). Bilan : architecture solide (RLS forcée, chiffrement des champs, Argon2id, CSP stricte, entrées vérifiées). Propositions faites ; le propriétaire a choisi : sécurité 1, 3, 4, 5 et simplicité 2 (caisse : tous les produits, les plus vendus en haut), 5 et 6. Le reste n'est pas touché (longueur des mots de passe, bouton « Commandes » en bas, client reconnu, liste des communes).

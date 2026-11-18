@@ -59,7 +59,7 @@ d'installation et serveur de test préparés à l'étape 8 ; 4 → plus tard ; 5
 
 ## Magasin de démonstration
 
-Sur le serveur : utiliser la **boutique de démonstration de l'administration** (aucun mot de passe connu). En développement, `npm run demo` crée (une seule fois) un magasin rempli (même contenu, `src/lib/demo.ts`) : propriétaire `0550000001` / `hanout demo`, vendeuse `0550000002` / `hanout vente`, cinq produits, un transporteur, les frais des 69 wilayas, deux commandes et la boutique en ligne `/b/magasin-demo`. Mots de passe publics : **jamais sur le site réel**. Puis `npm run build` et `npx next start -p 3000`.
+Sur le serveur : utiliser la **boutique de démonstration de l'administration** (aucun mot de passe connu). En développement, `npm run demo` crée (une seule fois) un magasin rempli (même contenu, `src/lib/demo.ts`) : propriétaire `0550000001` / `hanout demo`, vendeuse `0550000002` / `hanout vente`, dix produits, des ventes, un crédit, un fournisseur, un transporteur, les frais des 69 wilayas, trois commandes et la boutique en ligne `/b/magasin-demo`. Mots de passe publics : **jamais sur le site réel**. Puis `npm run build` et `npx next start -p 3000`.
 
 ## Points à vérifier plus tard (sources officielles non joignables)
 

@@ -84,7 +84,7 @@ test('l\'administrateur crée deux formules', async () => {
 test('sans abonnement, le commerçant a tous ses modules', async ({ browser }) => {
   ahmed = await ouvrir(browser);
   await connecter(ahmed, telAhmed);
-  await expect(ahmed.locator('a[href="/commandes"]')).toBeVisible();
+  await expect(ahmed.getByRole('main').locator('a[href="/commandes"]')).toBeVisible();
 });
 
 test('paiement reçu par BaridiMob : abonnement ouvert, modules limités à la formule', async () => {
@@ -171,8 +171,9 @@ test('tableau de l\'administration : filtres, revenu du mois, paiements, délais
 });
 
 test('administration et abonnement en arabe, en thème sombre', async () => {
-  await ahmed.goto('/reglages/abonnement');
-  await ahmed.getByRole('button', { name: /العربية/ }).click();
+  // La langue se choisit dans « Plus » (et sur les pages publiques).
+  await ahmed.goto('/plus');
+  await ahmed.getByRole('button', { name: 'العربية' }).click();
   await expect(ahmed.locator('html')).toHaveAttribute('dir', 'rtl');
   await ahmed.emulateMedia({ colorScheme: 'dark' });
   await ahmed.goto('/reglages/abonnement');
@@ -187,6 +188,7 @@ test('administration et abonnement en arabe, en thème sombre', async () => {
     await admin.screenshot({ path: `${CAPTURES}/${nom}-ar-sombre.png`, fullPage: true });
   }
   await admin.getByRole('button', { name: /Français/ }).click();
+  await ahmed.goto('/plus');
   await ahmed.getByRole('button', { name: /Français/ }).click();
 });
 

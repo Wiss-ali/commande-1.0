@@ -137,8 +137,11 @@ test('le commerçant accepte son invitation et arrive sur son espace', async ({ 
 });
 
 test("l'arabe s'affiche de droite à gauche, et le choix est mémorisé", async () => {
+  // La langue se choisit dans « Plus » (et sur les pages publiques).
+  await ali.goto('/plus');
+  await ali.getByRole('button', { name: 'العربية' }).click();
+  await expect(ali.locator('html')).toHaveAttribute('dir', 'rtl');
   await ali.goto('/');
-  await ali.getByRole('button', { name: /العربية/ }).click();
   await expect(ali.locator('html')).toHaveAttribute('dir', 'rtl');
   await expect(ali.locator('html')).toHaveAttribute('lang', 'ar');
   await expect(ali.getByRole('heading', { name: 'مرحبا، Ali' })).toBeVisible();
@@ -165,6 +168,7 @@ test("l'arabe s'affiche de droite à gauche, et le choix est mémorisé", async 
 
   await ali.goto('/plus');
   await ali.getByRole('button', { name: 'فاتح' }).click();
+  await ali.goto('/plus');
   await ali.getByRole('button', { name: /Français/ }).click();
   await expect(ali.locator('html')).toHaveAttribute('dir', 'ltr');
 });

@@ -101,3 +101,16 @@ export async function ouvrirSession(
   const { jeton, expire } = await creerSession(titulaire, { complete, appareil });
   await poserSession(type, jeton, expire);
 }
+
+// Appareils où la personne s'est déjà connectée (voir `retenirAppareil`) : cookie séparé de la session,
+// qui reste après la déconnexion. Il ne connecte personne : il évite seulement d'être bloqué par les échecs des autres.
+const nomCookieAppareil = () => `${config().https ? '__Host-' : ''}hanout-appareil`;
+
+export async function appareilsConnus(): Promise<string[]> {
+  const v = (await cookies()).get(nomCookieAppareil())?.value ?? '';
+  return v.length > 1000 ? [] : v.split('~').filter((j) => /^[\w-]{10,40}\.[\w-]{20,60}$/.test(j));
+}
+
+export async function poserAppareils(jetons: string[]): Promise<void> {
+  (await cookies()).set(nomCookieAppareil(), jetons.join('~'), { httpOnly: true, secure: config().https, sameSite: 'lax', path: '/', maxAge: 180 * 24 * 3600 });
+}

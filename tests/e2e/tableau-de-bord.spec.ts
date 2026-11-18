@@ -174,8 +174,9 @@ test('la vendeuse voit les ventes mais pas les rapports ; le préparateur ne voi
 });
 
 test('accueil et rapports en arabe, en thème sombre', async () => {
-  await karim.goto('/');
-  await karim.getByRole('button', { name: /العربية/ }).click();
+  // La langue se choisit dans « Plus » (et sur les pages publiques).
+  await karim.goto('/plus');
+  await karim.getByRole('button', { name: 'العربية' }).click();
   await expect(karim.locator('html')).toHaveAttribute('dir', 'rtl');
   await karim.goto('/plus');
   await karim.getByRole('button', { name: 'داكن' }).click();
@@ -195,6 +196,7 @@ test('accueil et rapports en arabe, en thème sombre', async () => {
   await expect(karim.getByText('مبيعات اليوم: 1')).toBeVisible();
   await karim.goto('/plus');
   await karim.getByRole('button', { name: 'فاتح' }).click();
+  await karim.goto('/plus');
   await karim.getByRole('button', { name: /Français/ }).click();
 });
 

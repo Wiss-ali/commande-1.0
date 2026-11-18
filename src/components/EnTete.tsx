@@ -1,4 +1,5 @@
-// En-tête de chaque écran : titre, retour éventuel, et bouton de langue (présent partout).
+// En-tête de chaque écran : titre, retour éventuel. Le commerçant choisit sa langue dans « Plus » ;
+// l'administration et les pages publiques (connexion, boutique) gardent le bouton de langue.
 import { ArrowLeft, Bell, Languages } from 'lucide-react';
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
@@ -52,8 +53,7 @@ export async function EnTete({ titre, retour, fin, admin }: { titre: string; ret
       ) : null}
       <h1 className="min-w-0 flex-1 truncate text-lg font-semibold tracking-tight">{titre}</h1>
       {fin}
-      {admin ? null : <Cloche />}
-      <BoutonLangue />
+      {admin ? <BoutonLangue /> : <Cloche />}
     </header>
   );
 }

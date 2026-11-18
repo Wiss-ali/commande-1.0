@@ -1,3 +1,4 @@
+import { sql } from 'kysely';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { Caisse, type ArticleCaisse } from '@/components/Caisse';
@@ -12,18 +13,27 @@ const MAX_ARTICLES = 5000;
 export default async function PageCaisse() {
   const s = await pageUtilisateur('vendre', 'caisse');
   const t = await getTranslations('caisse');
-  const articles: ArticleCaisse[] = (
-    await avecCommercant(s.commercant.id, (trx) =>
-      trx
-        .selectFrom('variantes as v')
-        .innerJoin('produits as p', 'p.id', 'v.produit_id')
-        .innerJoin('stocks as k', 'k.variante_id', 'v.id')
-        .select(['v.id', 'p.nom_fr', 'p.nom_ar', 'v.libelle', 'v.code_barres', 'v.prix_vente', 'k.quantite', 'k.reservee'])
-        .where('v.archive_le', 'is', null)
-        .orderBy('p.nom_fr')
-        .limit(MAX_ARTICLES)
-        .execute())
-  ).map((a) => ({ id: a.id, nomFr: a.nom_fr, nomAr: a.nom_ar, libelle: a.libelle, code: a.code_barres, prix: Number(a.prix_vente), stock: a.quantite - a.reservee }));
+  // Tous les produits, les plus vendus des 90 derniers jours en premier, puis par ordre alphabétique.
+  const lignes = await avecCommercant(s.commercant.id, (trx) =>
+    sql<{ id: string; nom_fr: string; nom_ar: string; libelle: string; code_barres: string | null; prix_vente: string; disponible: number; photo_id: string | null }>`
+      SELECT v.id, p.nom_fr, p.nom_ar, v.libelle, v.code_barres, v.prix_vente, (k.quantite - k.reservee)::int AS disponible,
+        (SELECT ph.id FROM photos_produit ph WHERE ph.produit_id = p.id ORDER BY ph.ordre, ph.cree_le DESC LIMIT 1) AS photo_id
+      FROM variantes v
+      JOIN produits p ON p.id = v.produit_id
+      JOIN stocks k ON k.variante_id = v.id
+      LEFT JOIN (
+        SELECT l.variante_id, sum(l.quantite) AS vendus
+        FROM lignes_document l JOIN documents d ON d.id = l.document_id
+        WHERE d.type IN ('ticket', 'facture') AND d.emis_le > now() - interval '90 days'
+        GROUP BY l.variante_id
+      ) ventes ON ventes.variante_id = v.id
+      WHERE v.archive_le IS NULL
+      ORDER BY coalesce(ventes.vendus, 0) DESC, p.nom_fr, v.libelle
+      LIMIT ${MAX_ARTICLES}`.execute(trx));
+  const articles: ArticleCaisse[] = lignes.rows.map((a) => ({
+    id: a.id, nomFr: a.nom_fr, nomAr: a.nom_ar, libelle: a.libelle, code: a.code_barres, prix: Number(a.prix_vente), stock: a.disponible,
+    photo: a.photo_id ? `/photos/${a.photo_id}?t=p` : null,
+  }));
 
   return (
     <>

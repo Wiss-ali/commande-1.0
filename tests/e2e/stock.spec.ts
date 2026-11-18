@@ -361,8 +361,9 @@ test('modifier, archiver et rétablir un produit', async () => {
 });
 
 test('tous les écrans du stock en arabe, de droite à gauche, en thème sombre', async () => {
-  await nadia.goto('/stock');
-  await nadia.getByRole('button', { name: /العربية/ }).click();
+  // La langue se choisit dans « Plus » (et sur les pages publiques).
+  await nadia.goto('/plus');
+  await nadia.getByRole('button', { name: 'العربية' }).click();
   await expect(nadia.locator('html')).toHaveAttribute('dir', 'rtl');
   await nadia.goto('/plus');
   await nadia.getByRole('button', { name: 'داكن' }).click();
@@ -391,6 +392,7 @@ test('tous les écrans du stock en arabe, de droite à gauche, en thème sombre'
   await expect(nadia.getByText(/تنبيهات: \d/)).toBeVisible();
   await nadia.goto('/plus');
   await nadia.getByRole('button', { name: 'فاتح' }).click();
+  await nadia.goto('/plus');
   await nadia.getByRole('button', { name: /Français/ }).click();
 });
 

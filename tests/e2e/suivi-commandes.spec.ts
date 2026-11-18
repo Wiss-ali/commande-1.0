@@ -231,8 +231,9 @@ test('un autre commerçant ne voit pas les commandes', async ({ browser }) => {
 });
 
 test('les écrans des commandes et des clients en arabe, en thème sombre', async () => {
-  await nadia.goto('/commandes');
-  await nadia.getByRole('button', { name: /العربية/ }).click();
+  // La langue se choisit dans « Plus » (et sur les pages publiques).
+  await nadia.goto('/plus');
+  await nadia.getByRole('button', { name: 'العربية' }).click();
   await expect(nadia.locator('html')).toHaveAttribute('dir', 'rtl');
   await nadia.goto('/plus');
   await nadia.getByRole('button', { name: 'داكن' }).click();
@@ -254,6 +255,7 @@ test('les écrans des commandes et des clients en arabe, en thème sombre', asyn
   await expect(nadia.getByLabel('الولاية').locator('option:checked')).toHaveText('69 · الأبيض سيدي الشيخ');
   await nadia.goto('/plus');
   await nadia.getByRole('button', { name: 'فاتح' }).click();
+  await nadia.goto('/plus');
   await nadia.getByRole('button', { name: /Français/ }).click();
 });
 

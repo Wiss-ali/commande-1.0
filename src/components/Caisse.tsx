@@ -3,7 +3,7 @@
 // Le catalogue est chargé une fois dans le téléphone : la recherche et le scan sont immédiats,
 // et la vente reste possible si la connexion coupe. Une vente non envoyée est gardée dans le téléphone
 // avec sa clé : elle part dès que la connexion revient, sans jamais être comptée deux fois.
-import { Minus, Plus, ScanLine, Search, Trash2, WifiOff, X } from 'lucide-react';
+import { Minus, Package, Plus, ScanLine, Search, Trash2, WifiOff, X } from 'lucide-react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -22,6 +22,7 @@ export interface ArticleCaisse {
   code: string | null;
   prix: number;
   stock: number;
+  photo: string | null;
 }
 interface VenteEnAttente {
   lignes: { varianteId: string; quantite: number }[];
@@ -33,6 +34,9 @@ interface VenteEnAttente {
 type Fin = { etat: 'envoyee'; resultat: Extract<ResultatVente, { ok: true }>; rendu: number | null } | { etat: 'gardee'; total: number; rendu: number | null };
 
 const CHAMPS_CLIENT = ['nom', 'telephone', 'adresse', 'nif', 'rc', 'nis', 'ai'] as const;
+/** Produits affichés d'un coup dans la grille (« Voir plus » pour la suite) : le téléphone reste rapide. */
+const PAR_PAGE = 60;
+const sansAccents = (texte: string) => texte.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
 function lireFile(cle: string): VenteEnAttente[] {
   try {
@@ -51,6 +55,7 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
   const cleFile = `hanout.ventes.${magasin}`;
   const [panier, setPanier] = useState<Map<string, number>>(new Map());
   const [recherche, setRecherche] = useState('');
+  const [nbVisibles, setNbVisibles] = useState(PAR_PAGE);
   const [scan, setScan] = useState(false);
   const [paiement, setPaiement] = useState(false);
   const [recu, setRecu] = useState('');
@@ -67,10 +72,12 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
   const nom = useCallback((a: ArticleCaisse) => `${langue === 'ar' ? a.nomAr || a.nomFr : a.nomFr || a.nomAr}${a.libelle ? ` · ${a.libelle}` : ''}`, [langue]);
   const lignes = [...panier].flatMap(([id, quantite]) => (parId.has(id) ? [{ article: parId.get(id)!, quantite }] : []));
   const total = lignes.reduce((s, l) => s + l.article.prix * l.quantite, 0);
-  const trouves = useMemo(() => {
-    const q = recherche.trim().toLowerCase();
-    if (!q) return [];
-    return articles.filter((a) => a.nomFr.toLowerCase().includes(q) || a.nomAr.includes(q) || a.libelle.toLowerCase().includes(q) || a.code === q).slice(0, 8);
+  // Grille de la caisse : tous les produits (les plus vendus d'abord, voir la page), filtrés par la recherche.
+  // Sans tenir compte des accents : « the » trouve « Thé ».
+  const filtres = useMemo(() => {
+    const q = sansAccents(recherche.trim());
+    if (!q) return articles;
+    return articles.filter((a) => sansAccents(a.nomFr).includes(q) || a.nomAr.includes(q) || sansAccents(a.libelle).includes(q) || a.code === recherche.trim());
   }, [recherche, articles]);
 
   const ajouter = useCallback((id: string, n = 1) => {
@@ -197,7 +204,7 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
           <span className="text-sm font-medium">{t('chercher')}</span>
           <span className="relative block">
             <Search aria-hidden className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-doux" />
-            <input type="search" value={recherche} onChange={(e) => setRecherche(e.target.value)} maxLength={80} autoComplete="off" className="min-h-12 w-full rounded-xl border border-trait bg-surface ps-9 pe-3 text-base text-encre" />
+            <input type="search" value={recherche} onChange={(e) => { setRecherche(e.target.value); setNbVisibles(PAR_PAGE); }} maxLength={80} autoComplete="off" className="min-h-12 w-full rounded-xl border border-trait bg-surface ps-9 pe-3 text-base text-encre" />
           </span>
         </label>
         <button type="button" onClick={() => setScan((s) => !s)} aria-pressed={scan} className={`${classeBouton.secondaire} min-h-12`}>
@@ -205,22 +212,6 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
           {t('scanner')}
         </button>
       </div>
-      {recherche.trim() ? (
-        trouves.length ? (
-          <ul className="flex flex-col gap-1">
-            {trouves.map((a) => (
-              <li key={a.id}>
-                <button type="button" onClick={() => { ajouter(a.id); setRecherche(''); }} className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-trait bg-surface px-3 py-2 text-start">
-                  <span className="min-w-0 truncate text-sm font-semibold">{nom(a)}</span>
-                  <span className="shrink-0 text-sm">{formaterMontant(a.prix, langue)}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-sm text-doux">{t('rienTrouve')}</p>
-        )
-      ) : null}
       {scan ? <Scanner onCode={surCode} /> : null}
       <div aria-live="polite">{message && !paiement ? <Message ton={message.ton}>{message.texte}</Message> : null}</div>
 
@@ -243,8 +234,42 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
           ))}
         </ul>
       ) : (
-        <p className="rounded-xl border border-dashed border-trait px-4 py-8 text-center text-sm text-doux">{t('panierVide')}</p>
+        <p className="rounded-xl border border-dashed border-trait px-4 py-4 text-center text-sm text-doux">{t('panierVide')}</p>
       )}
+
+      <section aria-labelledby="caisse-produits" className="flex flex-col gap-2">
+        <h2 id="caisse-produits" className="text-xs font-semibold uppercase tracking-wide text-doux">{t('produits')}</h2>
+        {filtres.length ? (
+          <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
+            {filtres.slice(0, nbVisibles).map((a) => {
+              const dansPanier = panier.get(a.id) ?? 0;
+              return (
+                <li key={a.id}>
+                  <button
+                    type="button"
+                    onClick={() => { ajouter(a.id); if (recherche) setRecherche(''); }}
+                    className={`relative flex h-full w-full flex-col gap-1 rounded-xl border bg-surface p-1.5 text-start active:scale-[.98] ${dansPanier ? 'border-prim ring-1 ring-prim' : 'border-trait'}`}
+                  >
+                    <span className="flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-lg bg-creux text-doux">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {a.photo ? <img src={a.photo} alt="" loading="lazy" className="size-full object-cover" /> : <Package aria-hidden className="size-6" />}
+                    </span>
+                    <span className="line-clamp-2 text-xs font-semibold leading-snug">{nom(a)}</span>
+                    <span className="mt-auto text-xs font-bold">{formaterMontant(a.prix, langue)}</span>
+                    {a.stock <= 0 ? <span className="text-[11px] font-medium text-terre">{t('rupture')}</span> : null}
+                    {dansPanier ? <><span aria-hidden className="chiffres absolute end-1 top-1 inline-flex min-w-6 items-center justify-center rounded-full bg-prim px-1.5 text-xs font-bold text-sur-prim">{dansPanier}</span><span className="sr-only">{t('produitDansPanier', { n: dansPanier })}</span></> : null}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p className="text-sm text-doux">{t('rienTrouve')}</p>
+        )}
+        {filtres.length > nbVisibles ? (
+          <button type="button" onClick={() => setNbVisibles((n) => n + PAR_PAGE)} className={classeBouton.secondaire}>{t('voirPlus', { n: filtres.length - nbVisibles })}</button>
+        ) : null}
+      </section>
 
       <div className="sticky bottom-24 z-10 flex items-center gap-3 rounded-2xl border border-trait bg-surface shadow-doux p-3 shadow-lg md:bottom-4">
         <div className="min-w-0 flex-1">

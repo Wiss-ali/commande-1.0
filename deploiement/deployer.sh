@@ -11,6 +11,11 @@ ENV="${1:?prod ou test}"; ACTION="${2:-}"
 [[ "$ENV" =~ ^(prod|test)$ ]] || { echo "Environnement : prod ou test" >&2; exit 2; }
 D="secrets/$ENV"
 [ -e "$D/compose.env" ] || { echo "Lancez d'abord : ./installer.sh environnement $ENV <domaine>" >&2; exit 2; }
+# Rappel : la clé privée des sauvegardes ne doit pas rester sur le serveur (une fois copiée chez vous).
+for CLE in secrets/*/CLE-PRIVEE-A-RECUPERER.asc; do
+  [ -e "$CLE" ] && echo "⚠ La clé privée des sauvegardes est encore sur le serveur : $(pwd)/$CLE
+  Si elle est bien copiée sur votre ordinateur, effacez-la : rm $(pwd)/$CLE" >&2
+done
 
 compose() { local v="$1"; shift; VERSION="$v" docker compose -p "hanout-$ENV" --env-file "$D/compose.env" -f compose.yml "$@"; }
 attendre_sain() {

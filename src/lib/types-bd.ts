@@ -45,6 +45,7 @@ export interface Utilisateurs {
   totp_secret_chiffre: string | null;
   totp_actif: Generated<boolean>;
   codes_secours: Generated<string[]>;
+  totp_dernier_pas: number | null;
   echecs: Generated<number>;
   bloque_jusqua: HorodatageNul;
   desactive: Generated<boolean>;
@@ -60,6 +61,7 @@ export interface Administrateurs {
   totp_secret_chiffre: string | null;
   totp_actif: Generated<boolean>;
   codes_secours: Generated<string[]>;
+  totp_dernier_pas: number | null;
   echecs: Generated<number>;
   bloque_jusqua: HorodatageNul;
   cree_le: Generated<Date>;

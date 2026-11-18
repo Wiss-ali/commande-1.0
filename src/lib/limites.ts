@@ -21,3 +21,21 @@ export async function autoriser(usage: string, sujet: string, max: number, fenet
 export async function purgerLimites(): Promise<void> {
   await sql`DELETE FROM limites_debit WHERE debut < now() - interval '1 day'`.execute(bd('auth'));
 }
+
+/** Vrai si le compteur a déjà atteint `max` dans sa fenêtre en cours (sans compter un essai de plus). */
+export async function limiteAtteinte(usage: string, sujet: string, max: number, fenetreSecondes: number): Promise<boolean> {
+  const cle = empreinte(sujet, `limite:${usage}`);
+  const r = await sql<{ compteur: number }>`
+    SELECT compteur FROM limites_debit WHERE cle = ${cle} AND debut >= now() - make_interval(secs => ${fenetreSecondes})`.execute(bd('auth'));
+  return (r.rows[0]?.compteur ?? 0) >= max;
+}
+
+/** Ajoute un essai au compteur (par exemple un échec de connexion). */
+export async function compterEssai(usage: string, sujet: string, fenetreSecondes: number): Promise<void> {
+  await autoriser(usage, sujet, Number.MAX_SAFE_INTEGER, fenetreSecondes);
+}
+
+/** Remet un compteur à zéro (par exemple après une connexion réussie). */
+export async function oublierEssais(usage: string, sujet: string): Promise<void> {
+  await sql`DELETE FROM limites_debit WHERE cle = ${empreinte(sujet, `limite:${usage}`)}`.execute(bd('auth'));
+}

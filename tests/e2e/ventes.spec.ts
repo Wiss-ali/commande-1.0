@@ -69,13 +69,15 @@ test.beforeAll(async ({ browser }) => {
 
 test('vente en caisse : recherche, scan, monnaie à rendre, ticket', async () => {
   await salim.goto('/caisse');
-  await expect(salim.getByText('Scannez ou cherchez un produit pour commencer la vente.')).toBeVisible();
+  await expect(salim.getByText('Touchez un produit plus bas, scannez ou cherchez pour commencer la vente.')).toBeVisible();
+  // Tous les produits sont affichés, sans rien chercher.
+  await expect(salim.getByRole('heading', { name: 'Produits' })).toBeVisible();
   await expect(salim.getByRole('button', { name: 'Encaisser' })).toBeDisabled();
   await salim.getByRole('searchbox', { name: 'Chercher un produit' }).fill('thé');
   await salim.getByRole('button', { name: /Thé vert/ }).click();
   // Le scan ajoute le café vu par l'appareil photo, une seule fois.
   await salim.getByRole('button', { name: 'Scanner' }).click();
-  await expect(salim.getByText('Café moulu', { exact: true })).toBeVisible({ timeout: 20_000 });
+  await expect(salim.getByRole('button', { name: 'Ajouter un : Café moulu' })).toBeVisible({ timeout: 20_000 });
   await salim.getByRole('button', { name: 'Scanner' }).click();
   await salim.getByRole('button', { name: 'Ajouter un : Café moulu' }).click();
   await expect(salim.getByText('620 DA')).toBeVisible();
@@ -380,8 +382,9 @@ test('un autre commerçant ne voit ni les documents ni les PDF', async ({ browse
 });
 
 test('tous les écrans de la caisse et des factures en arabe, en thème sombre', async () => {
-  await salim.goto('/factures');
-  await salim.getByRole('button', { name: /العربية/ }).click();
+  // La langue se choisit dans « Plus » (et sur les pages publiques).
+  await salim.goto('/plus');
+  await salim.getByRole('button', { name: 'العربية' }).click();
   await expect(salim.locator('html')).toHaveAttribute('dir', 'rtl');
   await salim.goto('/plus');
   await salim.getByRole('button', { name: 'داكن' }).click();
@@ -403,6 +406,7 @@ test('tous les écrans de la caisse et des factures en arabe, en thème sombre',
   expect((await pdf.body()).subarray(0, 5).toString()).toBe('%PDF-');
   await salim.goto('/plus');
   await salim.getByRole('button', { name: 'فاتح' }).click();
+  await salim.goto('/plus');
   await salim.getByRole('button', { name: /Français/ }).click();
 });
 

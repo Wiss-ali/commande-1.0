@@ -13,14 +13,20 @@ export const nouveauSecretTotp = () => new Secret({ size: 20 }).base32;
 /** Adresse otpauth:// à afficher en QR code. */
 export const adresseTotp = (secretBase32: string, compte: string) => totp(secretBase32, compte).toString();
 
-/** Accepte le code courant, le précédent et le suivant (décalage d'horloge). */
-export function codeTotpValide(secretBase32: string, code: string): boolean {
+/**
+ * Accepte le code courant, le précédent et le suivant (décalage d'horloge).
+ * Renvoie la tranche de 30 secondes du code (pour refuser qu'il serve deux fois), ou null s'il est faux.
+ */
+export function pasTotpValide(secretBase32: string, code: string, maintenant = Date.now()): number | null {
   const propre = code.replace(/\s/g, '');
-  if (!/^\d{6}$/.test(propre)) return false;
-  return totp(secretBase32, 'x').validate({ token: propre, window: 1 }) !== null;
+  if (!/^\d{6}$/.test(propre)) return null;
+  const ecart = totp(secretBase32, 'x').validate({ token: propre, window: 1, timestamp: maintenant });
+  return ecart === null ? null : Math.floor(maintenant / 30_000) + ecart;
 }
 
-export const codeTotpActuel = (secretBase32: string) => totp(secretBase32, 'x').generate();
+export const codeTotpValide = (secretBase32: string, code: string): boolean => pasTotpValide(secretBase32, code) !== null;
+
+export const codeTotpActuel = (secretBase32: string, maintenant = Date.now()) => totp(secretBase32, 'x').generate({ timestamp: maintenant });
 
 /** Dix codes de secours à usage unique. Seules leurs empreintes sont stockées. */
 export function nouveauxCodesSecours(): { clairs: string[]; hashes: string[] } {

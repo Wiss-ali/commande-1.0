@@ -1,7 +1,7 @@
 // Invitations, connexion, blocage, double authentification, sessions.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { avecCommercant, bd, fermerBD } from '../../src/lib/bd.ts';
-import { activerTotp, connecterAdmin, connecterUtilisateur, preparerTotp, verifierCode } from '../../src/lib/comptes.ts';
+import { activerTotp, connecterAdmin, connecterUtilisateur, preparerTotp, retenirAppareil, verifierCode } from '../../src/lib/comptes.ts';
 import { accepterInvitation, inviterCommercant, inviterEmploye, lireInvitation, reinitialiserEmploye, reinitialiserProprietaire, reinviterCommercant } from '../../src/lib/invitations.ts';
 import { autoriser } from '../../src/lib/limites.ts';
 import { creerSession, supprimerSession, trouverSession } from '../../src/lib/sessions.ts';
@@ -118,10 +118,28 @@ describe('connexion', () => {
     expect((await connecterUtilisateur({ telephone: c.telephone, motDePasse: MDP, ip: null })).ok).toBe(true);
   });
 
-  it('bloque le compte après cinq échecs, même avec le bon mot de passe ensuite', async () => {
+  it('bloque l\'adresse après cinq échecs, même avec le bon mot de passe ensuite, sans bloquer le titulaire ailleurs', async () => {
     const c = await creerCommercant(admin.id, 'Blocage');
-    for (let i = 0; i < 5; i++) await connecterUtilisateur({ telephone: c.telephone, motDePasse: 'faux', ip: `10.1.${i}.1` });
-    expect(await connecterUtilisateur({ telephone: c.telephone, motDePasse: MDP, ip: '10.1.9.1' })).toEqual({ ok: false, raison: 'bloque' });
+    for (let i = 0; i < 5; i++) await connecterUtilisateur({ telephone: c.telephone, motDePasse: 'faux', ip: '10.1.0.1' });
+    expect(await connecterUtilisateur({ telephone: c.telephone, motDePasse: MDP, ip: '10.1.0.1' })).toEqual({ ok: false, raison: 'bloque' });
+    expect((await connecterUtilisateur({ telephone: c.telephone, motDePasse: MDP, ip: '10.1.9.1' })).ok).toBe(true);
+  });
+
+  it('même réponse de blocage pour un numéro inconnu', async () => {
+    for (let i = 0; i < 5; i++) await connecterUtilisateur({ telephone: '0500000099', motDePasse: 'faux', ip: '10.2.0.1' });
+    expect(await connecterUtilisateur({ telephone: '0500000099', motDePasse: 'faux', ip: '10.2.0.1' })).toEqual({ ok: false, raison: 'bloque' });
+  });
+
+  it('beaucoup d\'échecs depuis plusieurs adresses limitent le numéro, mais pas un appareil reconnu', async () => {
+    const c = await creerCommercant(admin.id, 'Appareil');
+    const appareils = await retenirAppareil(c.proprietaireId, []);
+    for (let i = 0; i < 20; i++) await connecterUtilisateur({ telephone: c.telephone, motDePasse: 'faux', ip: `10.3.${i}.1` });
+    expect(await connecterUtilisateur({ telephone: c.telephone, motDePasse: MDP, ip: '10.3.99.1' })).toEqual({ ok: false, raison: 'trop_de_tentatives' });
+    expect((await connecterUtilisateur({ telephone: c.telephone, motDePasse: MDP, ip: '10.3.99.1', appareils })).ok).toBe(true);
+    // Un jeton falsifié ou d'un autre compte ne compte pas.
+    const autre = await creerCommercant(admin.id, 'Autre appareil');
+    const faux = await retenirAppareil(autre.proprietaireId, []);
+    expect(await connecterUtilisateur({ telephone: c.telephone, motDePasse: MDP, ip: '10.3.99.1', appareils: faux })).toEqual({ ok: false, raison: 'trop_de_tentatives' });
   });
 
   it('refuse un compte bloqué par le propriétaire ou un commerçant suspendu, et coupe leurs sessions', async () => {
@@ -161,11 +179,16 @@ describe('double authentification', () => {
 
     const secret = await preparerTotp('administrateurs', admin.id);
     expect(await activerTotp('administrateurs', admin.id, '000000')).toBeNull();
-    const codes = await activerTotp('administrateurs', admin.id, codeTotpActuel(secret));
+    const avant = Date.now() - 30_000;
+    const codes = await activerTotp('administrateurs', admin.id, codeTotpActuel(secret, avant));
     expect(codes).toHaveLength(10);
     expect(await connecterAdmin({ identifiant: admin.identifiant, motDePasse: MDP, ip: '10.9.9.9' })).toMatchObject({ ok: true, totpActif: true });
 
-    expect(await verifierCode('administrateurs', admin.id, codeTotpActuel(secret))).toBe(true);
+    // Le code d'activation ne resert pas ; le code suivant est accepté une seule fois.
+    expect(await verifierCode('administrateurs', admin.id, codeTotpActuel(secret, avant))).toBe(false);
+    const suivant = codeTotpActuel(secret);
+    expect(await verifierCode('administrateurs', admin.id, suivant)).toBe(true);
+    expect(await verifierCode('administrateurs', admin.id, suivant)).toBe(false);
     expect(await verifierCode('administrateurs', admin.id, '123456')).toBe(false);
     expect(await verifierCode('administrateurs', admin.id, codes![0]!)).toBe(true);
     expect(await verifierCode('administrateurs', admin.id, codes![0]!)).toBe(false);

@@ -183,7 +183,7 @@ test('le vendeur est prévenu, retrouve le devis par le numéro du ticket, et co
   await devis.click();
   await yasmine.getByRole('link', { name: /Commande n° 1/ }).click();
   await expect(yasmine.getByText('Nouvelle', { exact: true }).first()).toBeVisible();
-  await expect(yasmine.getByText('Boutique en ligne')).toBeVisible();
+  await expect(yasmine.getByRole('main').getByText('Boutique en ligne')).toBeVisible();
   await expect(yasmine.getByText(/Stock réservé jusqu'au/)).toBeVisible();
   await yasmine.getByRole('button', { name: 'Envoi : préparer le colis' }).click();
   await expect(yasmine.getByText('Confirmée', { exact: true }).first()).toBeVisible();
@@ -274,8 +274,9 @@ test('la boutique et le module en arabe, en thème sombre', async () => {
     await acheteur.screenshot({ path: `${CAPTURES}/${nom}-ar-sombre.png`, fullPage: true });
   }
   await expect(acheteur.getByText('التذكرة رقم 1')).toBeVisible();
-  await yasmine.goto('/boutique');
-  await yasmine.getByRole('button', { name: /العربية/ }).click();
+  // La langue se choisit dans « Plus » (et sur les pages publiques).
+  await yasmine.goto('/plus');
+  await yasmine.getByRole('button', { name: 'العربية' }).click();
   await expect(yasmine.locator('html')).toHaveAttribute('dir', 'rtl');
   await yasmine.goto('/plus');
   await yasmine.getByRole('button', { name: 'داكن' }).click();
@@ -285,6 +286,7 @@ test('la boutique et le module en arabe, en thème sombre', async () => {
   await yasmine.screenshot({ path: `${CAPTURES}/module-boutique-ar-sombre.png`, fullPage: true });
   await yasmine.goto('/plus');
   await yasmine.getByRole('button', { name: 'فاتح' }).click();
+  await yasmine.goto('/plus');
   await yasmine.getByRole('button', { name: /Français/ }).click();
 });
 

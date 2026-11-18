@@ -2,11 +2,11 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { action, actionSimple, secret, texte } from '@/lib/actions';
-import { connecterUtilisateur, verifierCode } from '@/lib/comptes';
+import { connecterUtilisateur, retenirAppareil, verifierCode } from '@/lib/comptes';
 import { config } from '@/lib/config';
 import { normaliserTelephone } from '@/lib/formats';
 import { accepterInvitation, lireInvitation } from '@/lib/invitations';
-import { fermerSession, infoRequete, ouvrirSession, sessionUtilisateur } from '@/lib/web';
+import { appareilsConnus, fermerSession, infoRequete, ouvrirSession, poserAppareils, sessionUtilisateur } from '@/lib/web';
 import { bd } from '@/lib/bd';
 
 async function reprendreLangue(utilisateurId: string) {
@@ -15,16 +15,22 @@ async function reprendreLangue(utilisateurId: string) {
   if (u) (await cookies()).set('langue', u.langue, { path: '/', maxAge: 365 * 24 * 3600, sameSite: 'lax', secure: config().https });
 }
 
+/** Connexion complète : ce téléphone devient un appareil reconnu pour cette personne. */
+async function connexionComplete(utilisateurId: string) {
+  await poserAppareils(await retenirAppareil(utilisateurId, await appareilsConnus()));
+  await reprendreLangue(utilisateurId);
+}
+
 export const seConnecter = action(async (f) => {
   const telephone = normaliserTelephone(texte(f, 'telephone', 30));
   const motDePasse = secret(f, 'motDePasse');
   if (!telephone || !motDePasse) return { erreur: 'identifiants' };
   const { ip } = await infoRequete();
-  const r = await connecterUtilisateur({ telephone, motDePasse, ip });
+  const r = await connecterUtilisateur({ telephone, motDePasse, ip, appareils: await appareilsConnus() });
   if (!r.ok) return { erreur: r.raison };
   await ouvrirSession({ utilisateurId: r.id, commercantId: r.commercantId! }, !r.totpActif);
   if (r.totpActif) redirect('/connexion/code');
-  await reprendreLangue(r.id);
+  await connexionComplete(r.id);
   redirect('/');
 });
 
@@ -34,7 +40,7 @@ export const verifierCodeConnexion = action(async (f) => {
   if (s.complete) redirect('/');
   if (!(await verifierCode('utilisateurs', s.utilisateur.id, texte(f, 'code', 20)))) return { erreur: 'code_invalide' };
   await ouvrirSession({ utilisateurId: s.utilisateur.id, commercantId: s.commercant.id }, true);
-  await reprendreLangue(s.utilisateur.id);
+  await connexionComplete(s.utilisateur.id);
   redirect('/');
 });
 

@@ -2,6 +2,18 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 18/11/2026 — Revue d'ensemble, sécurité de la connexion, caisse en grille, menu sur ordinateur, langue dans « Plus »
+
+- **Revue demandée par le propriétaire** (simplicité, liens entre modules, défauts, sécurité). Bilan : architecture solide (RLS forcée, chiffrement des champs, Argon2id, CSP stricte, entrées vérifiées). Propositions faites ; le propriétaire a choisi : sécurité 1, 3, 4, 5 et simplicité 2 (caisse : tous les produits, les plus vendus en haut), 5 et 6. Le reste n'est pas touché (longueur des mots de passe, bouton « Commandes » en bas, client reconnu, liste des communes).
+- **Clé privée de sauvegarde** (point 1) : elle ne peut être effacée que sur le serveur, par le propriétaire. `deployer.sh` affiche maintenant un avertissement à chaque lancement tant qu'un fichier `secrets/*/CLE-PRIVEE-A-RECUPERER.asc` existe.
+- **`picomatch`** (point 3) : vérifié à nouveau, **aucune version corrigée n'existe** ; la seule « correction » proposée par `npm audit fix --force` rétrograde vitest (cassant). Outils de développement seulement, rien en production. Laissé en l'état ; correction annoncée par erreur dans la revue, signalé au propriétaire.
+- **Blocage de compte** (point 4) : un inconnu ne peut plus bloquer le compte d'un commerçant. Les échecs sont comptés par numéro **et** par adresse (ou par appareil reconnu), dans `limites_debit`, de la même façon que le numéro existe ou non (le message « bloqué » ne révèle plus qu'un compte existe, texte changé en fr/ar). Limite globale de 20 échecs par heure et par numéro contre les attaques venant de beaucoup d'adresses, qui ne gêne pas un **appareil reconnu** : cookie `hanout-appareil` (jeton signé HMAC, lié au compte et à son mot de passe, 180 jours, 5 jetons au plus ; recommandation OWASP « device cookies »), posé après une connexion complète. Changer de mot de passe annule ces jetons. L'administrateur garde le blocage de compte. Colonnes `echecs` et `bloque_jusqua` des utilisateurs gardées mais plus utilisées à la connexion.
+- **Code de double authentification à usage unique** (point 5) : migration `0011_securite_connexion` (colonne `totp_dernier_pas` sur `utilisateurs` et `administrateurs`) ; un code déjà accepté (ou plus ancien) est refusé, le code d'activation compris ; mise à jour atomique (double envoi impossible).
+- **Caisse** : sous la recherche et le panier, grille de **tous les produits** (photo, nom, prix, « Rupture », pastille du nombre dans le panier), les plus vendus des 90 derniers jours en premier, puis par nom ; la recherche filtre la grille, sans tenir compte des accents ; 60 produits affichés, puis « Voir plus ».
+- **Ordinateur** : la colonne de gauche montre aussi Factures, Commandes, Boutique, Clients, Rapports et Réglages (selon les modules et le rôle). Défaut corrigé : le contenu passait de 16 px sous la colonne (`md:ps-56` → `md:ps-60`).
+- **Langue** : le bouton de langue n'est plus en haut de chaque écran du commerçant ; le choix est dans « Plus » (Français / العربية). Il reste sur la connexion, les invitations, la boutique publique et l'administration.
+- Tests : 145 tests ✅ (blocage par adresse, réponse identique pour un numéro inconnu, appareil reconnu et jeton falsifié, code TOTP rejoué) ; 74 parcours ✅ (adaptés : langue choisie dans « Plus », grille de la caisse, liens du menu d'ordinateur cachés sur téléphone).
+
 ## 18/11/2026 — Notifications : ouvrir une notification la marque comme lue
 
 - Retour du propriétaire : « quand on ouvre les notifications et qu'on va dessus, elles restent ». Avant, seule l'action « Tout marquer comme vu » les retirait.

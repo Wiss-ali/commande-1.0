@@ -62,6 +62,13 @@ export const basculerProduits = actionSimple(async (f) => {
   });
 });
 
+export const basculerRemises = actionSimple(async (f) => {
+  const accorder = f.get('accorder') === '1';
+  await surEmploye(f, accorder ? 'employe.remises.accorde' : 'employe.remises.retire', async (trx, id) => {
+    await trx.updateTable('utilisateurs').set({ peut_remiser: accorder }).where('id', '=', id).where('role', '=', 'vendeur').execute();
+  });
+});
+
 export const basculerBlocage = actionSimple(async (f) => {
   const bloquer = f.get('bloquer') === '1';
   const id = await surEmploye(f, bloquer ? 'employe.bloque' : 'employe.debloque', async (trx, cible) => {

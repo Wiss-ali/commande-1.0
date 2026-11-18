@@ -137,7 +137,7 @@ test('commande sans compte : frais de la wilaya, carte refusée avec le message,
   await acheteur.getByLabel('Nom et prénom').fill('Lydia Haddad');
   await acheteur.getByLabel('Téléphone').fill(telAcheteur);
   await acheteur.getByLabel('Wilaya').selectOption('16');
-  await acheteur.getByLabel('Commune').fill('Hydra');
+  await acheteur.locator('select[name=commune]').selectOption('Hydra');
   await expect(acheteur.getByText('8 200 DA')).toBeVisible(); // 6 500 + 1 200 + 500
   await acheteur.locator('label', { hasText: 'Point relais' }).click();
   await expect(acheteur.getByText('8 000 DA').last()).toBeVisible();

@@ -22,6 +22,9 @@ export const peut = (role: Role, droit: Droit): boolean => DROITS[role].has(droi
 export const autorise = (u: { role: Role; gereProduits: boolean }, droit: Droit): boolean =>
   peut(u.role, droit) || (droit === 'produits.gerer' && u.role === 'vendeur' && u.gereProduits);
 
+/** Faire une remise : le propriétaire toujours, un vendeur si le propriétaire le lui a accordé. */
+export const peutRemiser = (u: { role: Role; peutRemiser: boolean }): boolean => u.role === 'proprietaire' || (u.role === 'vendeur' && u.peutRemiser);
+
 /** Droit nécessaire pour ouvrir chaque module. */
 export const DROIT_MODULE: Record<NomModule, Droit> = {
   stock: 'preparer',

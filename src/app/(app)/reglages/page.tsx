@@ -1,4 +1,4 @@
-import { Building2, CalendarCheck, LayoutGrid, ReceiptText, ShieldCheck, Truck, UsersRound } from 'lucide-react';
+import { Building2, CalendarCheck, LayoutGrid, ReceiptText, ShieldCheck, Truck, UsersRound, PanelBottom } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { EnTete } from '@/components/EnTete';
 import { Page } from '@/components/Page';
@@ -19,6 +19,7 @@ export default async function Reglages() {
         <LigneLien href="/reglages/abonnement" titre={t('abonnement')} aide={t('abonnementAide')} icone={<CalendarCheck aria-hidden className="size-5" />} />
         <LigneLien href="/reglages/modules" titre={t('modules')} aide={t('modulesAide')} icone={<LayoutGrid aria-hidden className="size-5" />} />
         <LigneLien href="/reglages/securite" titre={t('securite')} aide={t('securiteAide')} icone={<ShieldCheck aria-hidden className="size-5" />} />
+        <LigneLien href="/reglages/barre" titre={t('barre')} aide={t('barreAide')} icone={<PanelBottom aria-hidden className="size-5" />} />
       </Page>
     </>
   );

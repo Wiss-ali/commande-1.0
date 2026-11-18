@@ -14,7 +14,8 @@ const TEXTES = { fr: { ...fr.pdf, ...fr.export }, ar: { ...ar.pdf, ...ar.export 
 
 export async function GET(requete: Request) {
   const s = await sessionUtilisateur();
-  if (!s?.complete || !autorise(s.utilisateur, 'rapports') || !s.commercant.modules.rapports) return new Response(null, { status: 401 });
+  // Accessible depuis Rapports ou depuis Factures : l'un des deux modules suffit.
+  if (!s?.complete || !autorise(s.utilisateur, 'rapports') || !(s.commercant.modules.rapports || s.commercant.modules.factures)) return new Response(null, { status: 401 });
   const url = new URL(requete.url);
   const p = periodeLibre(url.searchParams.get('du') ?? '', url.searchParams.get('au') ?? '');
   // Adresse publique de l'application : derrière un proxy, l'adresse de la requête peut être interne.

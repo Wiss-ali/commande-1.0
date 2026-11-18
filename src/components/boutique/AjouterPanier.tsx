@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { formaterMontant } from '@/lib/formats';
 import type { Langue } from '@/lib/types-bd';
+import { signalerPub } from './MesurePub';
 import { ajouterAuPanier } from './panier';
 
 interface Variante {
@@ -59,6 +60,7 @@ export function AjouterPanier({ sd, base, produitId, nom, variantes, direct }: {
         disabled={epuise}
         onClick={() => {
           ajouterAuPanier(sd, { varianteId: v.varianteId, produitId, nom, libelle: v.libelle, prix: v.prix, max: v.disponible }, quantite);
+          signalerPub('AddToCart', { valeur: v.prix * quantite, produitId });
           setAjoute(true);
           if (direct) window.location.assign(`${base}/panier`);
         }}

@@ -6,7 +6,9 @@ import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { z } from 'zod';
 import { texte } from '@/lib/actions';
+import { avecCommercant } from '@/lib/bd';
 import { creerTicket, fraisPublics, trouverBoutique } from '@/lib/boutique';
+import { listerCommunes } from '@/lib/commandes';
 import { config } from '@/lib/config';
 import type { Etat } from '@/lib/etat';
 import { prevenirVendeurs } from '@/lib/notifier';
@@ -26,12 +28,16 @@ async function appareil(): Promise<string> {
   return id;
 }
 
-export async function fraisLivraison(sousDomaine: string, wilaya: number, livraison: string): Promise<{ domicile: number | null; relais: number | null }> {
+export async function fraisLivraison(sousDomaine: string, wilaya: number, livraison: string): Promise<{ domicile: number | null; relais: number | null; communes: { nom_fr: string; nom_ar: string }[] }> {
   const v = typeof sousDomaine === 'string' ? await trouverBoutique(sousDomaine) : null;
-  if (!v || !Number.isInteger(wilaya) || wilaya < 1 || wilaya > 99) return { domicile: null, relais: null };
+  if (!v || !Number.isInteger(wilaya) || wilaya < 1 || wilaya > 99) return { domicile: null, relais: null, communes: [] };
   void livraison;
-  const [domicile, relais] = await Promise.all([fraisPublics(v.commercantId, wilaya, 'domicile'), fraisPublics(v.commercantId, wilaya, 'point_relais')]);
-  return { domicile, relais };
+  // Les communes de la wilaya arrivent avec les frais : l'acheteur les choisit dans une liste.
+  const [domicile, relais, communes] = await Promise.all([
+    fraisPublics(v.commercantId, wilaya, 'domicile'), fraisPublics(v.commercantId, wilaya, 'point_relais'),
+    avecCommercant(v.commercantId, (trx) => listerCommunes(trx, wilaya)),
+  ]);
+  return { domicile, relais, communes };
 }
 
 /** Valide le panier : crée le ticket, prévient le vendeur, puis ouvre la page du ticket (lien privé). */

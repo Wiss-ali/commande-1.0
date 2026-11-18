@@ -197,7 +197,8 @@ test('le propriétaire invite un préparateur, qui ne voit que ce que son rôle 
   await expect(samir.getByRole('heading', { name: 'Bonjour, Samir' })).toBeVisible();
 
   // Un préparateur n'a ni la caisse, ni les réglages, ni l'équipe.
-  await expect(samir.getByRole('navigation').getByRole('link')).toHaveText(['Accueil', 'Scan', 'Stock', 'Plus']);
+  // Barre par défaut complétée jusqu'à 4 entrées parmi ce qu'il peut ouvrir (ici : les commandes à préparer).
+  await expect(samir.getByRole('navigation').getByRole('link')).toHaveText(['Accueil', 'Scan', 'Stock', 'Commandes', 'Plus']);
   await expect(samir.getByRole('link', { name: 'Inviter mon équipe' })).toHaveCount(0);
   for (const chemin of ['/caisse', '/reglages', '/reglages/equipe', '/reglages/entreprise', '/reglages/modules', '/rapports']) {
     await samir.goto(chemin);
@@ -221,7 +222,7 @@ test('désactiver un module le retire des menus', async () => {
   await ali.getByLabel('Caisse').uncheck();
   await ali.getByRole('button', { name: 'Enregistrer' }).click();
   await expect(ali.getByRole('status')).toBeVisible();
-  await expect(ali.getByRole('navigation').getByRole('link')).toHaveText(['Accueil', 'Scan', 'Stock', 'Plus']);
+  await expect(ali.getByRole('navigation').getByRole('link')).toHaveText(['Accueil', 'Scan', 'Stock', 'Commandes', 'Plus']);
   await ali.goto('/caisse');
   await expect(ali).toHaveURL(/\/acces-refuse$/);
   await ali.goto('/reglages/modules');

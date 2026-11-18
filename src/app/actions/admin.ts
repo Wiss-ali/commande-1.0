@@ -268,3 +268,27 @@ export const enregistrerWilayas = action(async (f) => {
   revalidatePath('/admin/wilayas');
   return { ok: true };
 });
+
+/** Communes d'une wilaya : noms, commune proposée ou non, et ajout d'une commune oubliée. */
+export const enregistrerCommunes = action(async (f) => {
+  const s = await exigerAdmin();
+  const wilaya = Number(texte(f, 'wilaya', 3));
+  if (!Number.isInteger(wilaya) || wilaya < 1 || wilaya > 99) return { erreur: 'introuvable' };
+  const communes = await bd('plateforme').selectFrom('communes').select(['id']).where('wilaya_code', '=', wilaya).execute();
+  const lignes: { id: number; fr: string; ar: string; active: boolean }[] = [];
+  for (const { id } of communes) {
+    const fr = texte(f, `fr_${id}`, 80);
+    if (!fr) return { erreur: 'champ_requis' };
+    lignes.push({ id, fr, ar: texte(f, `ar_${id}`, 80), active: f.get(`active_${id}`) === 'on' });
+  }
+  const nouvelle = { fr: texte(f, 'nouvelle_fr', 80), ar: texte(f, 'nouvelle_ar', 80) };
+  if (new Set([...lignes.map((l) => l.fr.toLowerCase()), ...(nouvelle.fr ? [nouvelle.fr.toLowerCase()] : [])]).size !== lignes.length + (nouvelle.fr ? 1 : 0)) return { erreur: 'commune_double' };
+  await bd('plateforme').transaction().execute(async (trx) => {
+    for (const l of lignes) await trx.updateTable('communes').set({ nom_fr: l.fr, nom_ar: l.ar, active: l.active }).where('id', '=', l.id).execute();
+    if (nouvelle.fr) await trx.insertInto('communes').values({ wilaya_code: wilaya, nom_fr: nouvelle.fr, nom_ar: nouvelle.ar }).execute();
+    const { ip } = await infoRequete();
+    await journaliser(trx, { commercantId: null, acteurType: 'administrateur', acteurId: s.administrateur.id, action: 'communes.modifiees', details: { wilaya }, ip });
+  });
+  revalidatePath(`/admin/wilayas/${wilaya}`);
+  return { ok: true };
+});

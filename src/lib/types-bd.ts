@@ -42,6 +42,8 @@ export interface Utilisateurs {
   role: Role;
   langue: Generated<Langue>;
   gere_produits: Generated<boolean>;
+  peut_remiser: Generated<boolean>;
+  barre_bas: string[] | null;
   totp_secret_chiffre: string | null;
   totp_actif: Generated<boolean>;
   codes_secours: Generated<string[]>;
@@ -187,6 +189,7 @@ export interface MouvementsStock {
   auteur_id: string;
   inventaire_id: string | null;
   document_id: string | null;
+  arrivage_id: string | null;
   cle: string | null;
   cree_le: Generated<Date>;
 }
@@ -256,7 +259,11 @@ export interface CompteursDocuments {
 
 export type TypeDocument = 'devis' | 'proforma' | 'bon_commande' | 'bon_livraison' | 'facture' | 'avoir' | 'recu' | 'ticket';
 export type EtatDocument = 'emis' | 'en_attente' | 'transforme' | 'refuse' | 'expire';
-export type ModePaiement = 'especes' | 'a_la_livraison';
+/** Moyens d'encaissement choisis par le vendeur. */
+export type ModeEncaissement = 'especes' | 'cheque' | 'virement' | 'ccp' | 'autre';
+export const MODES_ENCAISSEMENT: readonly ModeEncaissement[] = ['especes', 'cheque', 'virement', 'ccp', 'autre'];
+/** Résumé porté par le document : le moyen, « à la livraison », ou « mixte » s'il y en a eu plusieurs. */
+export type ModePaiement = ModeEncaissement | 'a_la_livraison' | 'mixte';
 
 type Montant = ColumnType<string, number, number>;
 
@@ -300,7 +307,35 @@ export interface LignesDocument {
   total_ht: Montant;
   total_ttc: Montant;
   cout_unitaire: Montant;
+  remise: ColumnType<string, number | undefined, number>;
+  ligne_origine_id: string | null;
   ordre: number;
+}
+
+export interface Paiements {
+  id: Generated<string>;
+  commercant_id: string;
+  document_id: string;
+  montant: Montant;
+  mode: ModeEncaissement | 'a_la_livraison';
+  reference: Generated<string>;
+  piece_id: string | null;
+  session_caisse_id: string | null;
+  cree_par: string;
+  cree_le: Generated<Date>;
+}
+
+/** Vue : ce qui reste vendu après les avoirs (net) et ce qui a été payé, pour chaque facture ou ticket. */
+export interface SoldesDocuments {
+  document_id: string;
+  commercant_id: string;
+  client_id: string | null;
+  type: TypeDocument;
+  mode_vente: 'directe' | 'envoi' | null;
+  emis_le: Date;
+  total: string;
+  net: string;
+  paye: string;
 }
 
 export interface LiensDocuments {
@@ -319,6 +354,87 @@ export interface EcartsStock {
   cree_le: Generated<Date>;
   traite_le: HorodatageNul;
   traite_par: string | null;
+}
+
+export interface Fournisseurs {
+  id: Generated<string>;
+  commercant_id: string;
+  nom: string;
+  telephone: string | null;
+  note: Generated<string>;
+  archive_le: HorodatageNul;
+  cree_le: Generated<Date>;
+}
+
+export interface Arrivages {
+  id: Generated<string>;
+  commercant_id: string;
+  numero: number;
+  fournisseur_id: string | null;
+  reference: Generated<string>;
+  recu_le: ColumnType<Date, string | undefined, string>;
+  total: Montant;
+  note: Generated<string>;
+  cree_par: string;
+  cree_le: Generated<Date>;
+  cle: string | null;
+}
+
+export interface LignesArrivage {
+  id: Generated<string>;
+  commercant_id: string;
+  arrivage_id: string;
+  variante_id: string;
+  quantite: number;
+  cout_unitaire: Montant;
+}
+
+export interface PaiementsFournisseurs {
+  id: Generated<string>;
+  commercant_id: string;
+  fournisseur_id: string;
+  arrivage_id: string | null;
+  montant: Montant;
+  mode: ModeEncaissement;
+  reference: Generated<string>;
+  session_caisse_id: string | null;
+  cree_par: string;
+  cree_le: Generated<Date>;
+  cle: string | null;
+}
+
+export type CategorieDepense = 'loyer' | 'electricite_eau' | 'salaires' | 'transport' | 'fournitures' | 'entretien' | 'impots' | 'publicite' | 'autre';
+export const CATEGORIES_DEPENSE: readonly CategorieDepense[] = ['loyer', 'electricite_eau', 'salaires', 'transport', 'fournitures', 'entretien', 'impots', 'publicite', 'autre'];
+
+export interface Depenses {
+  id: Generated<string>;
+  commercant_id: string;
+  categorie: CategorieDepense;
+  libelle: Generated<string>;
+  montant: Montant;
+  depense_le: ColumnType<Date, string | undefined, string>;
+  mode: ModeEncaissement;
+  session_caisse_id: string | null;
+  cree_par: string;
+  cree_le: Generated<Date>;
+  annulee_le: HorodatageNul;
+  annulee_par: string | null;
+  cle: string | null;
+}
+
+export interface VersementsTransporteur {
+  id: Generated<string>;
+  commercant_id: string;
+  transporteur_id: string | null;
+  recu_le: ColumnType<Date, string | undefined, string>;
+  attendu: Montant;
+  recu: Montant;
+  mode: ModeEncaissement;
+  reference: Generated<string>;
+  note: Generated<string>;
+  cree_par: string;
+  cree_le: Generated<Date>;
+  cle: string | null;
 }
 
 export interface Wilayas {
@@ -387,6 +503,7 @@ export interface Commandes {
   modifie_le: Generated<Date>;
   ticket_hash: string | null;
   reservation_jusqua: HorodatageNul;
+  versement_id: string | null;
 }
 
 export type EvenementCommande = 'creee' | 'appel_sans_reponse' | 'statut' | 'modifiee' | 'expiree';
@@ -425,6 +542,8 @@ export interface Boutiques {
   plus_que: Generated<number>;
   reservation_heures: Generated<number>;
   modifie_le: Generated<Date>;
+  pixel_facebook: string | null;
+  pixel_tiktok: string | null;
 }
 
 export type TypeDemande = 'paiement_carte' | 'site_personnalise';
@@ -531,6 +650,14 @@ export interface BD {
   lignes_document: LignesDocument;
   liens_documents: LiensDocuments;
   ecarts_stock: EcartsStock;
+  paiements: Paiements;
+  fournisseurs: Fournisseurs;
+  arrivages: Arrivages;
+  lignes_arrivage: LignesArrivage;
+  paiements_fournisseurs: PaiementsFournisseurs;
+  depenses: Depenses;
+  versements_transporteur: VersementsTransporteur;
+  soldes_documents: SoldesDocuments;
   categories: Categories;
   produits: Produits;
   variantes: Variantes;

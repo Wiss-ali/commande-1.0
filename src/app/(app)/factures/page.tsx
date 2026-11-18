@@ -1,4 +1,4 @@
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Download } from 'lucide-react';
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { EnTete } from '@/components/EnTete';
@@ -8,6 +8,7 @@ import { avecCommercant } from '@/lib/bd';
 import { listerDocuments, numeroTexte } from '@/lib/documents';
 import { formaterDate, formaterMontant } from '@/lib/formats';
 import type { Langue, TypeDocument } from '@/lib/types-bd';
+import { peut } from '@/lib/droits';
 import { pageUtilisateur } from '@/lib/web';
 
 const PAR_PAGE = 30;
@@ -37,7 +38,7 @@ export default async function Factures({ searchParams }: { searchParams: Promise
 
   return (
     <>
-      <EnTete titre={t('titre')} retour="/plus" />
+      <EnTete titre={t('titre')} retour="/plus" fin={peut(s.utilisateur.role, 'rapports') ? <Link href="/rapports/export?depuis=factures" className="inline-flex min-h-11 items-center gap-1.5 rounded-xl border border-trait bg-surface px-3 text-sm font-semibold"><Download aria-hidden className="size-4" />{t('exporter')}</Link> : undefined} />
       <Page>
         <nav aria-label={t('onglets')} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
           {(Object.keys(ONGLETS) as Onglet[]).map((o) => (

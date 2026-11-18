@@ -10,17 +10,12 @@ import { pageUtilisateur } from '@/lib/web';
 export default async function NouvelleCommande() {
   const s = await pageUtilisateur('vendre', 'commandes');
   const t = await getTranslations('commandes');
-  const { wilayas, communes } = await avecCommercant(s.commercant.id, async (trx) => {
-    const c = await trx.selectFrom('communes').select(['wilaya_code', 'nom_fr']).where('active', '=', true).orderBy('nom_fr').execute();
-    const parWilaya: Record<number, string[]> = {};
-    for (const l of c) (parWilaya[l.wilaya_code] ??= []).push(l.nom_fr);
-    return { wilayas: await listerWilayas(trx), communes: parWilaya };
-  });
+  const wilayas = await avecCommercant(s.commercant.id, listerWilayas);
   return (
     <>
       <EnTete titre={t('nouvelle')} retour="/commandes" />
       <Page>
-        <FormulaireCommande cle={randomUUID()} wilayas={wilayas} communes={communes} />
+        <FormulaireCommande cle={randomUUID()} wilayas={wilayas} />
       </Page>
     </>
   );

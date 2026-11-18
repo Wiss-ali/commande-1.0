@@ -45,8 +45,20 @@ export function periodeLibre(du: string, au: string): Periode | null {
 
 const jourDe = (colonne: string) => sql.raw(`(${colonne} AT TIME ZONE '${FUSEAU}')::date`);
 const dans = (colonne: string, p: Periode) => sql`${jourDe(colonne)} BETWEEN ${p.du}::date AND ${p.au}::date`;
-/** Facture ou ticket pas annulé par un avoir. */
-const nonAnnule = (alias: string) => sql.raw(`NOT EXISTS (SELECT 1 FROM liens_documents l WHERE l.source_id = ${alias}.id AND l.nature = 'corrige_par')`);
+/**
+ * Lignes vendues nettes d'une période : les lignes des factures et tickets, moins les lignes rendues par leurs
+ * avoirs (comptées au jour de la vente). Une vente entièrement annulée s'efface ainsi d'elle-même, et un retour
+ * partiel ne retire que ce qui a été rendu.
+ */
+const lignesNettes = (p: Periode) => sql`(
+  SELECT d.id AS vente_id, d.emis_le, l.variante_id, l.quantite AS q, l.total_ht AS ht, l.quantite * l.cout_unitaire AS achat
+  FROM lignes_document l JOIN documents d ON d.id = l.document_id
+  WHERE d.type IN ('facture', 'ticket') AND ${dans('d.emis_le', p)}
+  UNION ALL
+  SELECT d.id, d.emis_le, l.variante_id, -l.quantite, -l.total_ht, -(l.quantite * l.cout_unitaire)
+  FROM lignes_document l JOIN liens_documents k ON k.cible_id = l.document_id AND k.nature = 'corrige_par' JOIN documents d ON d.id = k.source_id
+  WHERE d.type IN ('facture', 'ticket') AND ${dans('d.emis_le', p)}
+)`;
 
 // ───────────── Accueil ─────────────
 
@@ -64,12 +76,14 @@ export interface ChiffresAccueil {
   /** Caisse ouverte un jour passé et jamais clôturée. */
   caisseNonCloturee: boolean;
   clients: number;
+  /** Ce que les clients doivent encore (ventes à crédit), en centimes. */
+  creditsClients: number;
 }
 
 export async function chiffresAccueil(trx: Trx): Promise<ChiffresAccueil> {
   const aujourdhui = jourAlger();
   const r = await sql<{
-    ventes: string; nb: number; a_confirmer: number; a_expedier: number; en_route: number; ecarts: number; devis: number; caisse: boolean; clients: number;
+    ventes: string; nb: number; a_confirmer: number; a_expedier: number; en_route: number; ecarts: number; devis: number; caisse: boolean; clients: number; credits: string;
   }>`
     SELECT
       (SELECT coalesce(sum(total), 0) FROM documents WHERE type IN ('facture', 'ticket', 'avoir') AND ${jourDe('emis_le')} = ${aujourdhui}::date) AS ventes,
@@ -80,7 +94,8 @@ export async function chiffresAccueil(trx: Trx): Promise<ChiffresAccueil> {
       (SELECT count(*) FROM ecarts_stock WHERE traite_le IS NULL)::int AS ecarts,
       (SELECT count(*) FROM documents d WHERE d.type = 'devis' AND d.etat = 'en_attente' AND NOT EXISTS (SELECT 1 FROM commandes c WHERE c.devis_id = d.id))::int AS devis,
       EXISTS (SELECT 1 FROM sessions_caisse WHERE fermee_le IS NULL AND ${jourDe('ouverte_le')} < ${aujourdhui}::date) AS caisse,
-      (SELECT count(*) FROM clients)::int AS clients`.execute(trx);
+      (SELECT count(*) FROM clients)::int AS clients,
+      (SELECT coalesce(sum(net - paye), 0) FROM soldes_documents WHERE client_id IS NOT NULL AND (mode_vente IS NULL OR mode_vente <> 'envoi') AND net > paye) AS credits`.execute(trx);
   const s = await sql<{ bas: number; rupture: number }>`
     SELECT (count(*) FILTER (WHERE stock > 0 AND alertes > 0))::int AS bas, (count(*) FILTER (WHERE stock <= 0))::int AS rupture
     FROM (SELECT sum(s.quantite) AS stock, count(*) FILTER (WHERE s.quantite <= v.seuil_alerte) AS alertes
@@ -90,7 +105,7 @@ export async function chiffresAccueil(trx: Trx): Promise<ChiffresAccueil> {
   const st = s.rows[0]!;
   return {
     ventesJour: Number(l.ventes), nbVentesJour: l.nb, aConfirmer: l.a_confirmer, aExpedier: l.a_expedier, enRoute: l.en_route,
-    stockBas: st.bas + st.rupture, ruptures: st.rupture, ecarts: l.ecarts, devisEnAttente: l.devis, caisseNonCloturee: l.caisse, clients: l.clients,
+    stockBas: st.bas + st.rupture, ruptures: st.rupture, ecarts: l.ecarts, devisEnAttente: l.devis, caisseNonCloturee: l.caisse, clients: l.clients, creditsClients: Number(l.credits),
   };
 }
 
@@ -134,10 +149,10 @@ export interface RapportMarge {
 
 export async function rapportMarge(trx: Trx, p: Periode): Promise<RapportMarge> {
   const v = await sql<{ ventes: string; ttc: string; achat: string; nb: number }>`
-    SELECT coalesce(sum(d.total_ht), 0) AS ventes, coalesce(sum(d.total), 0) AS ttc, count(*)::int AS nb,
-      coalesce((SELECT sum(l.quantite * l.cout_unitaire) FROM lignes_document l JOIN documents x ON x.id = l.document_id
-        WHERE x.type IN ('facture', 'ticket') AND ${dans('x.emis_le', p)} AND ${nonAnnule('x')}), 0) AS achat
-    FROM documents d WHERE d.type IN ('facture', 'ticket') AND ${dans('d.emis_le', p)} AND ${nonAnnule('d')}`.execute(trx);
+    SELECT coalesce((SELECT sum(ht) FROM ${lignesNettes(p)} n), 0) AS ventes,
+      coalesce((SELECT sum(achat) FROM ${lignesNettes(p)} n), 0) AS achat,
+      coalesce(sum(s.net), 0) AS ttc, count(*)::int AS nb
+    FROM soldes_documents s WHERE ${dans('s.emis_le', p)} AND s.net <> 0`.execute(trx);
   const c = await sql<{ livraison: string; retours: string; nb: number }>`
     SELECT coalesce(sum(frais_livraison), 0) AS livraison,
       coalesce(sum(frais_livraison) FILTER (WHERE statut = 'retournee'), 0) AS retours,
@@ -148,8 +163,7 @@ export async function rapportMarge(trx: Trx, p: Periode): Promise<RapportMarge> 
   const serie = await sql<{ jour: string; valeur: string }>`
     WITH jours AS (SELECT j::date AS j FROM generate_series(${p.du}::date, ${p.au}::date, interval '1 day') j),
     ventes AS (
-      SELECT ${jourDe('d.emis_le')} AS j, sum(d.total_ht) - coalesce(sum((SELECT sum(l.quantite * l.cout_unitaire) FROM lignes_document l WHERE l.document_id = d.id)), 0) AS m
-      FROM documents d WHERE d.type IN ('facture', 'ticket') AND ${dans('d.emis_le', p)} AND ${nonAnnule('d')} GROUP BY 1),
+      SELECT ${jourDe('n.emis_le')} AS j, sum(n.ht) - sum(n.achat) AS m FROM ${lignesNettes(p)} n GROUP BY 1),
     livraisons AS (
       SELECT ${jourDe('expediee_le')} AS j, sum(frais_livraison) AS f FROM commandes WHERE expediee_le IS NOT NULL AND ${dans('expediee_le', p)} GROUP BY 1)
     SELECT to_char(${tronquer}, 'YYYY-MM-DD') AS jour, coalesce(sum(v.m), 0) - coalesce(sum(lv.f), 0) AS valeur
@@ -237,14 +251,13 @@ export interface ProduitVendu {
 
 export async function meilleursProduits(trx: Trx, p: Periode, limite = 10): Promise<ProduitVendu[]> {
   const r = await sql<{ produit_id: string; nom_fr: string; nom_ar: string; quantite: number; ventes: string; achat: string }>`
-    SELECT pr.id AS produit_id, pr.nom_fr, pr.nom_ar, sum(l.quantite)::int AS quantite, sum(l.total_ht) AS ventes, sum(l.quantite * l.cout_unitaire) AS achat
-    FROM lignes_document l
-    JOIN documents d ON d.id = l.document_id
-    JOIN variantes v ON v.id = l.variante_id
+    SELECT pr.id AS produit_id, pr.nom_fr, pr.nom_ar, sum(n.q)::int AS quantite, sum(n.ht) AS ventes, sum(n.achat) AS achat
+    FROM ${lignesNettes(p)} n
+    JOIN variantes v ON v.id = n.variante_id
     JOIN produits pr ON pr.id = v.produit_id
-    WHERE d.type IN ('facture', 'ticket') AND ${dans('d.emis_le', p)} AND ${nonAnnule('d')}
     GROUP BY pr.id, pr.nom_fr, pr.nom_ar
-    ORDER BY sum(l.total_ht) DESC, pr.nom_fr
+    HAVING sum(n.q) <> 0
+    ORDER BY sum(n.ht) DESC, pr.nom_fr
     LIMIT ${limite}`.execute(trx);
   return r.rows.map((l) => ({ produitId: l.produit_id, nom_fr: l.nom_fr, nom_ar: l.nom_ar, quantite: l.quantite, ventes: Number(l.ventes), marge: Number(l.ventes) - Number(l.achat) }));
 }

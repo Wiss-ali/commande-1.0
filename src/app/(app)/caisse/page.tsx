@@ -2,6 +2,7 @@ import { sql } from 'kysely';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { Caisse, type ArticleCaisse } from '@/components/Caisse';
+import { peutRemiser } from '@/lib/droits';
 import { EnTete } from '@/components/EnTete';
 import { Page } from '@/components/Page';
 import { classeBouton, EtatVide, Message } from '@/components/ui';
@@ -37,12 +38,17 @@ export default async function PageCaisse() {
 
   return (
     <>
-      <EnTete titre={t('titre')} fin={<Link href="/caisse/cloture" className="inline-flex min-h-11 items-center rounded-xl border border-trait bg-surface px-3 text-sm font-semibold">{t('cloture')}</Link>} />
+      <EnTete titre={t('titre')} fin={
+        <span className="flex gap-2">
+          <Link href="/caisse/depenses" className="inline-flex min-h-11 items-center rounded-xl border border-trait bg-surface px-3 text-sm font-semibold">{t('depenses')}</Link>
+          <Link href="/caisse/cloture" className="inline-flex min-h-11 items-center rounded-xl border border-trait bg-surface px-3 text-sm font-semibold">{t('cloture')}</Link>
+        </span>
+      } />
       <Page>
         {s.commercant.etat !== 'actif' ? (
           <Message ton="info">{t('lectureSeule')}</Message>
         ) : articles.length ? (
-          <Caisse articles={articles} magasin={s.commercant.id} />
+          <Caisse articles={articles} magasin={s.commercant.id} remises={peutRemiser(s.utilisateur)} />
         ) : (
           <EtatVide titre={t('videTitre')} texte={t('videTexte')}>
             <Link href="/stock" className={`${classeBouton.secondaire} mt-2`}>{t('allerStock')}</Link>

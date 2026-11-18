@@ -19,7 +19,12 @@
     "scan": "Scan",
     "stock": "Stock",
     "plus": "Plus",
-    "principale": "Navigation principale"
+    "principale": "Navigation principale",
+    "commandes": "Commandes",
+    "factures": "Factures",
+    "clients": "Clients",
+    "boutique": "Boutique",
+    "rapports": "Rapports"
   },
   "modules": {
     "stock": "Stock",
@@ -110,7 +115,8 @@
       "ruptures": "{n, plural, one {# produit en rupture de stock} other {# produits en rupture de stock}}",
       "devis": "{n, plural, one {# devis en attente de réponse} other {# devis en attente de réponse}}",
       "caisse": "La caisse d'un jour passé n'est pas clôturée",
-      "archive": "Téléchargez l'archive du mois dernier pour votre comptable"
+      "archive": "Téléchargez l'archive du mois dernier pour votre comptable",
+      "credits": "Vos clients vous doivent {montant}"
     },
     "carte": {
       "alertes": "{n} en alerte",
@@ -143,7 +149,9 @@
     "themeSombre": "Sombre",
     "themeAuto": "Automatique",
     "autresModules": "Autres modules",
-    "aucunModule": "Aucun autre module actif. Activez-les dans les réglages."
+    "aucunModule": "Aucun autre module actif. Activez-les dans les réglages.",
+    "barre": "Barre du bas",
+    "barreAide": "Choisir les 4 raccourcis en bas de l'écran"
   },
   "reglages": {
     "titre": "Réglages",
@@ -160,7 +168,9 @@
     "livraison": "Livraison",
     "livraisonAide": "Transporteurs et frais par wilaya.",
     "abonnement": "Abonnement",
-    "abonnementAide": "Formule, date de fin, paiements."
+    "abonnementAide": "Formule, date de fin, paiements.",
+    "barre": "Barre du bas",
+    "barreAide": "Vos 4 raccourcis en bas de l'écran (chaque personne choisit les siens)"
   },
   "entreprise": {
     "titre": "Informations légales",
@@ -196,7 +206,10 @@
     "droitProduits": "Ce vendeur peut ajouter et modifier les produits (il ne voit jamais le prix d'achat). Sans effet pour un préparateur.",
     "gereProduits": "Gère les produits",
     "accorderProduits": "Autoriser à gérer les produits",
-    "retirerProduits": "Retirer la gestion des produits"
+    "retirerProduits": "Retirer la gestion des produits",
+    "peutRemiser": "Peut faire des remises",
+    "accorderRemises": "Autoriser les remises",
+    "retirerRemises": "Retirer les remises"
   },
   "modulesReglages": {
     "titre": "Modules",
@@ -374,7 +387,21 @@
     "produit_indisponible": "Un article de votre panier n'est plus proposé. Retirez-le puis réessayez.",
     "nom_pris": "Ce nom est déjà utilisé.",
     "duree_invalide": "Durée invalide : un nombre de jours entre 1 et 1100 (30 pour un mois, 365 pour un an).",
-    "date_invalide": "Date invalide (pas de date dans le futur)."
+    "date_invalide": "Date invalide (pas de date dans le futur).",
+    "remise_invalide": "Remise invalide : elle ne peut pas dépasser le montant.",
+    "paiement_invalide": "Paiement invalide : vérifiez le moyen et le montant (pas plus que ce qui reste à payer).",
+    "client_credit": "Pour une vente à crédit, indiquez le nom du client.",
+    "retour_invalide": "Retour invalide : choisissez au moins un article, sans dépasser la quantité vendue.",
+    "rien_a_payer": "Ce client ne vous doit rien.",
+    "commune_invalide": "Cette commune n'est pas dans la wilaya choisie. Choisissez-la dans la liste.",
+    "commune_double": "Deux communes portent le même nom dans cette wilaya.",
+    "pixel_invalide": "Identifiant de pixel invalide : seulement l'identifiant (chiffres pour Facebook, majuscules et chiffres pour TikTok), pas de code.",
+    "fournisseur_requis": "Choisissez un fournisseur pour enregistrer un paiement.",
+    "categorie_invalide": "Choisissez le type de dépense.",
+    "colis_invalides": "Choisissez des colis livrés qui ne sont pas encore reversés.",
+    "caisse_cloturee": "La caisse de cette journée est déjà clôturée : ce n'est plus modifiable.",
+    "trop_de_photos": "6 photos au plus par produit. Retirez-en une d'abord.",
+    "barre_invalide": "Choisissez de 1 à 4 entrées différentes."
   },
   "pageErreur": {
     "titre": "Quelque chose n'a pas marché",
@@ -421,7 +448,9 @@
     "aVerifierTitre": "Stock à vérifier ({n})",
     "aVerifierTexte": "Ces produits ont été vendus alors que le stock connu ne suffisait pas. Comptez-les et corrigez le stock.",
     "aVerifierLigne": "{n} vendu(s) sans stock connu ·",
-    "verifie": "Vérifié"
+    "verifie": "Vérifié",
+    "arrivage": "Arrivage",
+    "fournisseurs": "Fournisseurs"
   },
   "produit": {
     "nouveauTitre": "Nouveau produit",
@@ -465,7 +494,15 @@
     "retablir": "Rétablir le produit",
     "archiver": "Archiver",
     "tauxTva": "TVA de ce produit (%)",
-    "tauxTvaAide": "Laissez vide pour le taux par défaut ({taux})."
+    "tauxTvaAide": "Laissez vide pour le taux par défaut ({taux}).",
+    "photosTitre": "Photos ({n} sur {max})",
+    "photoN": "Photo {n}",
+    "photoPrincipale": "Principale",
+    "mettrePremier": "En premier",
+    "retirerPhotoN": "Retirer la photo {n}",
+    "retirerPhotoCourt": "Retirer",
+    "ajouterPhoto": "Ajouter cette photo",
+    "nouvellePhoto": "Nouvelle photo"
   },
   "mouvement": {
     "titre": "Historique du stock",
@@ -659,7 +696,20 @@
     "payeLivraison": "Paiement à la livraison.",
     "mentionProforma": "Facture proforma : ce document n'est pas une facture et n'a pas de valeur comptable.",
     "cachet": "Cachet et signature",
-    "signatureClient": "Reçu par (nom et signature)"
+    "signatureClient": "Reçu par (nom et signature)",
+    "remise": "Remise",
+    "remiseTotale": "Remise",
+    "payeLe": "Payé le",
+    "rembourseLe": "Remboursé le",
+    "dejaPaye": "Déjà payé :",
+    "resteDu": "Reste à payer :",
+    "mode_especes": "espèces",
+    "mode_cheque": "chèque",
+    "mode_virement": "virement",
+    "mode_ccp": "CCP / BaridiMob",
+    "mode_autre": "autre moyen",
+    "mode_a_la_livraison": "à la livraison",
+    "mode_mixte": "plusieurs moyens"
   },
   "caisse": {
     "titre": "Caisse",
@@ -703,7 +753,33 @@
     "clientTelephone": "Téléphone du client",
     "clientPro": "Client professionnel : adresse, NIF, RC…",
     "envoi": "Envoi…",
-    "valider": "Valider la vente"
+    "valider": "Valider la vente",
+    "remiseSur": "Remise sur : {article}",
+    "remiseLigne": "Remise sur cet article",
+    "remiseAide": "En DA (ex. 200) ou en pour cent (ex. 10 %).",
+    "remiseTotal": "Remise sur le total",
+    "sousTotal": "Avant remise",
+    "modePaiement": "Comment le client paie",
+    "mode_especes": "Espèces",
+    "mode_cheque": "Chèque",
+    "mode_virement": "Virement",
+    "mode_ccp": "CCP / BaridiMob",
+    "mode_autre": "Autre",
+    "mode_credit": "À crédit",
+    "creditTexte": "Le client paie plus tard. La somme s'ajoute à ce qu'il vous doit, visible sur sa fiche.",
+    "payeMaintenant": "Payé maintenant en espèces (DA)",
+    "payeMaintenantAide": "Facultatif. Laissez vide si le client ne paie rien aujourd'hui.",
+    "payeMaintenantFaux": "Le montant payé maintenant doit être plus petit que le total.",
+    "reference": "Référence (facultatif)",
+    "referenceAide": "Numéro du chèque, du virement ou de la transaction.",
+    "secondMoyen": "Second moyen",
+    "montantSecond": "Montant payé par ce second moyen (DA)",
+    "montantSecondAide": "Le reste est payé en : {mode}.",
+    "unSeulMoyen": "Un seul moyen",
+    "deuxMoyens": "Payer avec deux moyens",
+    "secondFaux": "Vérifiez le second moyen : un autre moyen, et un montant plus petit que le total.",
+    "clientCredit": "Pour une vente à crédit, notez qui doit l'argent.",
+    "depenses": "Dépenses"
   },
   "cloture": {
     "titre": "Clôture de caisse",
@@ -731,7 +807,8 @@
     "especes": "Espèces encaissées",
     "remboursements": "Remboursements",
     "attendues": "Espèces attendues",
-    "ecart": "Écart"
+    "ecart": "Écart",
+    "sorties": "Sorties (dépenses, fournisseurs)"
   },
   "factures": {
     "titre": "Factures",
@@ -769,7 +846,8 @@
       "tickets": "Chaque vente en caisse crée un ticket.",
       "autres": "Proformas, bons de commande, bons de livraison, avoirs et reçus apparaîtront ici."
     },
-    "voirPlus": "Voir plus"
+    "voirPlus": "Voir plus",
+    "exporter": "Exporter"
   },
   "document": {
     "enregistrer": "Enregistrer",
@@ -831,7 +909,11 @@
     "annulerTexte": "Un document émis ne se modifie pas : il s'annule par un avoir, qui garde la trace. Si la vente était payée en espèces, la somme est comptée comme rendue.",
     "annulerBouton": "Créer l'avoir",
     "remettreStock": "Remettre les articles en stock",
-    "commandeLiee": "Commande"
+    "commandeLiee": "Commande",
+    "remiseLigne": "Remise sur la ligne (DA)",
+    "remiseLigneAide": "Facultatif.",
+    "remiseGlobale": "Remise sur le total (DA)",
+    "remiseGlobaleAide": "Facultatif. Elle est répartie entre les lignes pour garder une TVA juste."
   },
   "facturation": {
     "titre": "Facturation",
@@ -972,7 +1054,9 @@
     "documents": "Documents",
     "historique": "Historique",
     "chercherArticle": "Chercher",
-    "reserveJusqua": "Stock réservé jusqu'au {date}"
+    "reserveJusqua": "Stock réservé jusqu'au {date}",
+    "choisirCommune": "Choisir la commune",
+    "versements": "Argent reçu"
   },
   "clients": {
     "titre": "Clients",
@@ -986,7 +1070,7 @@
     "depuis": "Client depuis le",
     "depense": "Total dépensé",
     "tauxRetour": "Taux de retour",
-    "resume": "{achats, plural, =0 {Aucune facture} one {# facture} other {# factures}} · {commandes, plural, =0 {aucune commande} one {# commande} other {# commandes}} : {livrees} livrée(s), {retournees} retournée(s), {annulees} annulée(s).",
+    "resume": "{achats, plural, =0 {Aucun achat} one {# achat} other {# achats}} · {commandes, plural, =0 {aucune commande} one {# commande} other {# commandes}} : {livrees} livrée(s), {retournees} retournée(s), {annulees} annulée(s).",
     "commandes": "Commandes",
     "documents": "Documents",
     "aucunDocument": "Aucun document.",
@@ -994,7 +1078,16 @@
     "supprimerTitre": "Supprimer les données de ce client",
     "supprimerBouton": "Supprimer ses données",
     "supprimerTexte": "À faire seulement si le client le demande. Son nom, son téléphone et ses adresses sont effacés. Ses factures restent conservées telles quelles, comme la loi l'exige pour les documents comptables.",
-    "supprimerConfirmer": "Le client a demandé la suppression de ses données"
+    "supprimerConfirmer": "Le client a demandé la suppression de ses données",
+    "filtres": "Filtres",
+    "tous": "Tous",
+    "doivent": "Ils vous doivent",
+    "totalDu": "Vos clients vous doivent {montant} au total.",
+    "depuisLe": "Doit depuis le",
+    "doit": "Doit {montant}",
+    "personneDoitTitre": "Personne ne vous doit d'argent",
+    "personneDoitTexte": "Les ventes à crédit apparaîtront ici jusqu'à ce qu'elles soient payées.",
+    "resteDu": "Il vous doit encore"
   },
   "livraison": {
     "titre": "Livraison",
@@ -1046,7 +1139,10 @@
       "livraison": "Livraison payée au transporteur",
       "retours": "{n, plural, =0 {Aucun colis retourné.} one {# colis retourné : {montant} de livraison perdue.} other {# colis retournés : {montant} de livraison perdue.}}",
       "panier": "{n, plural, =0 {Aucune vente} one {# vente} other {# ventes}} · panier moyen {panier}",
-      "explication": "Marge réelle = ventes hors taxe − prix d'achat des articles vendus − frais de livraison des colis expédiés (même s'ils reviennent). Les factures annulées par un avoir sont retirées. Les frais comptés sont ceux facturés au client."
+      "explication": "Marge réelle = ventes hors taxe − prix d'achat des articles vendus − frais de livraison des colis expédiés (même s'ils reviennent). Les factures annulées par un avoir sont retirées. Les frais comptés sont ceux facturés au client.",
+      "benefice": "Bénéfice net (marge moins dépenses)",
+      "aucuneDepense": "Aucune dépense notée sur cette période.",
+      "voirDepenses": "Voir et noter les dépenses"
     },
     "commandes": {
       "confirmation": "Taux de confirmation",
@@ -1126,7 +1222,13 @@
     "colNbFactures": "Factures",
     "colDepense": "Total payé",
     "paiement_especes": "Espèces",
-    "paiement_a_la_livraison": "À la livraison"
+    "paiement_a_la_livraison": "À la livraison",
+    "colDu": "Reste dû (DA)",
+    "paiement_cheque": "Chèque",
+    "paiement_virement": "Virement",
+    "paiement_ccp": "CCP / BaridiMob",
+    "paiement_autre": "Autre",
+    "paiement_mixte": "Plusieurs moyens"
   },
   "boutique": {
     "panierCompte": "{n, plural, =0 {Panier vide} one {Panier : # article} other {Panier : # articles}}",
@@ -1194,7 +1296,11 @@
     "reserveJusqua": "Vos articles sont réservés jusqu'au {date}.",
     "gardezLien": "Gardez ce lien pour retrouver votre ticket plus tard. Ne le partagez qu'avec le vendeur.",
     "lienTicket": "Lien privé de votre ticket",
-    "messageWhatsapp": "Bonjour, je confirme ma commande, ticket n° {numero}."
+    "messageWhatsapp": "Bonjour, je confirme ma commande, ticket n° {numero}.",
+    "choisirCommune": "Choisir votre commune",
+    "mentionPixels": "Cette boutique mesure l'efficacité de ses publicités (Facebook, TikTok) : pages vues et montant des commandes, sans vos coordonnées.",
+    "photos": "{n} photos",
+    "photoN": "Photo {n}"
   },
   "notifications": {
     "titre": "Notifications",
@@ -1300,7 +1406,17 @@
     "carteTitre": "Paiement par carte",
     "carteActive": "Le paiement par carte est autorisé par l'administrateur, mais aucune passerelle n'est encore branchée : le paiement à la livraison reste le seul mode.",
     "carteInactive": "Seul le paiement à la livraison est actif. Le paiement par carte (CIB, Edahabia) s'active sur demande auprès de l'administrateur.",
-    "demanderActivation": "Demander l'activation"
+    "demanderActivation": "Demander l'activation",
+    "pixelsTitre": "Mesure des publicités (Facebook, TikTok)",
+    "pixelsActifs": "Activée",
+    "pixelsInactifs": "Désactivée",
+    "pixelsTexte": "Si vous faites de la publicité sur Facebook, Instagram ou TikTok, collez ici l'identifiant de votre pixel : vous verrez combien de commandes vos publicités apportent. Laissez vide pour ne rien activer. Seuls la page vue, le produit et le montant de la commande sont envoyés, jamais le nom ni le téléphone de l'acheteur. Une mention l'indique en bas de votre boutique.",
+    "pixelFacebook": "Identifiant du pixel Facebook / Instagram",
+    "pixelFacebookAide": "Une suite de chiffres, par exemple 123456789012345 (Gestionnaire d'événements de Meta).",
+    "pixelTiktok": "Identifiant du pixel TikTok",
+    "pixelTiktokAide": "Lettres majuscules et chiffres, par exemple C1A2B3C4D5E6F7G8H9I0 (TikTok Ads Manager).",
+    "pixelsEnregistrer": "Enregistrer les pixels",
+    "pixelsEnregistres": "Enregistré. Les pixels sont actifs sur votre boutique en ligne."
   },
   "moyens": {
     "ccp": "CCP",
@@ -1340,7 +1456,11 @@
     "texte": "Liste officielle (décret 26-206 pour les wilayas 59 à 69, à vérifier au Journal officiel). Une wilaya décochée n'est plus proposée dans les commandes ; rien n'est supprimé.",
     "active": "Proposée",
     "nomFr": "Nom en français",
-    "nomAr": "Nom en arabe"
+    "nomAr": "Nom en arabe",
+    "communes": "Communes",
+    "communesDe": "Communes de {wilaya}",
+    "communesTexte": "Liste reprise de la loi 26-06 (1 541 communes), d'après un jeu de données ouvert vérifié contre le Journal officiel. Corrigez un nom, décochez une commune, ou ajoutez-en une. Les commandes déjà passées gardent la commune écrite.",
+    "ajouterCommune": "Ajouter une commune"
   },
   "adminAbonnement": {
     "titre": "Abonnement",
@@ -1390,5 +1510,158 @@
     "modulesTitre": "Modules compris",
     "renouveler": "Pour renouveler ou changer de formule, payez par CCP, BaridiMob, virement ou en espèces, puis prévenez l'administrateur : il enregistre le paiement et votre abonnement est prolongé.",
     "paiements": "Vos paiements"
+  },
+  "paiement": {
+    "titre": "Paiements",
+    "rendu": "Rendu au client",
+    "retourPartiel": "Retour partiel",
+    "payeeEnPartie": "Payée en partie",
+    "commentPaye": "Comment le client paie",
+    "pasEncorePaye": "Pas encore payé (à crédit)",
+    "encaisserTitre": "Encaisser un paiement",
+    "encaisserTexte": "Reste à payer : {reste}. Le client peut payer en plusieurs fois : un reçu est créé à chaque paiement.",
+    "mode": "Moyen de paiement",
+    "montant": "Montant reçu (DA)",
+    "montantAide": "Vide : tout ce qui reste à payer.",
+    "reference": "Référence (facultatif)",
+    "referenceAide": "Numéro du chèque, du virement ou de la transaction.",
+    "retourTitre": "Retour d'une partie",
+    "retourTexte": "Le client rapporte seulement certains articles. Indiquez combien pour chacun : un avoir est créé pour eux seuls.",
+    "retourBouton": "Faire l'avoir de ces articles",
+    "auPlus": "au plus {n}",
+    "modeRemboursement": "Si de l'argent est rendu, comment",
+    "versementBouton": "Enregistrer le versement",
+    "versementFait": "Versement enregistré. Les reçus sont dans ses documents.",
+    "versementTexte": "La somme règle d'abord les ventes les plus anciennes. Un reçu est créé pour chacune."
+  },
+  "fournisseurs": {
+    "titre": "Fournisseurs",
+    "nouvelArrivage": "Nouvel arrivage",
+    "voirArrivages": "Tous les arrivages",
+    "arrivagesTitre": "Arrivages de marchandise",
+    "totalDu": "Vous devez {montant} à vos fournisseurs.",
+    "onDoit": "On lui doit {montant}",
+    "avance": "Avance de {montant}",
+    "rienDu": "Rien à payer",
+    "videTitre": "Aucun fournisseur",
+    "videTexte": "Ajoutez votre grossiste ou fabricant pour suivre vos achats et ce que vous lui devez.",
+    "aucunArchive": "Aucun fournisseur archivé",
+    "aucunArchiveTexte": "Les fournisseurs archivés apparaissent ici.",
+    "voirArchives": "Voir les fournisseurs archivés",
+    "voirActifs": "Voir les fournisseurs actifs",
+    "ajouterTitre": "Ajouter un fournisseur",
+    "ajouter": "Ajouter le fournisseur",
+    "nom": "Nom",
+    "telephone": "Téléphone",
+    "note": "Note (facultatif)",
+    "noteAide": "Par exemple : jours de livraison, conditions de paiement.",
+    "duTitre": "Vous lui devez",
+    "avanceTitre": "Il vous doit (avance versée)",
+    "payerTitre": "Payer ce fournisseur",
+    "payer": "Enregistrer le paiement",
+    "paye": "Paiement enregistré.",
+    "payerAide": "En espèces, la somme est prise dans la caisse ouverte : elle compte à la clôture.",
+    "montant": "Montant (DA)",
+    "mode": "Moyen de paiement",
+    "reference": "Référence",
+    "referenceAide": "Numéro de la facture ou du bon du fournisseur.",
+    "arrivages": "Arrivages",
+    "paiements": "Paiements",
+    "aucunArrivage": "Aucun arrivage pour l'instant.",
+    "aucunPaiement": "Aucun paiement pour l'instant.",
+    "numeroArrivage": "Arrivage n° {n}",
+    "modifier": "Modifier ce fournisseur",
+    "enregistrer": "Enregistrer",
+    "enregistre": "Enregistré.",
+    "archiver": "Archiver ce fournisseur",
+    "retablir": "Rétablir ce fournisseur",
+    "sansFournisseur": "Sans fournisseur",
+    "aucunArrivageTitre": "Aucun arrivage",
+    "aucunArrivageTexte": "Quand la marchandise arrive, enregistrez-la ici : le stock et le prix d'achat se mettent à jour tout seuls.",
+    "recuLe": "Reçu le",
+    "saisiPar": "Saisi par {nom} le",
+    "total": "Total",
+    "payeArrivage": "Payé pour cet arrivage",
+    "stockEntre": "Le stock de chaque article est entré, et son prix d'achat mis à jour (coût moyen).",
+    "enregistrerArrivage": "Enregistrer l'arrivage",
+    "fournisseur": "Fournisseur",
+    "articlesRecus": "Articles reçus",
+    "stockActuel": "En stock : {n}",
+    "retirer": "Retirer : {article}",
+    "quantiteRecue": "Quantité reçue",
+    "prixPaye": "Prix payé par unité (DA)",
+    "ajouterArticle": "Ajouter un article (nom ou code)",
+    "chercher": "Chercher",
+    "prixAchatActuel": "achat : {prix}",
+    "rienTrouve": "Aucun article trouvé.",
+    "payeMaintenantTitre": "Paiement au fournisseur",
+    "payeMaintenant": "Payé maintenant (DA)",
+    "payeMaintenantAide": "Vide : rien de payé, tout est dû au fournisseur.",
+    "sansFournisseurAide": "Sans fournisseur choisi, l'achat n'est pas suivi dans les dettes. Le stock entre quand même.",
+    "coutMoyenAide": "Le nouveau prix d'achat de chaque article est la moyenne entre le stock actuel et ce qui arrive (coût moyen pondéré).",
+    "lectureSeule": "Compte en lecture seule : l'arrivage n'est pas possible."
+  },
+  "depenses": {
+    "titre": "Dépenses",
+    "ajouterTitre": "Noter une dépense",
+    "ajouter": "Enregistrer la dépense",
+    "ajoutee": "Dépense enregistrée.",
+    "categorie": "Type de dépense",
+    "cat": {
+      "loyer": "Loyer",
+      "electricite_eau": "Électricité, eau, gaz",
+      "salaires": "Salaires",
+      "transport": "Transport",
+      "fournitures": "Fournitures, emballages",
+      "entretien": "Entretien, réparations",
+      "impots": "Impôts et taxes",
+      "publicite": "Publicité",
+      "autre": "Autre"
+    },
+    "montant": "Montant (DA)",
+    "libelle": "Détail (facultatif)",
+    "libelleAide": "Par exemple : facture Sonelgaz de mars.",
+    "date": "Date",
+    "mode": "Payée par",
+    "parCaisse": "Payée avec l'argent de la caisse (espèces) : elle sera déduite à la clôture",
+    "ceMois": "Ce mois-ci",
+    "totalMois": "Total du mois :",
+    "dansLaCaisse": "prise dans la caisse",
+    "annulee": "Annulée",
+    "annuler": "Annuler (saisie par erreur)",
+    "videTitre": "Aucune dépense ce mois-ci",
+    "videTexte": "Notez le loyer, l'électricité, les salaires… pour connaître votre vrai bénéfice."
+  },
+  "versements": {
+    "titre": "Argent des colis livrés",
+    "aReverser": "{n, plural, =0 {Aucun colis livré à reverser} one {# colis livré pas encore reversé par le transporteur} other {# colis livrés pas encore reversés par le transporteur}}",
+    "texte": "Le transporteur vous a versé l'argent ? Cochez les colis concernés et indiquez la somme reçue. L'écart avec ce que les clients ont payé est noté comme frais retenus.",
+    "colis": "Colis concernés",
+    "sansTransporteur": "Transporteur non indiqué",
+    "recu": "Somme reçue (DA)",
+    "recuAide": "Ce que le transporteur vous a réellement versé, après ses frais.",
+    "date": "Reçu le",
+    "mode": "Reçu par",
+    "reference": "Référence (facultatif)",
+    "enregistrer": "Enregistrer le versement",
+    "enregistre": "Versement enregistré.",
+    "rienTitre": "Rien à recevoir",
+    "rienTexte": "Tous les colis livrés ont été reversés par le transporteur.",
+    "historique": "Versements reçus",
+    "plusieurs": "Plusieurs transporteurs",
+    "detail": "{n, plural, one {# colis} other {# colis}}",
+    "frais": "frais retenus {montant}",
+    "aucun": "Aucun versement pour l'instant.",
+    "retourCommandes": "Retour aux commandes"
+  },
+  "barre": {
+    "titre": "Barre du bas",
+    "texte": "Choisissez les 4 écrans que vous ouvrez le plus : ils seront toujours en bas de l'écran. Ce choix ne vaut que pour vous ; chaque personne de l'équipe a le sien.",
+    "position": "Place {n}",
+    "vide": "(rien)",
+    "plusFin": "« Plus » reste toujours à la fin : il ouvre tout le reste.",
+    "enregistrer": "Enregistrer ma barre",
+    "enregistre": "Enregistré.",
+    "parDefaut": "Revenir à la barre par défaut"
   }
 }

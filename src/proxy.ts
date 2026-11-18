@@ -11,17 +11,26 @@ export function boutiqueDeHote(hote: string | null): string | null {
   return /^[a-z0-9]([a-z0-9-]{1,38}[a-z0-9])$/.test(nom) && nom !== 'www' ? nom : null;
 }
 
+/**
+ * Pixels publicitaires (Facebook, TikTok) : leur code, chargé par un script portant le nonce ('strict-dynamic'),
+ * envoie ses mesures à ces adresses. Autorisées seulement sur les pages publiques des boutiques, jamais dans
+ * l'espace de gestion ; rien n'est chargé tant que le commerçant n'a pas activé un pixel.
+ */
+const MESURE_PUB = 'https://www.facebook.com https://connect.facebook.net https://analytics.tiktok.com https://analytics-ipv6.tiktok.com';
+
 export function proxy(requete: NextRequest) {
   const nonce = btoa(crypto.randomUUID());
   const dev = process.env.NODE_ENV !== 'production';
   const https = (process.env.URL_APP ?? '').startsWith('https://');
+  const sousDomaine = boutiqueDeHote(requete.headers.get('host'));
+  const pagePublique = !!sousDomaine || requete.nextUrl.pathname.startsWith('/b/');
   const csp = [
     `default-src 'self'`,
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval'${dev ? ` 'unsafe-eval'` : ''}`,
     dev ? `style-src 'self' 'unsafe-inline'` : `style-src 'self' 'nonce-${nonce}'`,
-    `img-src 'self' blob: data:`,
+    `img-src 'self' blob: data:${pagePublique ? ` ${MESURE_PUB}` : ''}`,
     `font-src 'self'`,
-    `connect-src 'self'${dev ? ' ws:' : ''}`,
+    `connect-src 'self'${dev ? ' ws:' : ''}${pagePublique ? ` ${MESURE_PUB}` : ''}`,
     `media-src 'self' blob:`,
     `worker-src 'self' blob:`,
     `manifest-src 'self'`,
@@ -38,7 +47,6 @@ export function proxy(requete: NextRequest) {
   // Boutique sur son sous-domaine (« nom.mondomaine.dz ») : même application, pages de /b/nom.
   // Les liens de la boutique sont alors écrits sans le préfixe /b/nom (en-tête x-boutique-base).
   entetes.delete('x-boutique-base');
-  const sousDomaine = boutiqueDeHote(requete.headers.get('host'));
   let reponse: NextResponse;
   if (sousDomaine && !requete.nextUrl.pathname.startsWith('/_next')) {
     entetes.set('x-boutique-base', '');

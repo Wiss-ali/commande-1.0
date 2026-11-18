@@ -19,7 +19,7 @@ interface Wilaya {
   nom_ar: string;
 }
 
-export function FormulaireCommande({ cle, wilayas, communes }: { cle: string; wilayas: Wilaya[]; communes: Record<number, string[]> }) {
+export function FormulaireCommande({ cle, wilayas }: { cle: string; wilayas: Wilaya[] }) {
   const t = useTranslations('commandes');
   const langue = useLocale() as Langue;
   const [telephone, setTelephone] = useState('');
@@ -33,6 +33,7 @@ export function FormulaireCommande({ cle, wilayas, communes }: { cle: string; wi
   const [trouves, setTrouves] = useState<ArticleScan[] | null>(null);
   const [scan, setScan] = useState(false);
   const [inconnu, setInconnu] = useState(false);
+  const [communes, setCommunes] = useState<{ wilaya: number; liste: { nom_fr: string; nom_ar: string }[] }>({ wilaya: 0, liste: [] });
 
   // Frais de la grille et alerte du téléphone, demandés au serveur quand la saisie change.
   useEffect(() => {
@@ -41,6 +42,7 @@ export function FormulaireCommande({ cle, wilayas, communes }: { cle: string; wi
     infosSaisie(wilaya, livraison, '')
       .then((r) => {
         if (!actif) return;
+        setCommunes({ wilaya, liste: r.communes });
         setFraisGrille(r.frais);
         setFrais(r.frais === null ? '' : montantPourSaisie(r.frais));
       })
@@ -78,7 +80,7 @@ export function FormulaireCommande({ cle, wilayas, communes }: { cle: string; wi
   const nom = (a: ArticleScan) => `${nomLocal(a, langue)}${a.libelle ? ` · ${a.libelle}` : ''}`;
   const articles = lignes.reduce((s, l) => s + Number(l.article.prixVente) * l.quantite, 0);
   const total = articles + (analyserMontant(frais) ?? 0);
-  const listeCommunes = communes[wilaya] ?? [];
+  const listeCommunes = communes.wilaya === wilaya ? communes.liste : [];
 
   return (
     <Formulaire action={nouvelleCommande} bouton={t('enregistrer')} garder>
@@ -101,8 +103,17 @@ export function FormulaireCommande({ cle, wilayas, communes }: { cle: string; wi
             {wilayas.map((w) => <option key={w.code} value={w.code}>{`${String(w.code).padStart(2, '0')} · ${nomLocal(w, langue)}`}</option>)}
           </select>
         </label>
-        <Champ libelle={t('commune')} name="commune" maxLength={80} autoComplete="off" required list={listeCommunes.length ? 'communes' : undefined} />
-        {listeCommunes.length ? <datalist id="communes">{listeCommunes.map((c) => <option key={c} value={c} />)}</datalist> : null}
+        {listeCommunes.length ? (
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">{t('commune')}</span>
+            <select key={wilaya} name="commune" required defaultValue="" className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre">
+              <option value="">{t('choisirCommune')}</option>
+              {listeCommunes.map((c) => <option key={c.nom_fr} value={c.nom_fr}>{langue === 'ar' && c.nom_ar ? c.nom_ar : c.nom_fr}</option>)}
+            </select>
+          </label>
+        ) : (
+          <Champ libelle={t('commune')} name="commune" maxLength={80} autoComplete="off" required />
+        )}
         <fieldset className="flex flex-col gap-1.5">
           <legend className="mb-1.5 text-sm font-medium">{t('livraison')}</legend>
           <div className="grid grid-cols-2 gap-2">

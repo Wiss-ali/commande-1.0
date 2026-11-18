@@ -36,6 +36,7 @@ export default async function RapportCloture({ params }: { params: Promise<{ id:
             {ligne(t('fond'), formaterMontant(c.fond, langue))}
             {ligne(t('especes'), formaterMontant(c.especes, langue))}
             {ligne(t('remboursements'), formaterMontant(-c.remboursements, langue))}
+            {c.sorties ? ligne(t('sorties'), formaterMontant(-c.sorties, langue)) : null}
             {ligne(t('attendues'), formaterMontant(c.attendues, langue), true)}
             {ligne(t('comptees'), formaterMontant(c.comptees, langue), true)}
             {ligne(t('ecart'), formaterMontant(ecart, langue), true)}

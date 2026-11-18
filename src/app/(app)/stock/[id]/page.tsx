@@ -3,7 +3,9 @@ import { Archive, ArchiveRestore, Pencil, Tags } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getLocale, getTranslations } from 'next-intl/server';
-import { basculerArchive, donnerCodeInterne, mouvementStock } from '@/app/actions/stock';
+import { ajouterPhotoProduit, basculerArchive, changerPhotoProduit, donnerCodeInterne, mouvementStock } from '@/app/actions/stock';
+import { ChampPhoto } from '@/components/ChampPhoto';
+import { MAX_PHOTOS, photosProduit } from '@/lib/photos';
 import { EnTete } from '@/components/EnTete';
 import { Formulaire } from '@/components/Formulaire';
 import { ListeMouvements } from '@/components/ListeMouvements';
@@ -29,9 +31,10 @@ export default async function Produit({ params, searchParams }: { params: Promis
   const tm = await getTranslations('mouvement');
   const te = await getTranslations('erreurs');
   const langue = (await getLocale()) as Langue;
-  const { produit, mouvements } = await avecCommercant(s.commercant.id, async (trx) => ({
+  const { produit, mouvements, photos } = await avecCommercant(s.commercant.id, async (trx) => ({
     produit: await lireProduit(trx, id),
     mouvements: await listerMouvements(trx, { produitId: id, limite: 6 }),
+    photos: await photosProduit(trx, id),
   }));
   if (!produit) notFound();
   const gere = peut(s.utilisateur.role, 'stock.corriger');
@@ -61,6 +64,40 @@ export default async function Produit({ params, searchParams }: { params: Promis
             {categorie ? <p className="mt-1"><Pastille ton="neutre">{categorie}</Pastille></p> : null}
           </div>
         </Carte>
+
+        {/* Galerie : la première photo est la principale (liste, caisse, boutique). */}
+        {photos.length > 1 || (fiche && ecrit) ? (
+          <details className="rounded-2xl border border-trait bg-surface shadow-doux" open={photos.length > 1}>
+            <summary className="flex min-h-12 cursor-pointer items-center px-4 font-semibold">{t('photosTitre', { n: photos.length, max: MAX_PHOTOS })}</summary>
+            <div className="flex flex-col gap-3 p-4 pt-0">
+              {photos.length ? (
+                <ul className="grid grid-cols-3 gap-2">
+                  {photos.map((ph, i) => (
+                    <li key={ph} className="flex flex-col gap-1">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={`/photos/${ph}?t=p`} alt={t('photoN', { n: i + 1 })} className={`aspect-square w-full rounded-lg object-cover ${i === 0 ? 'ring-2 ring-prim' : ''}`} />
+                      {i === 0 ? <span className="text-center text-xs font-semibold text-prim">{t('photoPrincipale')}</span> : null}
+                      {fiche && ecrit ? (
+                        <div className="flex gap-1">
+                          {i > 0 ? (
+                            <form action={changerPhotoProduit} className="flex-1"><input type="hidden" name="photo" value={ph} /><input type="hidden" name="op" value="premier" /><button type="submit" className="min-h-11 w-full rounded-lg border border-trait text-xs font-semibold">{t('mettrePremier')}</button></form>
+                          ) : null}
+                          <form action={changerPhotoProduit} className="flex-1"><input type="hidden" name="photo" value={ph} /><input type="hidden" name="op" value="retirer" /><button type="submit" aria-label={t('retirerPhotoN', { n: i + 1 })} className="min-h-11 w-full rounded-lg border border-trait text-xs font-semibold text-terre">{t('retirerPhotoCourt')}</button></form>
+                        </div>
+                      ) : null}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {fiche && ecrit && photos.length < MAX_PHOTOS ? (
+                <Formulaire action={ajouterPhotoProduit} bouton={t('ajouterPhoto')} style="secondaire">
+                  <input type="hidden" name="produit" value={produit.id} />
+                  <ChampPhoto actuelle={null} libelle={t('nouvellePhoto')} />
+                </Formulaire>
+              ) : null}
+            </div>
+          </details>
+        ) : null}
 
         {produit.variantes.map((v) => (
           <Carte key={v.id} className="flex flex-col gap-3">

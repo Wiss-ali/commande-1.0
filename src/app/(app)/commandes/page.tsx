@@ -10,6 +10,7 @@ import { compterParFiltre, listerCommandes, type FiltreCommandes } from '@/lib/c
 import { autorise } from '@/lib/droits';
 import { formaterDate, formaterMontant } from '@/lib/formats';
 import type { Langue } from '@/lib/types-bd';
+import { peut } from '@/lib/droits';
 import { pageUtilisateur } from '@/lib/web';
 
 const PAR_PAGE = 30;
@@ -33,7 +34,7 @@ export default async function Commandes({ searchParams }: { searchParams: Promis
 
   return (
     <>
-      <EnTete titre={t('titre')} retour="/plus" />
+      <EnTete titre={t('titre')} retour="/plus" fin={peut(s.utilisateur.role, 'vendre') ? <Link href="/commandes/versements" className="inline-flex min-h-11 items-center rounded-xl border border-trait bg-surface px-3 text-sm font-semibold">{t('versements')}</Link> : undefined} />
       <Page>
         {ecrit ? <Link href="/commandes/nouvelle" className={classeBouton.principal}><Plus aria-hidden className="size-5" />{t('nouvelle')}</Link> : null}
         <nav aria-label={t('filtres')} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">

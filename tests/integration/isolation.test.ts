@@ -8,7 +8,9 @@ import { inviterEmploye } from '../../src/lib/invitations.ts';
 import { journaliser } from '../../src/lib/journal.ts';
 import { demander, enregistrerAbonnement, enregistrerReglages, marquerVues, ouvrirNotification, REGLAGES_DEFAUT } from '../../src/lib/boutique.ts';
 import { ajouterTransporteur, creerCommande, enregistrerFrais } from '../../src/lib/commandes.ts';
+import { creerDepense } from '../../src/lib/depenses.ts';
 import { creerAvoir, vendreEnCaisse } from '../../src/lib/documents.ts';
+import { creerArrivage, enregistrerFournisseur } from '../../src/lib/fournisseurs.ts';
 import { creerSession } from '../../src/lib/sessions.ts';
 import { compter, creerProduit, ouvrirInventaire, trouverOuCreerCategorie } from '../../src/lib/stock.ts';
 import { creerAdmin, creerCommercant, sqlProprietaire, telephone } from '../outils.ts';
@@ -53,6 +55,13 @@ beforeAll(async () => {
       await marquerVues(trx, ctx);
       await ouvrirNotification(trx, ctx, notif.id);
       await enregistrerAbonnement(trx, ctx, { endpoint: `https://fcm.googleapis.com/fcm/send/${c.commercantId}`, keys: { p256dh: 'x', auth: 'y' } });
+      // Argent : fournisseur, arrivage (lignes, paiement), dépense, versement du transporteur.
+      const fo = await enregistrerFournisseur(trx, ctx, { nom: 'Fournisseur' });
+      if (!fo.ok) throw new Error(fo.raison);
+      const ar = await creerArrivage(trx, ctx, { fournisseurId: fo.id, lignes: [{ varianteId: variante.id, quantite: 2, coutUnitaire: 100 }], paye: { montant: 100, mode: 'especes' }, cle: crypto.randomUUID() });
+      if (!ar.ok) throw new Error(ar.raison);
+      await creerDepense(trx, ctx, { categorie: 'loyer', montant: 1_000, mode: 'virement', parCaisse: false, cle: crypto.randomUUID() });
+      await trx.insertInto('versements_transporteur').values({ commercant_id: c.commercantId, attendu: 0, recu: 0, mode: 'virement', cree_par: c.proprietaireId }).execute();
     });
   }
   // Abonnements : une formule, puis un paiement (et sa période) pour chacun, saisis par l'administrateur.
@@ -63,7 +72,8 @@ beforeAll(async () => {
     if (!p.ok) throw new Error(p.raison);
   }
   const r = await sqlProprietaire<{ table_name: string }>(
-    `SELECT table_name FROM information_schema.columns WHERE table_schema = 'public' AND column_name = 'commercant_id' ORDER BY 1`,
+    `SELECT c.table_name FROM information_schema.columns c JOIN information_schema.tables t USING (table_schema, table_name)
+     WHERE c.table_schema = 'public' AND c.column_name = 'commercant_id' AND t.table_type = 'BASE TABLE' ORDER BY 1`,
   );
   tablesCommercant = r.rows.map((l) => l.table_name);
 });
@@ -71,7 +81,7 @@ afterAll(fermerBD);
 
 describe('configuration de la base', () => {
   it('chaque table d\'un commerçant a la RLS activée, forcée, et une règle pour le rôle de l\'application', async () => {
-    expect(tablesCommercant).toEqual(expect.arrayContaining(['utilisateurs', 'sessions', 'invitations', 'journal_actions', 'categories', 'produits', 'variantes', 'stocks', 'mouvements_stock', 'photos_produit', 'inventaires', 'lignes_inventaire', 'clients', 'sessions_caisse', 'compteurs_documents', 'documents', 'lignes_document', 'liens_documents', 'ecarts_stock', 'transporteurs', 'frais_livraison', 'commandes', 'historique_commande', 'boutiques', 'demandes', 'notifications', 'notifications_vues', 'notifications_lues', 'abonnements_push', 'paiements_abonnement', 'abonnements']));
+    expect(tablesCommercant).toEqual(expect.arrayContaining(['utilisateurs', 'sessions', 'invitations', 'journal_actions', 'categories', 'produits', 'variantes', 'stocks', 'mouvements_stock', 'photos_produit', 'inventaires', 'lignes_inventaire', 'clients', 'sessions_caisse', 'compteurs_documents', 'documents', 'lignes_document', 'liens_documents', 'ecarts_stock', 'transporteurs', 'frais_livraison', 'commandes', 'historique_commande', 'boutiques', 'demandes', 'notifications', 'notifications_vues', 'notifications_lues', 'abonnements_push', 'paiements_abonnement', 'abonnements', 'paiements']));
     for (const table of [...tablesCommercant, 'commercants']) {
       const t = await sqlProprietaire<{ relrowsecurity: boolean; relforcerowsecurity: boolean }>(
         'SELECT relrowsecurity, relforcerowsecurity FROM pg_class WHERE oid = $1::regclass', [table]);
@@ -87,8 +97,17 @@ describe('configuration de la base', () => {
     const r = await sqlProprietaire<{ table_name: string }>(
       `SELECT DISTINCT g.table_name FROM information_schema.role_table_grants g
        JOIN pg_class c ON c.relname = g.table_name AND c.relnamespace = 'public'::regnamespace
-       WHERE g.grantee = 'hanout_app' AND g.table_schema = 'public' AND NOT c.relrowsecurity`);
+       WHERE g.grantee = 'hanout_app' AND g.table_schema = 'public' AND NOT c.relrowsecurity AND c.relkind = 'r'`);
     expect(r.rows.map((l) => l.table_name)).toEqual(['reglages_plateforme']);
+  });
+
+  it('chaque vue lisible par l\'application s\'exécute avec les droits de l\'utilisateur (l\'isolation s\'applique)', async () => {
+    const r = await sqlProprietaire<{ relname: string; reloptions: string[] | null }>(
+      `SELECT DISTINCT c.relname, c.reloptions FROM information_schema.role_table_grants g
+       JOIN pg_class c ON c.relname = g.table_name AND c.relnamespace = 'public'::regnamespace
+       WHERE g.grantee = 'hanout_app' AND c.relkind = 'v'`);
+    expect(r.rows.length).toBeGreaterThan(0);
+    for (const v of r.rows) expect(v.reloptions ?? [], v.relname).toContain('security_invoker=true');
   });
 
   it('les wilayas sont lisibles par tous les commerçants, mais pas modifiables', async () => {

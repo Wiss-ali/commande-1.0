@@ -57,12 +57,14 @@ export interface ReglagesBoutique {
   ruptures: 'visible' | 'masque';
   plusQue: number;
   reservationHeures: number;
+  /** Identifiants de mesure des publicités ; null : rien n'est chargé. */
+  pixels: { facebook: string | null; tiktok: string | null };
 }
 
 export const REGLAGES_DEFAUT: ReglagesBoutique = {
   enLigne: false, modele: 'vitrine', produitUniqueId: null, couleur: 'emeraude', logoId: null, banniereId: null,
   accueil: { fr: '', ar: '' }, livraison: { fr: '', ar: '' }, retour: { fr: '', ar: '' }, sections: [...SECTIONS], reseaux: {},
-  whatsapp: null, ruptures: 'visible', plusQue: 3, reservationHeures: 24,
+  whatsapp: null, ruptures: 'visible', plusQue: 3, reservationHeures: 24, pixels: { facebook: null, tiktok: null },
 };
 
 export async function lireReglages(trx: Trx): Promise<ReglagesBoutique> {
@@ -75,7 +77,23 @@ export async function lireReglages(trx: Trx): Promise<ReglagesBoutique> {
     accueil: { fr: b.accueil_fr, ar: b.accueil_ar }, livraison: { fr: b.livraison_fr, ar: b.livraison_ar }, retour: { fr: b.retour_fr, ar: b.retour_ar },
     sections: [...sections, ...SECTIONS.filter((x) => !sections.includes(x))], reseaux: b.reseaux ?? {}, whatsapp: b.whatsapp,
     ruptures: b.ruptures, plusQue: b.plus_que, reservationHeures: b.reservation_heures,
+    pixels: { facebook: b.pixel_facebook, tiktok: b.pixel_tiktok },
   };
+}
+
+export const FORMAT_PIXEL = { facebook: /^[0-9]{8,20}$/, tiktok: /^[A-Z0-9]{10,30}$/ } as const;
+
+/**
+ * Pixels de mesure des publicités. Vides : rien n'est chargé. Seul le format d'un identifiant est accepté
+ * (chiffres pour Facebook, lettres majuscules et chiffres pour TikTok) : aucun code ne peut être collé.
+ */
+export async function enregistrerPixels(trx: Trx, ctx: Contexte, p: { facebook: string; tiktok: string }): Promise<{ ok: true } | { ok: false; raison: 'pixel_invalide' }> {
+  const facebook = p.facebook.replace(/\s/g, '') || null;
+  const tiktok = p.tiktok.replace(/\s/g, '').toUpperCase() || null;
+  if ((facebook && !FORMAT_PIXEL.facebook.test(facebook)) || (tiktok && !FORMAT_PIXEL.tiktok.test(tiktok))) return { ok: false, raison: 'pixel_invalide' };
+  const valeurs = { pixel_facebook: facebook, pixel_tiktok: tiktok };
+  await trx.insertInto('boutiques').values({ commercant_id: ctx.commercantId, ...valeurs }).onConflict((oc) => oc.column('commercant_id').doUpdateSet(valeurs)).execute();
+  return { ok: true };
 }
 
 const propre = (s: string | undefined, max: number) => (s ?? '').trim().slice(0, max);
@@ -92,7 +110,7 @@ function lienReseau(reseau: (typeof RESEAUX)[number], saisie: string | undefined
   }
 }
 
-export type SaisieReglages = Omit<ReglagesBoutique, 'enLigne' | 'logoId' | 'banniereId'>;
+export type SaisieReglages = Omit<ReglagesBoutique, 'enLigne' | 'logoId' | 'banniereId' | 'pixels'>;
 
 export async function enregistrerReglages(trx: Trx, ctx: Contexte, r: SaisieReglages): Promise<{ ok: true } | { ok: false; raison: 'champ_requis' | 'telephone_invalide' | 'introuvable' }> {
   if (!MODELES.includes(r.modele) || !PALETTE[r.couleur] || (r.ruptures !== 'visible' && r.ruptures !== 'masque')) return { ok: false, raison: 'champ_requis' };

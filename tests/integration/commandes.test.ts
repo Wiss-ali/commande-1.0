@@ -57,10 +57,19 @@ describe('création', () => {
   it('prend les frais du point relais, et rien si la wilaya n\'a pas de prix', async () => {
     const relais = (await chez(A, async (trx) => lireCommande(trx, await nouvelle(A, { livraison: 'point_relais', lignes: [{ varianteId: robe, quantite: 1 }] }))))!;
     expect(relais.frais).toBe(400_00);
-    const sansPrix = (await chez(A, async (trx) => lireCommande(trx, await nouvelle(A, { wilaya: 68, livraison: 'point_relais', lignes: [{ varianteId: robe, quantite: 1 }] }))))!;
+    const sansPrix = (await chez(A, async (trx) => lireCommande(trx, await nouvelle(A, { wilaya: 68, commune: 'Bou Saâda', livraison: 'point_relais', lignes: [{ varianteId: robe, quantite: 1 }] }))))!;
     expect(sansPrix.frais).toBe(0);
     expect(sansPrix.lignes).toHaveLength(1);
     for (const id of [relais.id, sansPrix.id]) await chez(A, (trx) => annulerCommande(trx, A, id, cle()));
+  });
+
+  it('la commune est choisie dans la liste de la wilaya, écrite sous son nom officiel (accents et majuscules ignorés)', async () => {
+    const c = (await chez(A, async (trx) => lireCommande(trx, await nouvelle(A, { wilaya: 68, commune: '  bou saâda ', lignes: [{ varianteId: robe, quantite: 1 }] }))))!;
+    expect(c.commune).toBe('Bou Saada');
+    const ar = (await chez(A, async (trx) => lireCommande(trx, await nouvelle(A, { commune: 'القبة', lignes: [{ varianteId: robe, quantite: 1 }] }))))!;
+    expect(ar.commune).toBe('Kouba');
+    expect((await chez(A, (trx) => trx.selectFrom('communes').select((eb) => eb.fn.countAll<string>().as('n')).executeTakeFirstOrThrow())).n).toBe('1541');
+    for (const id of [c.id, ar.id]) await chez(A, (trx) => annulerCommande(trx, A, id, cle()));
   });
 
   it('refuse sans rien écrire : téléphone, wilaya, commune, stock insuffisant', async () => {
@@ -70,6 +79,9 @@ describe('création', () => {
       [{ client: { nom: 'X', telephone: '12345' } }, 'telephone_invalide'],
       [{ wilaya: 70 }, 'wilaya_invalide'],
       [{ commune: ' ' }, 'commune_requise'],
+      // La commune doit appartenir à la wilaya choisie (liste officielle des communes).
+      [{ commune: 'Oran' }, 'commune_invalide'],
+      [{ commune: 'Centre' }, 'commune_invalide'],
       [{ lignes: [{ varianteId: robe, quantite: 999 }] }, 'stock_insuffisant'],
     ] as const) {
       expect(await chez(A, (trx) => creerCommande(trx, A, saisie(o as Partial<SaisieCommande>)))).toEqual({ ok: false, raison });

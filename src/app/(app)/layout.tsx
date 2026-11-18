@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { NavBas, type CleNav } from '@/components/NavBas';
+import { NavBas } from '@/components/NavBas';
+import { barreDe, entreesDisponibles } from '@/lib/barre';
 import { Message } from '@/components/ui';
 import { DROIT_MODULE, MODULES, peut } from '@/lib/droits';
 import { situation } from '@/lib/abonnements';
@@ -13,11 +14,10 @@ export default async function EspaceCommercant({ children }: { children: React.R
   const t = await getTranslations('accueil');
   const { role } = s.utilisateur;
   const m = s.commercant.modules;
-  const visibles: CleNav[] = ['accueil', 'plus'];
-  if (m.caisse && peut(role, DROIT_MODULE.caisse)) visibles.push('caisse');
-  if (m.stock && peut(role, DROIT_MODULE.stock)) visibles.push('stock', 'scan');
+  // Barre du bas : les 4 entrées choisies par la personne (Réglages › Barre du bas), sinon celles par défaut.
+  const barre = barreDe(s.utilisateur.barreBas, entreesDisponibles(role, m));
   // Grand écran : les autres modules (comme dans « Plus ») s'affichent aussi dans la colonne de gauche.
-  const autres = MODULES.filter((n) => n !== 'stock' && n !== 'caisse' && m[n] && peut(role, DROIT_MODULE[n]));
+  const autres = MODULES.filter((n) => !barre.includes(n) && m[n] && peut(role, DROIT_MODULE[n]));
   const reglages = peut(role, 'reglages') ? '/reglages' : '/reglages/securite';
   // Rappel de l'abonnement au propriétaire : dans les derniers jours, puis pendant le délai après la fin.
   let rappel: string | null = null;
@@ -32,7 +32,7 @@ export default async function EspaceCommercant({ children }: { children: React.R
       {s.commercant.etat === 'lecture_seule' ? <div className="p-3"><Message ton="info">{t('lectureSeule')}</Message></div> : null}
       {rappel ? <div className="p-3"><Link href="/reglages/abonnement" className="block"><Message ton="info">{rappel}</Message></Link></div> : null}
       {children}
-      <NavBas visibles={visibles} modules={autres} reglages={reglages} />
+      <NavBas barre={barre} modules={autres} reglages={reglages} />
     </div>
   );
 }

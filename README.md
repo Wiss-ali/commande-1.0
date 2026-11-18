@@ -33,6 +33,14 @@ Les tests utilisent une base séparée (`hanout_test`), recréée à chaque lanc
 
 Les photos des produits sont rangées dans le dossier `DOSSIER_FICHIERS` (par défaut `./donnees`), à sauvegarder avec la base.
 
+## Données reprises
+
+La liste des 1 541 communes (`db/migrations/0012_communes.up.sql`) vient du jeu de données ouvert
+[algerie-decoupage-administratif](https://github.com/oussamidat/algerie-decoupage-administratif), vérifié contre le
+Journal officiel (loi 26-06), sous licence Open Database License (ODbL 1.0) ; noms arabes d'après
+[algeria-cities](https://github.com/othmanus/algeria-cities). Ce n'est pas une publication officielle : la liste reste
+modifiable par l'administrateur.
+
 ## Mettre en ligne (production)
 
 Tout est dans `deploiement/` et expliqué pas à pas, pour un débutant, dans **`docs/GUIDE-INSTALLATION.md`** :

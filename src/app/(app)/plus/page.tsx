@@ -1,4 +1,4 @@
-import { LogOut, Settings } from 'lucide-react';
+import { LogOut, PanelBottom, Settings } from 'lucide-react';
 import { cookies } from 'next/headers';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { seDeconnecter } from '@/app/actions/connexion';
@@ -7,6 +7,7 @@ import { EnTete } from '@/components/EnTete';
 import { Page } from '@/components/Page';
 import { Carte, classeBouton, LigneLien, TitreSection } from '@/components/ui';
 import { DROIT_MODULE, MODULES, peut } from '@/lib/droits';
+import { barreDe, entreesDisponibles } from '@/lib/barre';
 import { ICONE_MODULE } from '@/lib/icones-modules';
 import { pageUtilisateur } from '@/lib/web';
 
@@ -18,8 +19,9 @@ export default async function Plus() {
   const theme = (await cookies()).get('theme')?.value;
   const choix = theme === 'clair' || theme === 'sombre' ? theme : 'auto';
   const langue = await getLocale();
-  // Stock et Caisse sont déjà dans la barre du bas.
-  const autres = MODULES.filter((m) => m !== 'stock' && m !== 'caisse' && s.commercant.modules[m] && peut(s.utilisateur.role, DROIT_MODULE[m]));
+  // Les modules déjà dans la barre du bas n'y sont pas répétés.
+  const barre = barreDe(s.utilisateur.barreBas, entreesDisponibles(s.utilisateur.role, s.commercant.modules));
+  const autres = MODULES.filter((m) => !barre.includes(m) && s.commercant.modules[m] && peut(s.utilisateur.role, DROIT_MODULE[m]));
   return (
     <>
       <EnTete titre={t('titre')} />
@@ -40,6 +42,7 @@ export default async function Plus() {
           <p className="text-sm text-doux">{t('aucunModule')}</p>
         )}
         {peut(s.utilisateur.role, 'reglages') ? <LigneLien href="/reglages" titre={t('reglages')} icone={<Settings aria-hidden className="size-5" />} /> : <LigneLien href="/reglages/securite" titre={t('reglages')} icone={<Settings aria-hidden className="size-5" />} />}
+        <LigneLien href="/reglages/barre" titre={t('barre')} aide={t('barreAide')} icone={<PanelBottom aria-hidden className="size-5" />} />
         <TitreSection>{t('langue')}</TitreSection>
         <form action={changerLangue} className="grid grid-cols-2 gap-2">
           {/* Le nom d'une langue s'écrit toujours dans cette langue : ce n'est pas un texte à traduire. */}

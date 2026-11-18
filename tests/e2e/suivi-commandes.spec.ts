@@ -93,7 +93,7 @@ test('commande prise au téléphone : frais de la wilaya, total, stock réservé
   await nadia.getByLabel('Téléphone du client').fill(telCliente);
   await nadia.getByLabel('Nom du client').fill('Amina Belkacem');
   await nadia.getByLabel('Wilaya').selectOption('16');
-  await nadia.getByLabel('Commune').fill('Bab Ezzouar');
+  await nadia.locator('select[name=commune]').selectOption('Bab Ezzouar');
   await expect(nadia.getByLabel('Frais de livraison (DA)')).toHaveValue('500');
   await nadia.getByText('Point relais', { exact: true }).click();
   await expect(nadia.getByLabel('Frais de livraison (DA)')).toHaveValue('450');
@@ -169,7 +169,7 @@ test('même numéro, nouvelle commande : l\'alerte apparaît pendant la saisie',
   await expect(nadia.getByRole('alert').filter({ hasText: '1 colis retourné' })).toBeVisible();
   await nadia.getByLabel('Nom du client').fill('Amina Belkacem');
   await nadia.getByLabel('Wilaya').selectOption('68');
-  await nadia.getByLabel('Commune').fill('Bou Saâda');
+  await nadia.locator('select[name=commune]').selectOption('Bou Saada');
   await expect(nadia.getByLabel('Frais de livraison (DA)')).toHaveValue('700');
   await nadia.getByLabel('Ajouter un article').fill('robe');
   await nadia.getByLabel('Ajouter un article').press('Enter');
@@ -194,7 +194,7 @@ test('vente directe depuis une commande : payée et livrée tout de suite', asyn
   await nadia.getByLabel('Téléphone du client').fill(telephone());
   await nadia.getByLabel('Nom du client').fill('Yacine');
   await nadia.getByLabel('Wilaya').selectOption('31');
-  await nadia.getByLabel('Commune').fill('Bir El Djir');
+  await nadia.locator('select[name=commune]').selectOption('Bir El Djir');
   await nadia.getByLabel('Frais de livraison (DA)').fill('0');
   await nadia.getByLabel('Ajouter un article').fill('robe');
   await nadia.getByLabel('Ajouter un article').press('Enter');

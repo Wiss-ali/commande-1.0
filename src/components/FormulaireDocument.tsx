@@ -15,6 +15,8 @@ export interface LigneFormulaire {
   designation: string;
   quantite: string;
   prix: string;
+  /** Remise sur la ligne, en DA (facultatif). */
+  remise?: string;
 }
 interface Props {
   type: 'devis' | 'proforma' | 'bon_commande';
@@ -33,20 +35,22 @@ export function FormulaireDocument({ type, id, cle, lignes: initiales, client, n
   const [prochaine, setProchaine] = useState(initiales.length);
   const [recherche, setRecherche] = useState('');
   const [trouves, setTrouves] = useState<ArticleScan[] | null>(null);
+  const [remiseGlobale, setRemiseGlobale] = useState('');
 
   const ajouter = (l: LigneFormulaire) => {
     setLignes((x) => [...x, { ...l, cle: prochaine }]);
     setProchaine((n) => n + 1);
   };
   const changer = (c: number, champ: keyof LigneFormulaire, valeur: string) => setLignes((x) => x.map((l) => (l.cle === c ? { ...l, [champ]: valeur } : l)));
-  const total = lignes.reduce((s, l) => s + (analyserMontant(l.prix) ?? 0) * (analyserQuantite(l.quantite) ?? 0), 0);
+  const sousTotal = lignes.reduce((s, l) => s + (analyserMontant(l.prix) ?? 0) * (analyserQuantite(l.quantite) ?? 0) - (analyserMontant(l.remise ?? '') ?? 0), 0);
+  const total = sousTotal - (analyserMontant(remiseGlobale) ?? 0);
 
   return (
     <Formulaire action={enregistrerDocument} bouton={t(id ? 'enregistrer' : `creer_${type}`)} garder>
       {id ? <input type="hidden" name="id" value={id} /> : null}
       <input type="hidden" name="type" value={type} />
       <input type="hidden" name="cle" value={cle} />
-      <input type="hidden" name="lignes" value={JSON.stringify(lignes.map(({ varianteId, designation, quantite, prix }) => ({ varianteId, designation, quantite, prix })))} />
+      <input type="hidden" name="lignes" value={JSON.stringify(lignes.map(({ varianteId, designation, quantite, prix, remise }) => ({ varianteId, designation, quantite, prix, remise: remise ?? '' })))} />
 
       <Carte className="flex flex-col gap-3">
         <h2 className="font-semibold">{t('client')}</h2>
@@ -77,6 +81,7 @@ export function FormulaireDocument({ type, id, cle, lignes: initiales, client, n
             <Champ libelle={t('quantite')} value={l.quantite} onChange={(e) => changer(l.cle, 'quantite', e.target.value)} inputMode="numeric" dir="ltr" maxLength={7} autoComplete="off" />
             <Champ libelle={t('prix')} value={l.prix} onChange={(e) => changer(l.cle, 'prix', e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" />
           </div>
+          <Champ libelle={t('remiseLigne')} value={l.remise ?? ''} onChange={(e) => changer(l.cle, 'remise', e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('remiseLigneAide')} />
         </Carte>
       ))}
 
@@ -123,6 +128,7 @@ export function FormulaireDocument({ type, id, cle, lignes: initiales, client, n
         <button type="button" onClick={() => ajouter({ varianteId: null, designation: '', quantite: '1', prix: '' })} className={classeBouton.secondaire}><Plus aria-hidden className="size-5" />{t('ligneLibre')}</button>
       </Carte>
 
+      <Champ libelle={t('remiseGlobale')} name="remiseGlobale" value={remiseGlobale} onChange={(e) => setRemiseGlobale(e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('remiseGlobaleAide')} />
       <Champ libelle={t('note')} name="note" defaultValue={note} maxLength={500} autoComplete="off" />
       <p className="flex items-baseline justify-between rounded-2xl border border-trait bg-surface shadow-doux px-4 py-3"><span className="text-sm text-doux">{t('total')}</span><span className="text-2xl font-bold">{formaterMontant(total, langue)}</span></p>
     </Formulaire>

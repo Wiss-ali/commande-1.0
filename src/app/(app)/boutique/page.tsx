@@ -1,7 +1,7 @@
 import { ExternalLink, Globe, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
-import { basculerBoutique, basculerProduit, choisirAdresse, choisirModele, envoyerDemande, personnaliser } from '@/app/actions/boutique';
+import { basculerBoutique, basculerProduit, choisirAdresse, choisirModele, enregistrerPixelsBoutique, envoyerDemande, personnaliser } from '@/app/actions/boutique';
 import { ChampPhoto } from '@/components/ChampPhoto';
 import { EnTete } from '@/components/EnTete';
 import { Formulaire } from '@/components/Formulaire';
@@ -164,6 +164,21 @@ export default async function ModuleBoutique() {
             <Champ libelle={t('reservation')} name="reservationHeures" defaultValue={String(r.reservationHeures)} inputMode="numeric" dir="ltr" maxLength={3} aide={t('reservationAide')} />
           </Carte>
         </Formulaire>
+
+        {/* ───── Mesure des publicités (pixels), désactivée tant que rien n'est collé ───── */}
+        <details className="rounded-2xl border border-trait bg-surface shadow-doux" open={Boolean(r.pixels.facebook || r.pixels.tiktok)}>
+          <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-2 px-4 font-semibold">
+            {t('pixelsTitre')}
+            <Pastille ton={r.pixels.facebook || r.pixels.tiktok ? 'vert' : 'neutre'}>{t(r.pixels.facebook || r.pixels.tiktok ? 'pixelsActifs' : 'pixelsInactifs')}</Pastille>
+          </summary>
+          <div className="flex flex-col gap-3 p-4 pt-0">
+            <p className="text-sm text-doux">{t('pixelsTexte')}</p>
+            <Formulaire action={enregistrerPixelsBoutique} bouton={t('pixelsEnregistrer')} succes={t('pixelsEnregistres')} garder>
+              <Champ libelle={t('pixelFacebook')} name="pixelFacebook" defaultValue={r.pixels.facebook ?? ''} inputMode="numeric" dir="ltr" maxLength={30} autoComplete="off" aide={t('pixelFacebookAide')} />
+              <Champ libelle={t('pixelTiktok')} name="pixelTiktok" defaultValue={r.pixels.tiktok ?? ''} dir="ltr" maxLength={40} autoComplete="off" aide={t('pixelTiktokAide')} />
+            </Formulaire>
+          </div>
+        </details>
 
         {/* ───── Produits publiés ───── */}
         <TitreSection>{t('produitsTitre', { n: publies })}</TitreSection>

@@ -9,7 +9,7 @@ import { action, actionSimple, texte } from '@/lib/actions';
 import { avecCommercant } from '@/lib/bd';
 import {
   activerTransporteur, ajouterTransporteur, alerteTelephone, annulerCommande, confirmerCommande, creerCommande, enregistrerFrais, expedier, fraisPour,
-  marquerLivree, marquerPreparee, marquerRetournee, noterAppel, type Alerte, type Frais,
+  listerCommunes, marquerLivree, marquerPreparee, marquerRetournee, noterAppel, type Alerte, type Frais,
 } from '@/lib/commandes';
 import { analyserMontant } from '@/lib/formats';
 import { journaliser } from '@/lib/journal';
@@ -68,12 +68,14 @@ export const nouvelleCommande = action(async (f) => {
 });
 
 /** Pendant la saisie : frais de la wilaya et alerte si ce numéro a déjà des retours. */
-export async function infosSaisie(wilaya: number, livraison: string, telephone: string): Promise<{ frais: number | null; alerte: Alerte | null }> {
+export async function infosSaisie(wilaya: number, livraison: string, telephone: string): Promise<{ frais: number | null; alerte: Alerte | null; communes: { nom_fr: string; nom_ar: string }[] }> {
   const s = await exigerUtilisateur('vendre', 'commandes');
-  if (!Number.isInteger(wilaya) || typeof telephone !== 'string' || telephone.length > 30) return { frais: null, alerte: null };
+  if (!Number.isInteger(wilaya) || typeof telephone !== 'string' || telephone.length > 30) return { frais: null, alerte: null, communes: [] };
   return avecCommercant(s.commercant.id, async (trx) => ({
     frais: wilaya ? await fraisPour(trx, wilaya, livraisonDe(livraison)) : null,
     alerte: telephone.trim() ? await alerteTelephone(trx, telephone) : null,
+    // Communes de la wilaya, à choisir dans une liste.
+    communes: wilaya ? await listerCommunes(trx, wilaya) : [],
   }));
 }
 

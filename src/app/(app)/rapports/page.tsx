@@ -7,6 +7,7 @@ import { Page } from '@/components/Page';
 import { Carte, classeBouton, EtatVide } from '@/components/ui';
 import { avecCommercant } from '@/lib/bd';
 import { formaterDate, formaterMontant, nomLocal } from '@/lib/formats';
+import { totalDepenses } from '@/lib/depenses';
 import { meilleursProduits, periode, PERIODES, rapportCommandes, rapportMarge, retoursParWilaya, type CodePeriode } from '@/lib/rapports';
 import type { Langue } from '@/lib/types-bd';
 import { pageUtilisateur } from '@/lib/web';
@@ -32,6 +33,8 @@ export default async function Rapports({ searchParams }: { searchParams: Promise
     switch (onglet) {
       case 'marge': {
         const m = await rapportMarge(trx, p);
+        const dep = await totalDepenses(trx, p);
+        const td = await getTranslations('depenses');
         const etiquette = (j: string) => (m.pas === 'mois' ? `${j.slice(5, 7)}/${j.slice(0, 4)}` : `${j.slice(8, 10)}/${j.slice(5, 7)}`);
         return (
           <>
@@ -51,6 +54,17 @@ export default async function Rapports({ searchParams }: { searchParams: Promise
               </dl>
               <p className="mt-2 text-sm text-doux">{t('marge.retours', { n: m.colisRetournes, montant: montant(m.retours) })}</p>
               <p className="mt-1 text-sm text-doux">{t('marge.panier', { n: m.nbVentes, panier: m.panierMoyen === null ? '—' : montant(m.panierMoyen) })}</p>
+            </Carte>
+            {/* Bénéfice net : la marge moins les dépenses du magasin (loyer, salaires…) de la période. */}
+            <Carte className="flex flex-col gap-2">
+              <p className="text-sm text-doux">{t('marge.benefice')}</p>
+              <p className={`text-2xl font-bold ${m.marge - dep.total < 0 ? 'text-terre' : ''}`}>{montant(m.marge - dep.total)}</p>
+              <dl className="flex flex-col gap-1.5 text-sm">
+                <div className="flex justify-between gap-3"><dt className="text-doux">{t('marge.titre')}</dt><dd>{montant(m.marge)}</dd></div>
+                {dep.parCategorie.map((c) => <div key={c.categorie} className="flex justify-between gap-3"><dt className="text-doux">{td(`cat.${c.categorie}`)}</dt><dd>{montant(-c.montant)}</dd></div>)}
+                {!dep.total ? <p className="text-doux">{t('marge.aucuneDepense')}</p> : null}
+              </dl>
+              {s.commercant.modules.caisse ? <Link href="/caisse/depenses" className="text-sm font-semibold text-prim underline">{t('marge.voirDepenses')}</Link> : null}
             </Carte>
             <p className="text-xs text-doux">{t('marge.explication')}</p>
           </>

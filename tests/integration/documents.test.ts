@@ -194,7 +194,7 @@ describe('factures', () => {
     const k = cle();
     const av = await chez(A, (trx) => creerAvoir(trx, A, f.id, { remettreEnStock: true, cle: k }));
     if (!av.ok) throw new Error(av.raison);
-    expect(await chez(A, (trx) => creerAvoir(trx, A, f.id, { remettreEnStock: true, cle: k }))).toEqual({ ok: true, id: av.id });
+    expect(await chez(A, (trx) => creerAvoir(trx, A, f.id, { remettreEnStock: true, cle: k }))).toMatchObject({ ok: true, id: av.id });
     expect(await chez(A, (trx) => creerAvoir(trx, A, f.id, { remettreEnStock: true, cle: cle() }))).toEqual({ ok: false, raison: 'deja_annule' });
     const d = (await chez(A, (trx) => lireDocument(trx, av.id)))!;
     expect(d).toMatchObject({ type: 'avoir', total: -75_000, modePaiement: 'especes', acheteur: { nom: 'Retour' } });

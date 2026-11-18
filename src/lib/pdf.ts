@@ -8,7 +8,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { numeroTexte, type DocumentComplet, type Mentions } from './documents.ts';
-import { formaterTaux, prixHorsTaxe, type ReglagesDocuments } from './fiscal.ts';
+import { formaterTaux, horsTaxe, prixHorsTaxe, type ReglagesDocuments } from './fiscal.ts';
 import { formaterDate, formaterMontant, formaterTelephone } from './formats.ts';
 import { montantEnLettres } from './montant-lettres.ts';
 import type { Langue } from './types-bd.ts';
@@ -100,23 +100,31 @@ export function htmlDocument(d: DocumentComplet, langue: Langue, reglages: Regla
   const signe = d.type === 'avoir' ? -1 : 1;
   const origine = d.liens.find((l) => l.sens === 'origine');
   const reference = origine ? `<p>${t[origine.nature === 'corrige_par' ? 'annule' : origine.nature === 'regle_par' ? 'regle' : 'suiteDe']} ${t[`type_${origine.type}`]} <span class="n">${numeroTexte(origine)}</span></p>` : '';
-  const paiement = d.payeLe
-    ? `<p>${t.payeEspeces} ${date(d.payeLe)}</p>`
-    : d.modePaiement === 'a_la_livraison'
-      ? `<p>${t.payeLivraison}</p>`
-      : '';
+  // Moyen et date du paiement ; pour une vente pas entièrement payée, ce qui est payé et ce qui reste dû.
+  const modes = [...new Set(d.paiements.filter((p) => p.montant > 0).map((p) => p.mode))];
+  const nomsModes = (liste: string[]) => liste.map((m) => t[`mode_${m}`] ?? m).join(' + ');
+  const paiement = d.type === 'recu' || d.type === 'avoir'
+    ? (d.payeLe && d.modePaiement ? `<p>${t[d.type === 'avoir' ? 'rembourseLe' : 'payeLe']} ${date(d.payeLe)} · ${nomsModes([d.modePaiement])}</p>` : '')
+    : d.payeLe
+      ? `<p>${t.payeLe} ${date(d.payeLe)}${modes.length ? ` · ${nomsModes(modes)}` : ''}</p>`
+      : d.modePaiement === 'a_la_livraison'
+        ? `<p>${t.payeLivraison}</p>`
+        : d.solde && d.solde.reste > 0 && (d.type === 'facture' || d.type === 'ticket')
+          ? `<p>${d.solde.paye > 0 ? `${t.dejaPaye} ${montant(d.solde.paye)} · ` : ''}<b>${t.resteDu} ${montant(d.solde.reste)}</b></p>`
+          : '';
+  const remiseTotale = d.lignes.reduce((x, l) => x + l.remise, 0);
 
   if (d.type === 'ticket') {
-    const hauteur = 70 + d.lignes.length * 11 + (d.timbre ? 6 : 0) + (reglages.piedDePage ? 12 : 0);
+    const hauteur = 70 + d.lignes.length * 11 + d.lignes.filter((l) => l.remise).length * 5 + (d.timbre ? 6 : 0) + (remiseTotale ? 6 : 0) + (reglages.piedDePage ? 12 : 0);
     return `<!doctype html><html lang="${langue}" dir="${langue === 'ar' ? 'rtl' : 'ltr'}"><head><meta charset="utf-8">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src data:">
 <style>${polices()}${STYLE}@page{size:80mm ${hauteur}mm;margin:4mm}</style></head><body class="ticket">
 <div class="centre"><p class="nom">${libre(d.vendeur.nom)}</p>${d.vendeur.adresse ? `<p>${libre(d.vendeur.adresse)}</p>` : ''}${d.vendeur.telephone ? `<p class="n">${echapper(formaterTelephone(d.vendeur.telephone))}</p>` : ''}</div>
 <hr><div class="ligne"><span>${t.type_ticket} ${numero}</span><span>${date(d.emisLe)}</span></div><hr>
-${d.lignes.map((l) => `<p>${libre(l.designation)}</p><div class="ligne"><span class="n">${l.quantite} × ${echapper(formaterMontant(l.prixUnitaire, 'fr').replace(/ DA$/, ''))}</span>${montant(l.totalTtc)}</div>`).join('')}
-<hr>${d.timbre ? `<div class="ligne"><span>${t.timbre}</span>${montant(d.timbre)}</div>` : ''}
+${d.lignes.map((l) => `<p>${libre(l.designation)}</p><div class="ligne"><span class="n">${l.quantite} × ${echapper(formaterMontant(l.prixUnitaire, 'fr').replace(/ DA$/, ''))}</span>${montant(l.totalTtc)}</div>${l.remise ? `<div class="ligne petit"><span>${t.remise}</span>${montant(-l.remise)}</div>` : ''}`).join('')}
+<hr>${remiseTotale ? `<div class="ligne"><span>${t.remiseTotale}</span>${montant(-remiseTotale)}</div>` : ''}${d.timbre ? `<div class="ligne"><span>${t.timbre}</span>${montant(d.timbre)}</div>` : ''}
 <div class="ligne total"><span>${t.total}</span>${montant(d.total)}</div>
-<p>${t.payeEspeces} ${date(d.emisLe)}</p>
+${paiement}
 ${reglages.piedDePage ? `<hr><p class="centre">${libre(reglages.piedDePage)}</p>` : ''}
 </body></html>`;
   }
@@ -125,15 +133,19 @@ ${reglages.piedDePage ? `<hr><p class="centre">${libre(reglages.piedDePage)}</p>
   const parTaux = new Map<number, number>();
   for (const l of d.lignes) if (l.tauxTva) parTaux.set(l.tauxTva, (parTaux.get(l.tauxTva) ?? 0) + (l.totalTtc - l.totalHt));
   const totalTtc = signe * d.total - d.timbre;
+  // Colonne « Remise » seulement si une ligne en a une (hors taxe quand la TVA est appliquée).
+  const avecRemise = remiseTotale > 0;
+  const celluleRemise = (l: DocumentComplet['lignes'][number]) => (avecRemise ? `<td class="d">${l.remise ? montant(avecTva ? horsTaxe(l.remise, l.tauxTva) : l.remise) : ''}</td>` : '');
   const lignes = d.lignes
     .map((l) =>
       avecTva
-        ? `<tr><td>${libre(l.designation)}</td><td class="d"><span class="n">${l.quantite}</span></td><td class="d">${montant(prixHorsTaxe(l.prixUnitaire, l.tauxTva))}</td><td class="d"><span class="n">${formaterTaux(l.tauxTva)}</span></td><td class="d">${montant(l.totalHt)}</td></tr>`
-        : `<tr><td>${libre(l.designation)}</td><td class="d"><span class="n">${l.quantite}</span></td><td class="d">${montant(l.prixUnitaire)}</td><td class="d">${montant(l.totalTtc)}</td></tr>`)
+        ? `<tr><td>${libre(l.designation)}</td><td class="d"><span class="n">${l.quantite}</span></td><td class="d">${montant(prixHorsTaxe(l.prixUnitaire, l.tauxTva))}</td>${celluleRemise(l)}<td class="d"><span class="n">${formaterTaux(l.tauxTva)}</span></td><td class="d">${montant(l.totalHt)}</td></tr>`
+        : `<tr><td>${libre(l.designation)}</td><td class="d"><span class="n">${l.quantite}</span></td><td class="d">${montant(l.prixUnitaire)}</td>${celluleRemise(l)}<td class="d">${montant(l.totalTtc)}</td></tr>`)
     .join('');
+  const thRemise = avecRemise ? `<th class="d">${t.remise}</th>` : '';
   const entetes = avecTva
-    ? `<th>${t.designation}</th><th class="d">${t.quantite}</th><th class="d">${t.prixHt}</th><th class="d">${t.tva}</th><th class="d">${t.totalHt}</th>`
-    : `<th>${t.designation}</th><th class="d">${t.quantite}</th><th class="d">${t.prixUnitaire}</th><th class="d">${t.total}</th>`;
+    ? `<th>${t.designation}</th><th class="d">${t.quantite}</th><th class="d">${t.prixHt}</th>${thRemise}<th class="d">${t.tva}</th><th class="d">${t.totalHt}</th>`
+    : `<th>${t.designation}</th><th class="d">${t.quantite}</th><th class="d">${t.prixUnitaire}</th>${thRemise}<th class="d">${t.total}</th>`;
   const blocTotaux = d.type === 'recu'
     ? `<div class="net"><span>${t.montantRecu}</span>${montant(d.total)}</div>`
     : [

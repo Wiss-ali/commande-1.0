@@ -55,7 +55,7 @@ test.beforeAll(async ({ browser }) => {
     await vendreEnCaisse(trx, ctx, { lignes: [{ varianteId: sac, quantite: 1 }, { varianteId: ceinture, quantite: 1 }], cle: cle() });
     await creerDocument(trx, ctx, { type: 'devis', origine: 'manuel', lignes: [{ varianteId: sac, quantite: 2 }], acheteur: { nom: 'Société Atlas' }, prixLibres: true });
     for (const [wilaya, fin] of [[16, 'livree'], [16, 'retournee'], [31, 'expediee'], [25, null]] as const) {
-      const c = await creerCommande(trx, ctx, { client: { nom: 'Cliente', telephone: telephone() }, wilaya, commune: 'Centre', livraison: 'domicile', lignes: [{ varianteId: sac, quantite: 1 }], frais: 600_00, cle: cle(), libelleLivraison: 'Livraison' });
+      const c = await creerCommande(trx, ctx, { client: { nom: 'Cliente', telephone: telephone() }, wilaya, commune: (await trx.selectFrom('communes').select('nom_fr').where('wilaya_code', '=', wilaya).orderBy('id').executeTakeFirstOrThrow()).nom_fr, livraison: 'domicile', lignes: [{ varianteId: sac, quantite: 1 }], frais: 600_00, cle: cle(), libelleLivraison: 'Livraison' });
       if (!c.ok) throw new Error(c.raison);
       if (!fin) continue;
       await confirmerCommande(trx, ctx, c.id, 'envoi', cle());

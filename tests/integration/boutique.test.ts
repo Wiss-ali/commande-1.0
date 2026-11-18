@@ -6,6 +6,7 @@ import { avecCommercant, bd, fermerBD } from '../../src/lib/bd.ts';
 import {
   catalogue, changerSousDomaine, compterNonVues, creerTicket, demander, enregistrerAbonnement, enregistrerReglages, lireReglages, lireTicket, listerNotifications, marquerVues, ouvrirNotification,
   mettreEnLigne, PALETTE, REGLAGES_DEFAUT, trouverBoutique, verifierSousDomaine, type SaisieTicket, type Vitrine,
+  enregistrerPixels,
 } from '../../src/lib/boutique.ts';
 import { confirmerCommande, expirerTickets, lireCommande } from '../../src/lib/commandes.ts';
 import { abonnementValide, adresseAutorisee, chiffrerMessage, creerClesVapid, jetonVapid } from '../../src/lib/push.ts';
@@ -259,3 +260,22 @@ describe('demandes, isolation, notifications sur le téléphone', () => {
 });
 
 void (null as unknown as Vitrine);
+
+describe('pixels publicitaires', () => {
+  it('désactivés par défaut ; seul un identifiant au bon format est accepté, jamais du code', async () => {
+    const admin = await creerAdmin();
+    const m = await creerCommercant(admin.id, 'Pixels');
+    const P: Contexte = { commercantId: m.commercantId, utilisateurId: m.proprietaireId };
+    const chezP = <T>(fn: Parameters<typeof avecCommercant<T>>[1]) => avecCommercant(P.commercantId, fn);
+    expect((await chezP(lireReglages)).pixels).toEqual({ facebook: null, tiktok: null });
+    for (const [facebook, tiktok] of [['12345<script>', ''], ['', 'c1a2"onload'], ["1234567890');alert(1)//", ''], ['', 'ABC']] as const) {
+      expect(await chezP((trx) => enregistrerPixels(trx, P, { facebook, tiktok }))).toEqual({ ok: false, raison: 'pixel_invalide' });
+    }
+    expect(await chezP((trx) => enregistrerPixels(trx, P, { facebook: ' 123 456 789 012 345 ', tiktok: 'c1a2b3c4d5e6f7g8h9i0' }))).toEqual({ ok: true });
+    expect((await chezP(lireReglages)).pixels).toEqual({ facebook: '123456789012345', tiktok: 'C1A2B3C4D5E6F7G8H9I0' });
+    // La base refuse elle-même un texte libre, même écrit directement.
+    await expect(chezP((trx) => trx.updateTable('boutiques').set({ pixel_facebook: '1<script>' }).execute())).rejects.toThrow(/check/);
+    expect(await chezP((trx) => enregistrerPixels(trx, P, { facebook: '', tiktok: '' }))).toEqual({ ok: true });
+    expect((await chezP(lireReglages)).pixels).toEqual({ facebook: null, tiktok: null });
+  });
+});

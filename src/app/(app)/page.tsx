@@ -48,6 +48,7 @@ export default async function Accueil({ searchParams }: { searchParams: Promise<
   if (a('stock') && peut('stock.corriger') && c.ecarts) aFaire.push({ cle: 'ecarts', texte: t('faire.ecarts', { n: c.ecarts }), lien: '/stock' });
   if (a('stock') && c.ruptures) aFaire.push({ cle: 'ruptures', texte: t('faire.ruptures', { n: c.ruptures }), lien: '/stock?filtre=rupture' });
   if (a('factures') && c.devisEnAttente) aFaire.push({ cle: 'devis', texte: t('faire.devis', { n: c.devisEnAttente }), lien: '/factures?onglet=devis' });
+  if (a('clients') && peut('vendre') && c.creditsClients) aFaire.push({ cle: 'credits', texte: t('faire.credits', { montant: formaterMontant(c.creditsClients, langue) }), lien: '/clients?filtre=doivent' });
   if (a('caisse') && c.caisseNonCloturee) aFaire.push({ cle: 'caisse', texte: t('faire.caisse'), lien: '/caisse/cloture' });
   // Rappel mensuel : les dix premiers jours du mois, télécharger l'archive du mois précédent.
   if (a('rapports') && Number(jourAlger().slice(8)) <= 10) aFaire.push({ cle: 'archive', texte: t('faire.archive'), lien: '/rapports/export?periode=mois_precedent' });

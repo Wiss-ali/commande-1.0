@@ -21,8 +21,8 @@ async function article(c: Contexte, nom: string, prixAchat: number, prixVente: n
   return (await chez(c, (trx) => lireProduit(trx, r.id)))!.variantes[0]!.id;
 }
 async function commande(wilaya: number, varianteId: string, frais: number) {
-  const r = await chez(A, (trx) => creerCommande(trx, A, {
-    client: { nom: 'Client', telephone: telephone() }, wilaya, commune: 'Centre', livraison: 'domicile', lignes: [{ varianteId, quantite: 1 }], frais, cle: cle(), libelleLivraison: 'Livraison',
+  const r = await chez(A, async (trx) => creerCommande(trx, A, {
+    client: { nom: 'Client', telephone: telephone() }, wilaya, commune: (await trx.selectFrom('communes').select('nom_fr').where('wilaya_code', '=', wilaya).orderBy('id').executeTakeFirstOrThrow()).nom_fr, livraison: 'domicile', lignes: [{ varianteId, quantite: 1 }], frais, cle: cle(), libelleLivraison: 'Livraison',
   }));
   if (!r.ok) throw new Error(r.raison);
   return r.id;

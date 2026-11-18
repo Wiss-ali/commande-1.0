@@ -74,22 +74,33 @@ boutique `/b/magasin-demo`. **Jamais sur le site réel.**
 - [ ] Faire un essai de restauration sur la copie de test (guide, section 8).
 - [ ] Faire une mise à jour sur la copie de test, puis sur le site réel ; essayer `./deployer.sh prod retour`.
 
+## H. Lot d'ajouts n° 1 (18/11/2026)
+
+La liste complète « à essayer » est dans `docs/ajouts-1/02-bilan.md` : remises, moyens de paiement, vente à crédit,
+retour d'une partie, communes, pixel, fournisseurs et arrivages, dépenses et bénéfice net, argent des colis livrés,
+plusieurs photos, barre du bas, export depuis Factures.
+
 ## Questions à trancher (choix par défaut appliqués en attendant)
 
 | # | Question | Choix par défaut aujourd'hui |
 |---|---|---|
 | 1 | **Barème du droit de timbre et taux de TVA** (avec un comptable) | Rien n'est ajouté tant que ce n'est pas saisi |
 | 2 | **Mot de passe des commerçants** : 8 caractères sans double authentification imposée (votre choix). La norme NIST de 2025 demande 15 caractères quand le mot de passe est utilisé seul. Garder 8, passer à 12 ou 15, ou imposer la double authentification ? | 8 caractères (votre choix du 17/11), liste des mots de passe courants, blocage après 5 essais |
-| 3 | **Avoir partiel** (annuler une seule ligne d'une facture) | Plus tard |
-| 4 | **Argent reversé par le transporteur** (suivre le jour du versement) | Plus tard |
+| 3 | ~~Avoir partiel~~ | **Fait le 18/11/2026** (lot d'ajouts n° 1) |
+| 4 | ~~Argent reversé par le transporteur~~ | **Fait le 18/11/2026** (Commandes › Argent reçu) |
 | 5 | ~~Mettre la branche principale (`main`) à jour~~ | **Fait le 17/11/2026** |
 | 6 | **Hébergeur** : lequel choisir (ICOSNET, Djaweb, Octenium…) ; le guide fonctionne avec tous | À choisir |
 | 7 | **Déclaration à l'ANPDP** (loi 18-07 / 25-11) | Démarche à faire de votre côté |
 | 8 | **Facture d'abonnement** de vous au commerçant, rappels par SMS ou e-mail | Plus tard |
+| 9 | **« Voir comme le commerçant »** : voir son vrai compte en lecture seule (pour l'aider), ou seulement ses écrans sans ses données ? | Pas fait, en attente de votre réponse |
+| 10 | **Moyen « TPE (terminal de la banque) »** à la caisse (on note seulement le moyen, aucune carte n'entre) | Pas ajouté |
+| 11 | **Pixel publicitaire** : désactivé par défaut, activé par le commerçant, mention dans la boutique (choix appliqué) — d'accord ? | Désactivé par défaut |
+| 12 | **Commandes abandonnées** (garder le téléphone d'un acheteur qui n'a pas validé) | Pas fait |
+| 13 | **Timbre** : seulement sur la part payée en espèces au moment de la vente ; rien sur un paiement plus tard (à confirmer avec un comptable) | Appliqué ainsi |
 
 ## Points à vérifier dans les textes officiels (non joignables pendant la construction)
 
-- Numérotation des wilayas 59 à 69 (décret 26-206) au Journal officiel ; liste des 1 541 communes à importer.
+- Numérotation des wilayas 59 à 69 (décret 26-206) au Journal officiel. Les 1 541 communes sont importées (jeu de données vérifié contre le JO, ODbL) ; noms arabes et 272 graphies à confirmer, corrigeables dans l'administration.
 - Mentions obligatoires de la facture et de l'avoir (décret 05-468), droit de timbre, TVA.
 - Durée légale de conservation des factures en Algérie.
 - Loi 18-05 : délais de livraison et de retour.

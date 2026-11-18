@@ -110,15 +110,15 @@ export async function construireArchive(trx: Trx, o: { commercantId: string; per
     stock.rows.map((s) => [s.nom_fr, s.nom_ar, s.libelle, s.code_barres ?? '', s.quantite, s.reservee, montantCsv(s.prix_achat), montantCsv(s.prix_vente), montantCsv(Number(s.prix_achat) * s.quantite)]),
   );
 
-  const clients = await sql<{ id: string; nom: string; telephone_chiffre: string | null; factures: number; depense: string }>`
+  const clients = await sql<{ id: string; nom: string; telephone_chiffre: string | null; factures: number; depense: string; du: string }>`
     SELECT c.id, c.nom, c.telephone_chiffre,
       (SELECT count(*) FROM documents d WHERE d.client_id = c.id AND d.type = 'facture')::int AS factures,
-      coalesce((SELECT sum(d.total) FROM documents d WHERE d.client_id = c.id AND d.type = 'facture'
-        AND NOT EXISTS (SELECT 1 FROM liens_documents l WHERE l.source_id = d.id AND l.nature = 'corrige_par')), 0) AS depense
+      coalesce((SELECT sum(s.net) FROM soldes_documents s WHERE s.client_id = c.id), 0) AS depense,
+      coalesce((SELECT sum(s.net - s.paye) FROM soldes_documents s WHERE s.client_id = c.id AND (s.mode_vente IS NULL OR s.mode_vente <> 'envoi') AND s.net > s.paye), 0) AS du
     FROM clients c ORDER BY c.nom`.execute(trx);
   fichiers[`${t('fichierClients')}.csv`] = csv(
-    [t('colClient'), t('colTelephone'), t('colNbFactures'), t('colDepense')],
-    clients.rows.map((c) => [c.nom, dechiffrerOuNul(c.telephone_chiffre, `clients.telephone:${c.id}`) ?? '', c.factures, montantCsv(c.depense)]),
+    [t('colClient'), t('colTelephone'), t('colNbFactures'), t('colDepense'), t('colDu')],
+    clients.rows.map((c) => [c.nom, dechiffrerOuNul(c.telephone_chiffre, `clients.telephone:${c.id}`) ?? '', c.factures, montantCsv(c.depense), montantCsv(c.du)]),
   );
 
   // Un PDF par document, dans la langue choisie, rangé par type.

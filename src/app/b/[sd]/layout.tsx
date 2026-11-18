@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { getLocale, getTranslations } from 'next-intl/server';
 import type { ReactNode } from 'react';
 import { CompteurPanier } from '@/components/boutique/CompteurPanier';
+import { Pixels } from '@/components/boutique/Pixels';
 import { BoutonLangue } from '@/components/EnTete';
 import { PALETTE } from '@/lib/boutique';
 import { formaterTelephone } from '@/lib/formats';
@@ -45,6 +46,8 @@ export default async function CadreBoutique({ params, children }: { params: Prom
   return (
     <div className="boutique flex min-h-dvh flex-col">
       <style nonce={c.nonce}>{css}</style>
+      {/* Pixels publicitaires : seulement sur la boutique en ligne, jamais pendant l'aperçu du commerçant. */}
+      {!c.apercu ? <Pixels facebook={v.reglages.pixels.facebook} tiktok={v.reglages.pixels.tiktok} nonce={c.nonce} /> : null}
       {c.apercu ? <p role="status" className="bg-safran px-4 py-2 text-center text-sm font-semibold text-encre">{t('apercuBandeau')}</p> : null}
       <header className="sticky top-0 z-10 border-b border-trait bg-surface">
         <div className="mx-auto flex min-h-16 w-full max-w-3xl items-center gap-2 px-4">
@@ -62,6 +65,7 @@ export default async function CadreBoutique({ params, children }: { params: Prom
           <p className="font-semibold text-encre">{v.nom}{v.formeJuridique ? ` · ${v.formeJuridique}` : ''}</p>
           {v.telephone ? <p>{t('telephoneVendeur')} : <a href={`tel:${v.telephone}`} dir="ltr" className="chiffres underline">{formaterTelephone(v.telephone)}</a></p> : null}
           <p>{t('paiementLivraisonSeul')}</p>
+          {v.reglages.pixels.facebook || v.reglages.pixels.tiktok ? <p className="text-xs">{t('mentionPixels')}</p> : null}
           <p className="pt-2 text-xs">{t('propulse')}</p>
         </div>
       </footer>

@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { action, actionSimple, texte } from '@/lib/actions';
 import { avecCommercant } from '@/lib/bd';
 import {
-  changerSousDomaine, demander, enregistrerAbonnement, enregistrerReglages, fixerImage, lireReglages, marquerVues, mettreEnLigne, ouvrirNotification, MODELES, RESEAUX, retirerAbonnement,
+  changerSousDomaine, demander, enregistrerAbonnement, enregistrerPixels, enregistrerReglages, fixerImage, lireReglages, marquerVues, mettreEnLigne, ouvrirNotification, MODELES, RESEAUX, retirerAbonnement,
   SECTIONS, type Section,
 } from '@/lib/boutique';
 import { journaliser } from '@/lib/journal';
@@ -99,6 +99,20 @@ export const personnaliser = action(async (f) => {
       const ancien = await fixerImage(trx, ctx, quoi, nouvel);
       if (ancien) await supprimerImageLibre(trx, ctx, ancien);
     }
+    return fait;
+  });
+  if (!r.ok) return { erreur: r.raison };
+  revalidatePath('/boutique');
+  return { ok: true };
+});
+
+/** Pixels de mesure des publicités : vides, ils sont désactivés. */
+export const enregistrerPixelsBoutique = action(async (f) => {
+  const s = await exigerEcriture('reglages', 'boutique');
+  const { ip } = await infoRequete();
+  const r = await avecCommercant(s.commercant.id, async (trx) => {
+    const fait = await enregistrerPixels(trx, ctxDe(s), { facebook: texte(f, 'pixelFacebook', 30), tiktok: texte(f, 'pixelTiktok', 40) });
+    if (fait.ok) await journaliser(trx, { commercantId: s.commercant.id, acteurType: 'utilisateur', acteurId: s.utilisateur.id, action: 'boutique.pixels', ip });
     return fait;
   });
   if (!r.ok) return { erreur: r.raison };

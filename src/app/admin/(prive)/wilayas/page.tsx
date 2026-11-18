@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { enregistrerWilayas } from '@/app/actions/admin';
 import { EnTete } from '@/components/EnTete';
@@ -24,7 +25,7 @@ export default async function Wilayas() {
             {wilayas.map((w) => (
               <li key={w.code} className="flex flex-col gap-1.5 rounded-2xl border border-trait bg-surface shadow-doux p-2">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="chiffres font-semibold">{String(w.code).padStart(2, '0')}</span>
+                  <span className="flex items-center gap-3"><span className="chiffres font-semibold">{String(w.code).padStart(2, '0')}</span><Link href={`/admin/wilayas/${w.code}`} className="text-sm font-semibold text-prim underline">{t('communes')}</Link></span>
                   <label className="flex min-h-11 items-center gap-2 text-sm"><input type="checkbox" name={`active_${w.code}`} defaultChecked={w.active} className="size-5 accent-prim" />{t('active')}</label>
                 </div>
                 <div className="grid grid-cols-2 gap-2">

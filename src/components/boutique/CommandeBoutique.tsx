@@ -24,7 +24,7 @@ export function CommandeBoutique({ sd, base, cle, wilayas, apercu }: { sd: strin
   const [etat, envoyer, enCours] = useActionState<Etat, FormData>(commander, {});
   const [wilaya, setWilaya] = useState(0);
   const [livraison, setLivraison] = useState<'domicile' | 'point_relais'>('domicile');
-  const [frais, setFrais] = useState<{ domicile: number | null; relais: number | null }>({ domicile: null, relais: null });
+  const [frais, setFrais] = useState<{ domicile: number | null; relais: number | null; communes: { nom_fr: string; nom_ar: string }[] }>({ domicile: null, relais: null, communes: [] });
   const [paiement, setPaiement] = useState<'livraison' | 'carte'>('livraison');
 
   useEffect(() => {
@@ -95,7 +95,18 @@ export function CommandeBoutique({ sd, base, cle, wilayas, apercu }: { sd: strin
             {wilayas.map((w) => <option key={w.code} value={w.code}>{`${String(w.code).padStart(2, '0')} · ${nomLocal(w, langue)}`}</option>)}
           </select>
         </label>
-        <label className="flex flex-col gap-1.5"><span className="text-sm font-medium">{t('commune')}</span><input name="commune" required maxLength={80} autoComplete="address-level2" className={champ} /></label>
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium">{t('commune')}</span>
+          {/* Liste des communes de la wilaya choisie ; saisie libre seulement si la wilaya n'a pas encore sa liste. */}
+          {frais.communes.length ? (
+            <select key={wilaya} name="commune" required defaultValue="" className={champ}>
+              <option value="">{t('choisirCommune')}</option>
+              {frais.communes.map((c) => <option key={c.nom_fr} value={c.nom_fr}>{langue === 'ar' && c.nom_ar ? c.nom_ar : c.nom_fr}</option>)}
+            </select>
+          ) : (
+            <input name="commune" required maxLength={80} autoComplete="address-level2" disabled={!wilaya} className={champ} />
+          )}
+        </label>
         {frais.relais !== null ? (
           <fieldset>
             <legend className="mb-1.5 text-sm font-medium">{t('livraison')}</legend>

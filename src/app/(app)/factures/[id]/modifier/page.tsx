@@ -25,7 +25,7 @@ export default async function ModifierDevis({ params }: { params: Promise<{ id: 
       <Page>
         <FormulaireDocument
           type="devis" id={id} cle={randomUUID()} note={d.note}
-          lignes={d.lignes.map((l) => ({ varianteId: l.varianteId, designation: l.designation, quantite: String(l.quantite), prix: montantPourSaisie(l.prixUnitaire) }))}
+          lignes={d.lignes.map((l) => ({ varianteId: l.varianteId, designation: l.designation, quantite: String(l.quantite), prix: montantPourSaisie(l.prixUnitaire), remise: l.remise ? montantPourSaisie(l.remise) : '' }))}
           client={a ? { nom: a.nom, telephone: a.telephone ?? '', adresse: a.adresse ?? '', nif: a.nif ?? '', rc: a.rc ?? '', nis: a.nis ?? '', ai: a.ai ?? '' } : {}}
         />
       </Page>

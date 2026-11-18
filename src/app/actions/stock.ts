@@ -12,7 +12,7 @@ import { analyserTaux } from '@/lib/fiscal';
 import { analyserMontant, analyserQuantite } from '@/lib/formats';
 import { importerProduits, type BilanImport, type Colonne } from '@/lib/import-produits';
 import { journaliser } from '@/lib/journal';
-import { enregistrerPhoto, MAX_OCTETS_PHOTO, preparerPhoto, supprimerPhoto, type Images } from '@/lib/photos';
+import { ajouterPhoto, enregistrerPhoto, MAX_OCTETS_PHOTO, photoEnPremier, preparerPhoto, retirerPhoto, supprimerPhoto, type Images } from '@/lib/photos';
 import {
   ajouterMouvement, annulerInventaire, archiverProduit, chercherArticles, chercherParCode, compter, creerProduit, etatVariante, modifierProduit,
   ouvrirInventaire, refusDepuisErreur, retirerLigneInventaire, trouverOuCreerCategorie, validerInventaire, type ArticleTrouve, type Contexte, type EtatStock, type SaisieVariante,
@@ -114,6 +114,33 @@ export const enregistrerProduit = action(async (f) => {
   if (!r.ok) return { erreur: r.raison };
   revalidatePath('/stock', 'layout');
   redirect(`/stock/${r.produitId}`);
+});
+
+// ───────────── Galerie de photos d'un produit ─────────────
+
+/** Ajoute une photo à la galerie du produit (6 au plus). */
+export const ajouterPhotoProduit = action(async (f) => {
+  const s = await exigerEcriture('produits.gerer', 'stock');
+  const id = texte(f, 'produit', 40);
+  if (!UUID.test(id)) return { erreur: 'introuvable' };
+  const photo = f.get('photo');
+  if (!(photo instanceof File) || photo.size === 0) return { erreur: 'photo_invalide' };
+  if (photo.size > MAX_OCTETS_PHOTO) return { erreur: 'photo_invalide' };
+  const images = await preparerPhoto(new Uint8Array(await photo.arrayBuffer()));
+  if (!images) return { erreur: 'photo_invalide' };
+  const r = await avecCommercant(s.commercant.id, (trx) => ajouterPhoto(trx, ctxDe(s), id, images));
+  if (r !== 'ok') return { erreur: r };
+  revalidatePath('/stock', 'layout');
+  return { ok: true };
+});
+
+/** Retire une photo, ou la met en premier (photo principale). */
+export const changerPhotoProduit = actionSimple(async (f) => {
+  const s = await exigerEcriture('produits.gerer', 'stock');
+  const photo = texte(f, 'photo', 40);
+  if (!UUID.test(photo)) return;
+  await chez(s, (trx) => (f.get('op') === 'premier' ? photoEnPremier(trx, photo) : retirerPhoto(trx, ctxDe(s), photo)));
+  revalidatePath('/stock', 'layout');
 });
 
 export const basculerArchive = actionSimple(async (f) => {

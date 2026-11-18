@@ -7,7 +7,7 @@ import { sql } from 'kysely';
 import type { Trx } from './bd.ts';
 import { chiffrer, dechiffrer, dechiffrerOuNul, empreinte } from './chiffrement.ts';
 import {
-  anneeAlger, creerAvoir, creerDocument, libererReservations, prochainNumero, reservationsNettes, transformer, type Mentions,
+  anneeAlger, creerAvoir, creerDocument, libererReservations, prochainNumero, reservationsNettes, soldeDocument, transformer, type Mentions,
 } from './documents.ts';
 import { normaliserTelephone } from './formats.ts';
 import { ajouterMouvement, type Contexte } from './stock.ts';
@@ -28,6 +28,7 @@ export type RefusCommande =
   | 'telephone_invalide'
   | 'wilaya_invalide'
   | 'commune_requise'
+  | 'commune_invalide'
   | 'montant_invalide'
   | 'stock_insuffisant'
   | 'statut_invalide'
@@ -43,6 +44,20 @@ export { numeroCommande };
 export const listerWilayas = (trx: Trx) => trx.selectFrom('wilayas').select(['code', 'nom_fr', 'nom_ar']).where('active', '=', true).orderBy('code').execute();
 export const listerCommunes = (trx: Trx, wilaya: number) =>
   trx.selectFrom('communes').select(['nom_fr', 'nom_ar']).where('wilaya_code', '=', wilaya).where('active', '=', true).orderBy('nom_fr').execute();
+
+const simplifier = (t: string) => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’`]/g, "'").replace(/\s+/g, ' ').trim().toLowerCase();
+
+/**
+ * Commune écrite pour une wilaya : si la wilaya a sa liste de communes, la commune doit en faire partie
+ * (accents et majuscules ignorés, nom français ou arabe) et elle est rendue sous son nom officiel.
+ * Sans liste pour cette wilaya, le texte saisi est gardé.
+ */
+export async function communeOfficielle(trx: Trx, wilaya: number, saisie: string): Promise<string | null> {
+  const liste = await listerCommunes(trx, wilaya);
+  if (!liste.length) return saisie;
+  const cible = simplifier(saisie);
+  return liste.find((c) => simplifier(c.nom_fr) === cible || (c.nom_ar && simplifier(c.nom_ar) === cible))?.nom_fr ?? null;
+}
 
 export const listerTransporteurs = (trx: Trx, tous = false) => {
   let q = trx.selectFrom('transporteurs').select(['id', 'nom', 'actif', 'connecteur']);
@@ -144,8 +159,10 @@ export async function creerCommande(trx: Trx, ctx: Contexte, s: SaisieCommande):
   if (!telephone) return { ok: false, raison: 'telephone_invalide' };
   const wilaya = await trx.selectFrom('wilayas').select(['code', 'nom_fr', 'nom_ar']).where('code', '=', s.wilaya).where('active', '=', true).executeTakeFirst();
   if (!wilaya) return { ok: false, raison: 'wilaya_invalide' };
-  const commune = s.commune.trim().slice(0, 80);
-  if (!commune) return { ok: false, raison: 'commune_requise' };
+  const saisie = s.commune.trim().slice(0, 80);
+  if (!saisie) return { ok: false, raison: 'commune_requise' };
+  const commune = await communeOfficielle(trx, wilaya.code, saisie);
+  if (!commune) return { ok: false, raison: 'commune_invalide' };
   if (!s.lignes.length) return { ok: false, raison: 'panier_vide' };
   const frais = s.frais ?? (await fraisPour(trx, s.wilaya, s.livraison)) ?? 0;
   if (!montantValide(frais)) return { ok: false, raison: 'montant_invalide' };
@@ -259,6 +276,11 @@ export async function marquerLivree(trx: Trx, ctx: Contexte, id: string): Promis
   if (c.statut === 'livree') return { ok: true };
   if (c.statut !== 'expediee' || !c.facture_id) return { ok: false, raison: 'statut_invalide' };
   const maintenant = new Date();
+  // La somme reçue par le livreur est notée comme un paiement « à la livraison » (hors caisse du jour).
+  const solde = await soldeDocument(trx, c.facture_id);
+  if (solde && solde.reste > 0) {
+    await trx.insertInto('paiements').values({ commercant_id: ctx.commercantId, document_id: c.facture_id, montant: solde.reste, mode: 'a_la_livraison', cree_par: ctx.utilisateurId }).execute();
+  }
   await trx.updateTable('documents').set({ paye_le: maintenant, mode_paiement: 'a_la_livraison' }).where('id', '=', c.facture_id).where('paye_le', 'is', null).execute();
   await changerStatut(trx, ctx, id, c.statut, 'livree', { livree_le: maintenant });
   return { ok: true };

@@ -55,11 +55,32 @@ export interface LigneCalculee {
   totalHt: number;
 }
 
-/** Une ligne : le prix unitaire est TTC ; le hors taxe s'en déduit, arrondi au centime. */
-export function calculerLigne(prixUnitaireTtc: number, quantite: number, tauxTva: number): LigneCalculee {
-  const totalTtc = prixUnitaireTtc * quantite;
-  const totalHt = tauxTva ? Math.round((totalTtc * 10_000) / (10_000 + tauxTva)) : totalTtc;
-  return { totalTtc, totalHt };
+/** Hors taxe d'un montant TTC, arrondi au centime. */
+export const horsTaxe = (ttc: number, tauxTva: number) => (tauxTva ? Math.round((ttc * 10_000) / (10_000 + tauxTva)) : ttc);
+
+/** Une ligne : le prix unitaire est TTC ; la remise (TTC) se retire du total ; le hors taxe s'en déduit. */
+export function calculerLigne(prixUnitaireTtc: number, quantite: number, tauxTva: number, remise = 0): LigneCalculee {
+  const totalTtc = prixUnitaireTtc * quantite - remise;
+  return { totalTtc, totalHt: horsTaxe(totalTtc, tauxTva) };
+}
+
+/**
+ * Répartit une remise sur le total entre les lignes, au prorata de leur montant (au centime près, sans perte) :
+ * chaque ligne garde ainsi sa TVA juste. Renvoie la part de chaque ligne.
+ */
+export function repartirRemise(montants: number[], remise: number): number[] {
+  const total = montants.reduce((s, m) => s + m, 0);
+  if (remise <= 0 || total <= 0) return montants.map(() => 0);
+  remise = Math.min(remise, total);
+  const parts = montants.map((m) => Math.floor((m * remise) / total));
+  let reste = remise - parts.reduce((s, p) => s + p, 0);
+  // Les centimes restants vont aux lignes dont la part arrondie a perdu le plus (méthode du plus grand reste).
+  const ordre = montants.map((m, i) => i).sort((a, b) => ((montants[b]! * remise) % total) - ((montants[a]! * remise) % total) || montants[b]! - montants[a]!);
+  for (let k = 0; reste > 0; k = (k + 1) % ordre.length) {
+    const i = ordre[k]!;
+    if (parts[i]! < montants[i]!) { parts[i]!++; reste--; }
+  }
+  return parts;
 }
 
 /** Prix unitaire hors taxe affiché sur la facture. */

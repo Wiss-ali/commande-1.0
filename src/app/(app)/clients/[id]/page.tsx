@@ -6,20 +6,23 @@ import { EnTete } from '@/components/EnTete';
 import { Page } from '@/components/Page';
 import { PastilleCommande } from '@/components/PastilleCommande';
 import { Formulaire } from '@/components/Formulaire';
-import { Carte, classeBouton, Message, Pastille, TitreSection } from '@/components/ui';
+import { Carte, Champ, classeBouton, Message, Pastille, TitreSection } from '@/components/ui';
 import { effacerClient } from '@/app/actions/clients';
+import { encaisserCredit } from '@/app/actions/ventes';
 import { autorise } from '@/lib/droits';
 import { avecCommercant } from '@/lib/bd';
 import { lireClient } from '@/lib/clients';
 import { listerCommandes } from '@/lib/commandes';
-import { numeroTexte } from '@/lib/documents';
+import { dettesClient, numeroTexte } from '@/lib/documents';
+import { MODES_ENCAISSEMENT } from '@/lib/types-bd';
+import { randomUUID } from 'node:crypto';
 import { formaterDate, formaterMontant, formaterTelephone } from '@/lib/formats';
 import type { Langue } from '@/lib/types-bd';
 import { pageUtilisateur } from '@/lib/web';
 
 const UUID = /^[0-9a-f-]{36}$/i;
 
-export default async function Client({ params }: { params: Promise<{ id: string }> }) {
+export default async function Client({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ verse?: string }> }) {
   const s = await pageUtilisateur('vendre', 'clients');
   const { id } = await params;
   if (!UUID.test(id)) notFound();
@@ -28,16 +31,20 @@ export default async function Client({ params }: { params: Promise<{ id: string 
   const td = await getTranslations('pdf');
   const tf = await getTranslations('factures');
   const langue = (await getLocale()) as Langue;
-  const { c, commandes } = await avecCommercant(s.commercant.id, async (trx) => ({
+  const { c, commandes, dettes } = await avecCommercant(s.commercant.id, async (trx) => ({
     c: await lireClient(trx, id),
     commandes: await listerCommandes(trx, { filtre: 'toutes', clientId: id, limite: 50 }),
+    dettes: await dettesClient(trx, id),
   }));
+  const tp = await getTranslations('paiement');
+  const verse = Boolean((await searchParams).verse);
   if (!c) notFound();
   const voirCommandes = s.commercant.modules.commandes;
   return (
     <>
       <EnTete titre={c.nom} retour="/clients" />
       <Page>
+        {verse ? <Message ton="succes">{tp('versementFait')}</Message> : null}
         <Carte className="flex flex-col gap-2">
           <p className="text-lg font-bold">{c.nom}</p>
           {c.telephone ? <p className="chiffres text-lg" dir="ltr">{formaterTelephone(c.telephone)}</p> : null}
@@ -55,6 +62,36 @@ export default async function Client({ params }: { params: Promise<{ id: string 
           <Carte><p className="text-sm text-doux">{t('depense')}</p><p className="text-xl font-bold">{formaterMontant(c.depense, langue)}</p></Carte>
           <Carte><p className="text-sm text-doux">{t('tauxRetour')}</p><p className={`chiffres text-xl font-bold ${c.tauxRetour ? 'text-terre' : ''}`}>{c.tauxRetour === null ? '—' : `${c.tauxRetour} %`}</p></Carte>
         </div>
+        {c.du > 0 ? (
+          <Carte className="flex flex-col gap-3 border-safran">
+            <div><p className="text-sm text-doux">{t('resteDu')}</p><p className="text-2xl font-bold text-sur-safran">{formaterMontant(c.du, langue)}</p></div>
+            <ul className="flex flex-col divide-y divide-trait text-sm">
+              {dettes.map((d) => (
+                <li key={d.documentId}>
+                  <Link href={`/factures/${d.documentId}`} className="flex min-h-11 items-center justify-between gap-3 py-2">
+                    <span><span className="font-semibold text-prim underline">{td(`type_${d.type}`)} <span className="chiffres">{numeroTexte(d)}</span></span> · <span className="chiffres text-doux">{formaterDate(d.emisLe)}</span></span>
+                    <span className="shrink-0 font-semibold">{formaterMontant(d.reste, langue)}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            {s.commercant.etat === 'actif' ? (
+              <Formulaire action={encaisserCredit} bouton={tp('versementBouton')}>
+                <input type="hidden" name="client" value={c.id} />
+                <input type="hidden" name="cle" value={randomUUID()} />
+                <p className="text-sm text-doux">{tp('versementTexte')}</p>
+                <Champ libelle={tp('montant')} name="montant" inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" required />
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium">{tp('mode')}</span>
+                  <select name="mode" defaultValue="especes" className="min-h-12 rounded-xl border border-trait bg-surface px-3 text-base">
+                    {MODES_ENCAISSEMENT.map((m) => <option key={m} value={m}>{td(`mode_${m}`)}</option>)}
+                  </select>
+                </label>
+                <Champ libelle={tp('reference')} name="reference" dir="ltr" maxLength={60} autoComplete="off" aide={tp('referenceAide')} />
+              </Formulaire>
+            ) : null}
+          </Carte>
+        ) : null}
         <p className="text-sm text-doux">{t('resume', { achats: c.achats, commandes: c.commandes, livrees: c.livrees, retournees: c.retournees, annulees: c.annulees })}</p>
 
         {voirCommandes && commandes.length ? (

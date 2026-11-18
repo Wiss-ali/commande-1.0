@@ -1,16 +1,17 @@
 'use client';
-// Caisse : panier rempli par scan ou recherche, encaissement en espèces, ticket ou facture.
+// Caisse : panier rempli par scan ou recherche, remises, encaissement (espèces, chèque, virement, CCP, à crédit),
+// ticket ou facture.
 // Le catalogue est chargé une fois dans le téléphone : la recherche et le scan sont immédiats,
 // et la vente reste possible si la connexion coupe. Une vente non envoyée est gardée dans le téléphone
 // avec sa clé : elle part dès que la connexion revient, sans jamais être comptée deux fois.
-import { Minus, Package, Plus, ScanLine, Search, Trash2, WifiOff, X } from 'lucide-react';
+import { BadgePercent, Minus, Package, Plus, ScanLine, Search, Trash2, WifiOff, X } from 'lucide-react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { vendre, type ResultatVente } from '@/app/actions/ventes';
 import { normaliserCode } from '@/lib/codes-barres';
 import { analyserMontant, formaterMontant } from '@/lib/formats';
-import type { Langue } from '@/lib/types-bd';
+import { MODES_ENCAISSEMENT, type Langue, type ModeEncaissement } from '@/lib/types-bd';
 import { Scanner } from './Scanner';
 import { Carte, Champ, classeBouton, Message } from './ui';
 
@@ -24,13 +25,37 @@ export interface ArticleCaisse {
   stock: number;
   photo: string | null;
 }
+interface Encaisse {
+  mode: ModeEncaissement;
+  montant: number;
+  reference?: string;
+}
 interface VenteEnAttente {
-  lignes: { varianteId: string; quantite: number }[];
+  lignes: { varianteId: string; quantite: number; remise?: number }[];
   facture: boolean;
   acheteur: Record<string, string> | null;
   cle: string;
   total: number;
+  remiseGlobale?: number;
+  /** Absent : tout en espèces. */
+  encaisse?: Encaisse[];
 }
+type ChoixPaiement = ModeEncaissement | 'credit';
+const CHOIX: readonly ChoixPaiement[] = [...MODES_ENCAISSEMENT, 'credit'];
+
+/** « 500 » → 500 DA ; « 10 % » → 10 % de la base. Null si la saisie est fausse ; 0 si vide. */
+function lireRemise(saisie: string, base: number): number | null {
+  const t = saisie.trim();
+  if (!t) return 0;
+  if (t.endsWith('%')) {
+    const p = Number(t.slice(0, -1).trim().replace(',', '.'));
+    if (!Number.isFinite(p) || p < 0 || p > 100) return null;
+    return Math.round((base * p) / 100);
+  }
+  const m = analyserMontant(t);
+  return m === null || m > base ? null : m;
+}
+const envoyer = (v: VenteEnAttente) => vendre({ lignes: v.lignes, facture: v.facture, acheteur: v.acheteur, cle: v.cle, remiseGlobale: v.remiseGlobale, encaisse: v.encaisse });
 type Fin = { etat: 'envoyee'; resultat: Extract<ResultatVente, { ok: true }>; rendu: number | null } | { etat: 'gardee'; total: number; rendu: number | null };
 
 const CHAMPS_CLIENT = ['nom', 'telephone', 'adresse', 'nif', 'rc', 'nis', 'ai'] as const;
@@ -47,7 +72,7 @@ function lireFile(cle: string): VenteEnAttente[] {
   }
 }
 
-export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magasin: string }) {
+export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse[]; magasin: string; remises: boolean }) {
   const t = useTranslations('caisse');
   const te = useTranslations('erreurs');
   const tl = useTranslations('legal');
@@ -61,6 +86,13 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
   const [recu, setRecu] = useState('');
   const [facture, setFacture] = useState(false);
   const [client, setClient] = useState<Record<string, string>>({});
+  const [remisesLignes, setRemisesLignes] = useState<Map<string, string>>(new Map());
+  const [ligneRemise, setLigneRemise] = useState<string | null>(null);
+  const [remiseTotal, setRemiseTotal] = useState('');
+  const [choix, setChoix] = useState<ChoixPaiement>('especes');
+  const [reference, setReference] = useState('');
+  const [second, setSecond] = useState<{ mode: ModeEncaissement; montant: string } | null>(null);
+  const [payeMaintenant, setPayeMaintenant] = useState('');
   const [message, setMessage] = useState<{ ton: 'erreur' | 'info'; texte: string } | null>(null);
   const [envoi, setEnvoi] = useState(false);
   const [fin, setFin] = useState<Fin | null>(null);
@@ -70,8 +102,16 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
   const parId = useMemo(() => new Map(articles.map((a) => [a.id, a])), [articles]);
   const parCode = useMemo(() => new Map(articles.flatMap((a) => (a.code ? [[a.code, a] as const] : []))), [articles]);
   const nom = useCallback((a: ArticleCaisse) => `${langue === 'ar' ? a.nomAr || a.nomFr : a.nomFr || a.nomAr}${a.libelle ? ` · ${a.libelle}` : ''}`, [langue]);
-  const lignes = [...panier].flatMap(([id, quantite]) => (parId.has(id) ? [{ article: parId.get(id)!, quantite }] : []));
-  const total = lignes.reduce((s, l) => s + l.article.prix * l.quantite, 0);
+  const lignes = [...panier].flatMap(([id, quantite]) => {
+    const article = parId.get(id);
+    if (!article) return [];
+    const brut = article.prix * quantite;
+    return [{ article, quantite, brut, remise: lireRemise(remisesLignes.get(id) ?? '', brut) }];
+  });
+  const sousTotal = lignes.reduce((s, l) => s + l.brut - (l.remise ?? 0), 0);
+  const remiseGlobale = lireRemise(remiseTotal, sousTotal);
+  const total = sousTotal - (remiseGlobale ?? 0);
+  const remiseFausse = remiseGlobale === null || lignes.some((l) => l.remise === null);
   // Grille de la caisse : tous les produits (les plus vendus d'abord, voir la page), filtrés par la recherche.
   // Sans tenir compte des accents : « the » trouve « Thé ».
   const filtres = useMemo(() => {
@@ -85,7 +125,10 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
     setPanier((p) => {
       const suivant = new Map(p);
       const q = (suivant.get(id) ?? 0) + n;
-      if (q <= 0) suivant.delete(id);
+      if (q <= 0) {
+        suivant.delete(id);
+        setRemisesLignes((r) => { const m = new Map(r); m.delete(id); return m; });
+      }
       else suivant.set(id, Math.min(q, 9999));
       return suivant;
     });
@@ -105,7 +148,7 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
       for (const vente of lireFile(cleFile)) {
         let reponse: ResultatVente;
         try {
-          reponse = await vendre({ lignes: vente.lignes, facture: vente.facture, acheteur: vente.acheteur, cle: vente.cle });
+          reponse = await envoyer(vente);
         } catch {
           break; // toujours pas de connexion : on réessaiera
         }
@@ -128,26 +171,50 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
     };
   }, [vider]);
 
+  /** Sommes reçues selon le choix, ou un message d'erreur. Absent : tout en espèces. */
+  function encaissement(): { encaisse?: Encaisse[]; especes: number } | { erreur: string } {
+    const ref = reference.trim() || undefined;
+    if (choix === 'credit') {
+      const paye = payeMaintenant.trim() ? analyserMontant(payeMaintenant) : 0;
+      if (paye === null || paye >= total) return { erreur: t('payeMaintenantFaux') };
+      return { encaisse: paye ? [{ mode: 'especes', montant: paye }] : [], especes: paye };
+    }
+    if (second) {
+      const m2 = analyserMontant(second.montant);
+      if (m2 === null || m2 <= 0 || m2 >= total || second.mode === choix) return { erreur: t('secondFaux') };
+      const premier = { mode: choix, montant: total - m2, reference: ref };
+      return { encaisse: [premier, { mode: second.mode, montant: m2 }], especes: choix === 'especes' ? total - m2 : second.mode === 'especes' ? m2 : 0 };
+    }
+    if (choix === 'especes') return { especes: total };
+    return { encaisse: [{ mode: choix, montant: total, reference: ref }], especes: 0 };
+  }
+
   async function valider() {
     if (!lignes.length || envoi) return;
-    if (facture && !client.nom?.trim()) return setMessage({ ton: 'erreur', texte: te('client_requis') });
-    const montantRecu = recu.trim() ? analyserMontant(recu) : null;
-    if (recu.trim() && (montantRecu === null || montantRecu < total)) return setMessage({ ton: 'erreur', texte: t('recuInsuffisant') });
+    if (remiseFausse || total < 0) return setMessage({ ton: 'erreur', texte: te('remise_invalide') });
+    const credit = choix === 'credit';
+    if ((facture || credit) && !client.nom?.trim()) return setMessage({ ton: 'erreur', texte: te(credit ? 'client_credit' : 'client_requis') });
+    const e = encaissement();
+    if ('erreur' in e) return setMessage({ ton: 'erreur', texte: e.erreur });
+    const montantRecu = recu.trim() && e.especes ? analyserMontant(recu) : null;
+    if (recu.trim() && e.especes && (montantRecu === null || montantRecu < e.especes)) return setMessage({ ton: 'erreur', texte: t('recuInsuffisant') });
     const vente: VenteEnAttente = {
-      lignes: lignes.map((l) => ({ varianteId: l.article.id, quantite: l.quantite })),
+      lignes: lignes.map((l) => ({ varianteId: l.article.id, quantite: l.quantite, ...(l.remise ? { remise: l.remise } : {}) })),
       facture,
-      acheteur: facture ? Object.fromEntries(CHAMPS_CLIENT.map((c) => [c, client[c] ?? ''])) : null,
+      acheteur: facture || credit ? Object.fromEntries(CHAMPS_CLIENT.map((c) => [c, client[c] ?? ''])) : null,
       cle: crypto.randomUUID(),
       total,
+      ...(remiseGlobale ? { remiseGlobale } : {}),
+      ...(e.encaisse ? { encaisse: e.encaisse } : {}),
     };
-    const rendu = montantRecu === null ? null : montantRecu - total;
+    const rendu = montantRecu === null ? null : montantRecu - e.especes;
     setEnvoi(true);
     setMessage(null);
     // La vente est d'abord écrite dans le téléphone : une coupure au mauvais moment ne la perd pas.
     localStorage.setItem(cleFile, JSON.stringify([...lireFile(cleFile), vente]));
     let reponse: ResultatVente | null = null;
     try {
-      reponse = await vendre({ lignes: vente.lignes, facture: vente.facture, acheteur: vente.acheteur, cle: vente.cle });
+      reponse = await envoyer(vente);
     } catch {
       // Pas de réponse : la vente reste dans le téléphone et partira plus tard.
     }
@@ -161,9 +228,17 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
     setRecu('');
     setFacture(false);
     setClient({});
+    setRemisesLignes(new Map());
+    setRemiseTotal('');
+    setChoix('especes');
+    setReference('');
+    setSecond(null);
+    setPayeMaintenant('');
   }
 
   const rendu = recu.trim() ? analyserMontant(recu) : null;
+  // Part payée en espèces, pour la monnaie à rendre.
+  const partEspeces = choix === 'especes' ? total - (second ? (analyserMontant(second.montant) ?? 0) : 0) : second?.mode === 'especes' ? (analyserMontant(second.montant) ?? 0) : choix === 'credit' ? (analyserMontant(payeMaintenant) ?? 0) : 0;
 
   if (fin) {
     return (
@@ -217,19 +292,30 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
 
       {lignes.length ? (
         <ul className="flex flex-col gap-2">
-          {lignes.map(({ article, quantite }) => (
+          {lignes.map(({ article, quantite, brut, remise }) => (
             <li key={article.id} className="rounded-2xl border border-trait bg-surface shadow-doux p-3">
               <div className="flex items-start justify-between gap-3">
                 <p className="min-w-0 font-semibold">{nom(article)}</p>
-                <p className="shrink-0 font-bold">{formaterMontant(article.prix * quantite, langue)}</p>
+                <p className="shrink-0 text-end font-bold">
+                  {remise ? <span className="block text-xs font-normal text-doux line-through">{formaterMontant(brut, langue)}</span> : null}
+                  {formaterMontant(brut - (remise ?? 0), langue)}
+                </p>
               </div>
               <div className="mt-2 flex items-center gap-2">
                 <button type="button" onClick={() => ajouter(article.id, -1)} aria-label={t('moins', { article: nom(article) })} className="inline-flex size-11 items-center justify-center rounded-lg border border-trait"><Minus aria-hidden className="size-4" /></button>
                 <span className="chiffres min-w-10 text-center text-lg font-bold">{quantite}</span>
                 <button type="button" onClick={() => ajouter(article.id, 1)} aria-label={t('plus', { article: nom(article) })} className="inline-flex size-11 items-center justify-center rounded-lg border border-trait"><Plus aria-hidden className="size-4" /></button>
                 <span className="flex-1 text-sm text-doux">{formaterMontant(article.prix, langue)}{quantite > article.stock ? ` · ${t('stockConnu', { n: article.stock })}` : ''}</span>
+                {remises ? (
+                  <button type="button" onClick={() => setLigneRemise(ligneRemise === article.id ? null : article.id)} aria-expanded={ligneRemise === article.id} aria-label={t('remiseSur', { article: nom(article) })} className={`inline-flex size-11 items-center justify-center rounded-lg border ${remise ? 'border-prim text-prim' : 'border-trait'}`}><BadgePercent aria-hidden className="size-4" /></button>
+                ) : null}
                 <button type="button" onClick={() => ajouter(article.id, -quantite)} aria-label={t('retirer', { article: nom(article) })} className="inline-flex size-11 items-center justify-center rounded-lg text-terre"><Trash2 aria-hidden className="size-4" /></button>
               </div>
+              {remises && ligneRemise === article.id ? (
+                <div className="mt-2">
+                  <Champ libelle={t('remiseLigne')} value={remisesLignes.get(article.id) ?? ''} onChange={(e) => { const v = e.target.value; setRemisesLignes((r) => new Map(r).set(article.id, v)); }} dir="ltr" maxLength={14} autoComplete="off" aide={remise === null ? te('remise_invalide') : t('remiseAide')} />
+                </div>
+              ) : null}
             </li>
           ))}
         </ul>
@@ -285,9 +371,54 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
               <button type="button" onClick={() => setPaiement(false)} aria-label={t('fermer')} className="inline-flex size-11 items-center justify-center rounded-xl border border-trait bg-surface"><X aria-hidden className="size-5" /></button>
             </div>
             <Carte className="flex flex-col gap-3">
+              {remises ? (
+                <Champ libelle={t('remiseTotal')} value={remiseTotal} onChange={(e) => setRemiseTotal(e.target.value)} dir="ltr" maxLength={14} autoComplete="off" aide={remiseGlobale === null ? te('remise_invalide') : t('remiseAide')} />
+              ) : null}
+              {sousTotal !== total ? <p className="text-sm text-doux">{t('sousTotal')} : <span className="line-through">{formaterMontant(sousTotal, langue)}</span></p> : null}
               <div><p className="text-sm text-doux">{t('aPayer')}</p><p className="text-3xl font-bold">{formaterMontant(total, langue)}</p></div>
-              <Champ libelle={t('recu')} value={recu} onChange={(e) => setRecu(e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('recuAide')} />
-              {rendu !== null && rendu >= total ? <p className="text-lg font-bold text-prim">{t('aRendre')} : {formaterMontant(rendu - total, langue)}</p> : null}
+            </Carte>
+            <fieldset className="flex flex-col gap-2">
+              <legend className="mb-1.5 text-sm font-medium">{t('modePaiement')}</legend>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {CHOIX.map((c) => (
+                  <label key={c} className={`flex min-h-12 cursor-pointer items-center gap-2 rounded-xl border bg-surface px-3 ${choix === c ? 'border-prim ring-1 ring-prim' : 'border-trait'}`}>
+                    <input type="radio" name="choix" checked={choix === c} onChange={() => { setChoix(c); if (c === 'credit') setSecond(null); }} className="size-5 accent-prim" />
+                    <span className="text-sm">{t(`mode_${c}`)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <Carte className="flex flex-col gap-3">
+              {choix === 'credit' ? (
+                <>
+                  <p className="text-sm">{t('creditTexte')}</p>
+                  <Champ libelle={t('payeMaintenant')} value={payeMaintenant} onChange={(e) => setPayeMaintenant(e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('payeMaintenantAide')} />
+                </>
+              ) : (
+                <>
+                  {choix !== 'especes' ? <Champ libelle={t('reference')} value={reference} onChange={(e) => setReference(e.target.value)} dir="ltr" maxLength={60} autoComplete="off" aide={t('referenceAide')} /> : null}
+                  {second ? (
+                    <div className="flex flex-col gap-2 rounded-xl border border-trait p-3">
+                      <label className="flex flex-col gap-1.5">
+                        <span className="text-sm font-medium">{t('secondMoyen')}</span>
+                        <select value={second.mode} onChange={(e) => setSecond({ ...second, mode: e.target.value as ModeEncaissement })} className="min-h-12 rounded-xl border border-trait bg-surface px-3 text-base">
+                          {MODES_ENCAISSEMENT.filter((m) => m !== choix).map((m) => <option key={m} value={m}>{t(`mode_${m}`)}</option>)}
+                        </select>
+                      </label>
+                      <Champ libelle={t('montantSecond')} value={second.montant} onChange={(e) => setSecond({ ...second, montant: e.target.value })} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('montantSecondAide', { mode: t(`mode_${choix}`) })} />
+                      <button type="button" onClick={() => setSecond(null)} className={classeBouton.secondaire}>{t('unSeulMoyen')}</button>
+                    </div>
+                  ) : (
+                    <button type="button" onClick={() => setSecond({ mode: choix === 'especes' ? 'ccp' : 'especes', montant: '' })} className={classeBouton.secondaire}>{t('deuxMoyens')}</button>
+                  )}
+                </>
+              )}
+              {partEspeces > 0 ? (
+                <>
+                  <Champ libelle={t('recu')} value={recu} onChange={(e) => setRecu(e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('recuAide')} />
+                  {rendu !== null && rendu >= partEspeces ? <p className="text-lg font-bold text-prim">{t('aRendre')} : {formaterMontant(rendu - partEspeces, langue)}</p> : null}
+                </>
+              ) : null}
             </Carte>
             <fieldset className="flex flex-col gap-2">
               <legend className="mb-1.5 text-sm font-medium">{t('document')}</legend>
@@ -298,8 +429,9 @@ export function Caisse({ articles, magasin }: { articles: ArticleCaisse[]; magas
                 </label>
               ))}
             </fieldset>
-            {facture ? (
+            {facture || choix === 'credit' ? (
               <Carte className="flex flex-col gap-3">
+                {choix === 'credit' ? <p className="text-sm text-doux">{t('clientCredit')}</p> : null}
                 <Champ libelle={t('clientNom')} value={client.nom ?? ''} onChange={(e) => setClient({ ...client, nom: e.target.value })} maxLength={120} autoComplete="off" />
                 <Champ libelle={t('clientTelephone')} value={client.telephone ?? ''} onChange={(e) => setClient({ ...client, telephone: e.target.value })} type="tel" inputMode="tel" dir="ltr" maxLength={30} autoComplete="off" />
                 <details>

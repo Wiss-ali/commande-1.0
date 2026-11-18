@@ -2,6 +2,15 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 18/11/2026 — Lot d'ajouts n° 1 : les 10 ajouts de la revue, export dans Factures, barre du bas au choix
+
+- **Décision du propriétaire** : faire les ajouts 1 à 10 de la revue ; seul déplacement : l'export pour le comptable (ajouté dans Factures) ; réglage pour choisir les 4 entrées de la barre du bas ; pas d'alerte de stock sur le téléphone. Questions encore ouvertes : TPE, pixel, commandes abandonnées (choix par défaut prudents appliqués), « voir comme le commerçant » (question reposée : vraie boutique en lecture seule ou écrans sans données ?), pas codé.
+- Recherche et liste : `docs/ajouts-1/01-recherche.md` ; bilan : `docs/ajouts-1/02-bilan.md`.
+- **Migrations** `0012_communes` (1 541 communes, source ouverte vérifiée contre le JO, ODbL, numéros 59–69 identiques), `0013_paiements` (table `paiements` immuable, remise par ligne, `ligne_origine_id` pour l'avoir partiel, `peut_remiser`, vue `soldes_documents` en `security_invoker`, reprise des ventes, reçus et remboursements existants ; isolation suspendue le temps de la reprise car le propriétaire des tables est aussi soumis à FORCE RLS), `0014_pixels`, `0015_fournisseurs` (fournisseurs, arrivages, lignes, paiements fournisseurs, `mouvements_stock.arrivage_id`), `0016_depenses_versements` (dépenses avec déclencheur d'annulation unique et jamais après clôture, versements du transporteur, `commandes.versement_id`), `0017_preferences_photos` (`utilisateurs.barre_bas`, ordre des photos).
+- **Code** : `documents.ts` (encaissements, timbre sur la seule part en espèces, crédit, remise globale répartie au plus grand reste, avoir partiel exact au centime, `encaisserFacture` partiel, `encaisserClient`, `dettesClient`, `clientsQuiDoivent`, clôture par les paiements et sorties), `rapports.ts` (lignes nettes : avoirs partiels comptés), `fournisseurs.ts`, `depenses.ts`, `barre.ts`, `photos.ts` (galerie de 6), pixels (`Pixels.tsx`, `MesurePub.tsx`, CSP élargie seulement sur `/b/`), communes (liste par wilaya chargée à la demande, validation serveur), écrans Fournisseurs, Arrivages, Dépenses, Argent reçu, Barre du bas, Communes (admin).
+- Défauts trouvés en testant et corrigés : ouverture de caisse avant le verrou du numéro (deux ventes simultanées) ; confirmation invisible quand la carte du crédit ou le formulaire des versements disparaît après réussite (message affiché en haut de la page).
+- Tests : 174 ✅ ; 86 parcours ✅ (12 nouveaux). Un 404 aléatoire déjà connu vu une fois dans `parcours.spec.ts`, absent sur deux relances.
+
 ## 18/11/2026 — Revue des modules : ce qui manque, ce qu'il faudrait déplacer ou ajouter
 
 - Demande du propriétaire : vérifier chaque module avec une recherche web et faire un rapport détaillé. **Aucun code modifié.**

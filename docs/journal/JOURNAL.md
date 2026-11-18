@@ -2,6 +2,13 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 18/11/2026 — Audit « comme un pirate » (lecture du code)
+
+- Demande du propriétaire : chercher tous les défauts, sécurité comprise, comme une personne malveillante.
+- Rapport : `docs/audit-securite/01-rapport.md`. 15 points : 2 importants (faux tickets qui vident le stock d'une boutique ; clé privée de sauvegarde encore sur le serveur), 3 moyens (vendeur qui contourne l'interdiction de remise par Factures ; blocage du compte administrateur par un inconnu ; code à 6 chiffres devinable à la longue), le reste faible.
+- Aucune attaque lancée contre le serveur en ligne. Essai local d'un fichier Excel piégé : résiste.
+- Rien n'est corrigé : corrections proposées, en attente de l'accord du propriétaire.
+
 ## 18/11/2026 — Boutique de démonstration de l'administrateur (remplace « voir comme le commerçant »)
 
 - Choix du propriétaire : une boutique fictive remplie, pour essayer et montrer l'application sans créer de compte ni voir les données d'un vrai commerçant. Remise à zéro seulement quand il le décide ; accès réservé à l'administrateur ; réutiliser l'existant.

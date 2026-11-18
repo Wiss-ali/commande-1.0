@@ -14,6 +14,8 @@ Dernière mise à jour : 18/11/2026 — lot d'ajouts n° 1 terminé (bilan `docs
 - **Lot d'ajouts n° 1 (18/11/2026)**, demandé par le propriétaire après la revue des modules (`docs/revue-modules/01-rapport.md`) : moyens de paiement (timbre seulement sur les espèces), remises, retour d'une partie (avoir partiel), vente à crédit et versements, 1 541 communes, pixel Facebook/TikTok (désactivé par défaut), fournisseurs et arrivages (coût moyen pondéré), argent des colis livrés, dépenses et bénéfice net, 6 photos par produit, export dans Factures, barre du bas au choix. Migrations 0012 à 0017. 174 tests et 86 parcours passent. Caisse simplifiée à sa demande (Espèces / Carte « pas encore activée » / menu déroulant ; facture seulement si cochée). **Dans `main`** : à mettre sur le serveur (`git pull` puis `./deployer.sh test` : les migrations 0012 à 0018 passent toutes seules).
 - **Refonte visuelle (18/11/2026)** : blanc, contours bleutés, bleu principal, sombre bleu nuit, police Inter. Voir `docs/refonte-visuelle/01-recherche.md`. Pour l'avoir sur le serveur : `cd /srv/hanout && git pull && cd deploiement && ./deployer.sh test`.
 
+- **Audit « comme un pirate » (18/11/2026)** : `docs/audit-securite/01-rapport.md` (15 points, 2 importants). Rien corrigé : attend l'accord du propriétaire pour lancer les corrections.
+
 ## Façon de travailler (décidée par le propriétaire le 16/11/2026)
 
 - La recherche avant chaque module est faite et écrite dans `docs/etape-N/`, puis le code est lancé **sans attendre** la validation de la liste.
@@ -101,6 +103,7 @@ Sur le serveur : utiliser la **boutique de démonstration de l'administration** 
 | `docs/etape-8/03-asvs.md` | Sécurité : OWASP ASVS niveau 2 et Top 10, couvert ou non |
 | `docs/revue-modules/01-rapport.md` | Revue des modules : ce qui manque, ce qu'il faudrait déplacer ou ajouter |
 | `docs/ajouts-1/` | Lot d'ajouts n° 1 : recherche, bilan, captures |
+| `docs/audit-securite/01-rapport.md` | Audit « comme un pirate » : défauts trouvés et corrections proposées |
 | `docs/GUIDE-INSTALLATION.md` | Guide pas à pas : louer, installer, mettre à jour, restaurer, alertes |
 | `docs/VERIFICATION-FINALE.md` | Tout ce que le propriétaire doit essayer, et les questions à trancher |
 | `deploiement/` | Fichiers et scripts de production (Docker, Caddy, sauvegardes, mise à jour) |

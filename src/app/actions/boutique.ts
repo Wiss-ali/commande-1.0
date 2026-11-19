@@ -5,15 +5,17 @@ import { redirect } from 'next/navigation';
 import { action, actionSimple, texte } from '@/lib/actions';
 import { avecCommercant } from '@/lib/bd';
 import {
-  changerSousDomaine, demander, enregistrerAbonnement, enregistrerPixels, enregistrerReglages, fixerImage, lireReglages, marquerVues, mettreEnLigne, ouvrirNotification, MODELES, RESEAUX, retirerAbonnement,
+  changerSousDomaine, creerBoutique, demander, supprimerBoutique, type SaisieReglages, enregistrerAbonnement, enregistrerPixels, enregistrerReglages, fixerImage, lireReglages, marquerVues, mettreEnLigne, ouvrirNotification, MODELES, RESEAUX, retirerAbonnement,
   SECTIONS, type Section,
 } from '@/lib/boutique';
+import { ACTIVITES, AMBIANCES, FORMES_LOGO } from '@/lib/design-boutique';
+import { textesExemple } from '@/lib/exemples-boutique';
 import { journaliser } from '@/lib/journal';
 import { enregistrerImageLibre, MAX_OCTETS_PHOTO, preparerPhoto, supprimerImageLibre } from '@/lib/photos';
 import { abonnementValide } from '@/lib/push';
 import type { SessionUtilisateur } from '@/lib/sessions';
 import type { Contexte } from '@/lib/stock';
-import type { ModeleBoutique } from '@/lib/types-bd';
+import type { AmbianceBoutique, FormeLogo } from '@/lib/types-bd';
 import { exigerEcriture, exigerUtilisateur, infoRequete } from '@/lib/web';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -45,55 +47,62 @@ export const basculerBoutique = action(async (f) => {
   return { ok: true };
 });
 
-export const choisirModele = action(async (f) => {
-  const s = await exigerEcriture('reglages', 'boutique');
-  const modele = MODELES.find((m) => m === f.get('modele')) as ModeleBoutique | undefined;
-  if (!modele) return { erreur: 'champ_requis' };
-  const produit = texte(f, 'produitUnique', 40);
-  const r = await avecCommercant(s.commercant.id, async (trx) => {
-    const actuels = await lireReglages(trx);
-    return enregistrerReglages(trx, ctxDe(s), { ...actuels, modele, produitUniqueId: modele === 'produit_unique' && UUID.test(produit) ? produit : actuels.produitUniqueId });
-  });
-  if (!r.ok) return { erreur: r.raison };
-  revalidatePath('/boutique');
-  return { ok: true };
-});
-
-/** Personnalisation : couleur, textes, sections, réseaux, WhatsApp, ruptures, pastilles, réservation, logo et bannière. */
+/**
+ * Personnalisation, en trois parties enregistrées séparément (chaque formulaire n'envoie que la sienne) :
+ * « apparence » (modèle, couleur, ambiance, logo dessiné ou envoyé, bannière), « textes » (accroche, accueil,
+ * livraison, retour) et « reglages » (ordre des sections, contact, ruptures, pastilles, réservation).
+ */
 export const personnaliser = action(async (f) => {
   const s = await exigerEcriture('reglages', 'boutique');
+  const partie = f.get('partie');
   const images: Partial<Record<'logo' | 'banniere', Awaited<ReturnType<typeof preparerPhoto>>>> = {};
-  for (const quoi of ['logo', 'banniere'] as const) {
-    const fichier = f.get(quoi);
-    if (fichier instanceof File && fichier.size > 0) {
-      if (fichier.size > MAX_OCTETS_PHOTO) return { erreur: 'photo_invalide' };
-      const prete = await preparerPhoto(new Uint8Array(await fichier.arrayBuffer()));
-      if (!prete) return { erreur: 'photo_invalide' };
-      images[quoi] = prete;
+  if (partie === 'apparence') {
+    for (const quoi of ['logo', 'banniere'] as const) {
+      const fichier = f.get(quoi);
+      if (fichier instanceof File && fichier.size > 0) {
+        if (fichier.size > MAX_OCTETS_PHOTO) return { erreur: 'photo_invalide' };
+        const prete = await preparerPhoto(new Uint8Array(await fichier.arrayBuffer()));
+        if (!prete) return { erreur: 'photo_invalide' };
+        images[quoi] = prete;
+      }
     }
   }
-  // Sections : chaque section a une position (1 à 4) ; les égalités gardent l'ordre par défaut.
-  const sections = [...SECTIONS].map((x, i) => ({ x, p: entier(f, `position_${x}`, i + 1) * 10 + i })).sort((a, b) => a.p - b.p).map((y) => y.x as Section);
   const ctx = ctxDe(s);
   const r = await avecCommercant(s.commercant.id, async (trx) => {
     const actuels = await lireReglages(trx);
-    const fait = await enregistrerReglages(trx, ctx, {
-      ...actuels,
-      couleur: texte(f, 'couleur', 20) || actuels.couleur,
-      accueil: { fr: texte(f, 'accueil_fr', 500), ar: texte(f, 'accueil_ar', 500) },
-      livraison: { fr: texte(f, 'livraison_fr', 1000), ar: texte(f, 'livraison_ar', 1000) },
-      retour: { fr: texte(f, 'retour_fr', 1000), ar: texte(f, 'retour_ar', 1000) },
-      sections,
-      reseaux: Object.fromEntries(RESEAUX.map((n) => [n, texte(f, `reseau_${n}`, 200)])),
-      whatsapp: texte(f, 'whatsapp', 30) || null,
-      ruptures: f.get('ruptures') === 'masque' ? 'masque' : 'visible',
-      plusQue: entier(f, 'plusQue', actuels.plusQue),
-      reservationHeures: entier(f, 'reservationHeures', actuels.reservationHeures),
-    });
+    let saisie: SaisieReglages = actuels;
+    if (partie === 'apparence') {
+      const modele = MODELES.find((m) => m === f.get('modele')) ?? actuels.modele;
+      const produit = texte(f, 'produitUnique', 40);
+      const icone = texte(f, 'logoIcone', 20);
+      saisie = {
+        ...actuels, modele,
+        produitUniqueId: f.has('produitUnique') ? (UUID.test(produit) ? produit : null) : actuels.produitUniqueId,
+        couleur: texte(f, 'couleur', 20) || actuels.couleur,
+        ambiance: (AMBIANCES as readonly string[]).includes(texte(f, 'ambiance', 20)) ? (texte(f, 'ambiance', 20) as AmbianceBoutique) : actuels.ambiance,
+        logoForme: (FORMES_LOGO as readonly string[]).includes(texte(f, 'logoForme', 20)) ? (texte(f, 'logoForme', 20) as FormeLogo) : actuels.logoForme,
+        logoIcone: f.has('logoIcone') ? (icone || null) : actuels.logoIcone,
+      };
+    } else if (partie === 'textes') {
+      const deux = (k: string, max: number) => ({ fr: texte(f, `${k}_fr`, max), ar: texte(f, `${k}_ar`, max) });
+      saisie = { ...actuels, slogan: deux('slogan', 80), accueil: deux('accueil', 500), livraison: deux('livraison', 1000), retour: deux('retour', 1000) };
+    } else if (partie === 'reglages') {
+      // Sections : chaque section a une position ; les égalités gardent l'ordre par défaut.
+      const sections = [...SECTIONS].map((x, i) => ({ x, p: entier(f, `position_${x}`, i + 1) * 10 + i })).sort((a, b) => a.p - b.p).map((y) => y.x as Section);
+      saisie = {
+        ...actuels, sections,
+        reseaux: Object.fromEntries(RESEAUX.map((n) => [n, texte(f, `reseau_${n}`, 200)])),
+        whatsapp: texte(f, 'whatsapp', 30) || null,
+        ruptures: f.get('ruptures') === 'masque' ? 'masque' : 'visible',
+        plusQue: entier(f, 'plusQue', actuels.plusQue),
+        reservationHeures: entier(f, 'reservationHeures', actuels.reservationHeures),
+      };
+    } else return { ok: false as const, raison: 'champ_requis' as const };
+    const fait = await enregistrerReglages(trx, ctx, saisie);
     if (!fait.ok) return fait;
     for (const quoi of ['logo', 'banniere'] as const) {
       const image = images[quoi];
-      const retirer = f.get(`retirer_${quoi}`) === '1';
+      const retirer = partie === 'apparence' && f.get(`retirer_${quoi}`) === '1';
       if (!image && !retirer) continue;
       const nouvel = image ? await enregistrerImageLibre(trx, ctx, image) : null;
       const ancien = await fixerImage(trx, ctx, quoi, nouvel);
@@ -104,6 +113,48 @@ export const personnaliser = action(async (f) => {
   if (!r.ok) return { erreur: r.raison };
   revalidatePath('/boutique');
   return { ok: true };
+});
+
+/** Assistant de création : la boutique est créée coupée, avec les textes d'exemple de l'activité (fr et ar). */
+export const creerMaBoutique = action(async (f) => {
+  const s = await exigerEcriture('reglages', 'boutique');
+  const activite = ACTIVITES[texte(f, 'activite', 20)] ? texte(f, 'activite', 20) : 'autre';
+  const exemples = textesExemple(activite);
+  const ambiance = texte(f, 'ambiance', 20);
+  const forme = texte(f, 'logoForme', 20);
+  const { ip } = await infoRequete();
+  const r = await avecCommercant(s.commercant.id, async (trx) => {
+    const fait = await creerBoutique(trx, ctxDe(s), {
+      sousDomaine: texte(f, 'sousDomaine', 60), activite,
+      modele: MODELES.find((m) => m === f.get('modele')) ?? 'vitrine',
+      couleur: texte(f, 'couleur', 20),
+      ambiance: (AMBIANCES as readonly string[]).includes(ambiance) ? (ambiance as AmbianceBoutique) : 'moderne',
+      logoForme: (FORMES_LOGO as readonly string[]).includes(forme) ? (forme as FormeLogo) : 'rond',
+      logoIcone: texte(f, 'logoIcone', 20) || null,
+      publierTout: f.get('publierTout') === 'oui',
+    }, exemples);
+    if (fait.ok) await journaliser(trx, { commercantId: s.commercant.id, acteurType: 'utilisateur', acteurId: s.utilisateur.id, action: 'boutique.creee', ip });
+    return fait;
+  });
+  if (!r.ok) return { erreur: r.raison };
+  revalidatePath('/', 'layout');
+  redirect('/boutique?creee=1');
+});
+
+/** Suppression de la boutique : il faut retaper son adresse. Produits, commandes et documents restent. */
+export const supprimerMaBoutique = action(async (f) => {
+  const s = await exigerEcriture('reglages', 'boutique');
+  const { ip } = await infoRequete();
+  const r = await avecCommercant(s.commercant.id, async (trx) => {
+    const c = await trx.selectFrom('commercants').select('sous_domaine').executeTakeFirstOrThrow();
+    if (!c.sous_domaine || texte(f, 'confirmation', 60).toLowerCase() !== c.sous_domaine) return false;
+    await supprimerBoutique(trx, ctxDe(s));
+    await journaliser(trx, { commercantId: s.commercant.id, acteurType: 'utilisateur', acteurId: s.utilisateur.id, action: 'boutique.supprimee', ip });
+    return true;
+  });
+  if (!r) return { erreur: 'confirmation_incorrecte' };
+  revalidatePath('/', 'layout');
+  redirect('/boutique?supprimee=1');
 });
 
 /** Pixels de mesure des publicités : vides, ils sont désactivés. */

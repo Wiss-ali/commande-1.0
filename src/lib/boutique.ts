@@ -8,30 +8,22 @@ import { creerCommande, expirerTickets, fraisPour, type RefusCommande } from './
 import { normaliserTelephone } from './formats.ts';
 import { autoriser } from './limites.ts';
 import type { Contexte } from './stock.ts';
-import type { ModeleBoutique, ModeLivraison, TypeDemande } from './types-bd.ts';
+import { ACTIVITES, AMBIANCES, FORMES_LOGO, ICONES_LOGO, PALETTE } from './design-boutique.ts';
+import { supprimerImageLibre } from './photos.ts';
+import type { AmbianceBoutique, FormeLogo, ModeleBoutique, ModeLivraison, TypeDemande } from './types-bd.ts';
 
 export const MODELES: readonly ModeleBoutique[] = ['vitrine', 'catalogue', 'grandes_photos', 'produit_unique'];
-export const SECTIONS = ['accueil', 'produits', 'conditions', 'contact'] as const;
+export const SECTIONS = ['accueil', 'atouts', 'produits', 'conditions', 'contact'] as const;
 export type Section = (typeof SECTIONS)[number];
 export const RESEAUX = ['facebook', 'instagram', 'tiktok'] as const;
 
-/**
- * Couleurs principales proposées : chacune garde un contraste d'au moins 4,5:1 avec le texte blanc des boutons
- * (vérifié par un test). Le commerçant choisit une clé, jamais une couleur libre.
- */
-export const PALETTE: Record<string, { fond: string; pale: string }> = {
-  emeraude: { fond: '#0e6b4e', pale: '#dcefe6' },
-  bleu: { fond: '#1d4ed8', pale: '#dbe5fb' },
-  bordeaux: { fond: '#9b1c31', pale: '#f6dde1' },
-  violet: { fond: '#6b21a8', pale: '#eadcf5' },
-  terre: { fond: '#a63a24', pale: '#f6e0da' },
-  encre: { fond: '#1f2937', pale: '#e3e6ea' },
-};
+// Couleurs, ambiances, logos et activités : voir design-boutique.ts (partagé avec le navigateur).
+export { PALETTE } from './design-boutique.ts';
 
 /** Noms d'adresse réservés au service lui-même. */
 const RESERVES = new Set(['www', 'admin', 'api', 'app', 'mail', 'smtp', 'ftp', 'static', 'cdn', 'boutique', 'b', 'test', 'demo', 'hanout', 'support', 'aide', 'status', 'etat']);
 
-export type RefusBoutique = 'sous_domaine_invalide' | 'sous_domaine_pris' | 'sous_domaine_requis' | 'introuvable' | 'champ_requis' | 'telephone_invalide' | 'demande_en_cours';
+export type RefusBoutique = 'boutique_existe' | 'sous_domaine_invalide' | 'sous_domaine_pris' | 'sous_domaine_requis' | 'introuvable' | 'champ_requis' | 'telephone_invalide' | 'demande_en_cours';
 
 /** Nom d'adresse : minuscules, chiffres et tirets, 3 à 40 caractères, ni au début ni à la fin un tiret. */
 export function verifierSousDomaine(saisie: string): string | null {
@@ -59,13 +51,27 @@ export interface ReglagesBoutique {
   reservationHeures: number;
   /** Identifiants de mesure des publicités ; null : rien n'est chargé. */
   pixels: { facebook: string | null; tiktok: string | null };
+  activite: string;
+  ambiance: AmbianceBoutique;
+  logoForme: FormeLogo;
+  /** Icône du logo dessiné ; null : initiales du magasin. */
+  logoIcone: string | null;
+  slogan: { fr: string; ar: string };
 }
 
 export const REGLAGES_DEFAUT: ReglagesBoutique = {
   enLigne: false, modele: 'vitrine', produitUniqueId: null, couleur: 'emeraude', logoId: null, banniereId: null,
   accueil: { fr: '', ar: '' }, livraison: { fr: '', ar: '' }, retour: { fr: '', ar: '' }, sections: [...SECTIONS], reseaux: {},
   whatsapp: null, ruptures: 'visible', plusQue: 3, reservationHeures: 24, pixels: { facebook: null, tiktok: null },
+  activite: 'autre', ambiance: 'moderne', logoForme: 'rond', logoIcone: 'sac', slogan: { fr: '', ar: '' },
 };
+
+/** Sections manquantes (ajoutées depuis) : « atouts » juste après l'accueil, les autres à la fin. */
+function completerSections(sections: Section[]): Section[] {
+  const r = [...sections];
+  if (!r.includes('atouts')) r.splice(r.includes('accueil') ? r.indexOf('accueil') + 1 : 0, 0, 'atouts');
+  return [...r, ...SECTIONS.filter((x) => !r.includes(x))];
+}
 
 export async function lireReglages(trx: Trx): Promise<ReglagesBoutique> {
   const b = await trx.selectFrom('boutiques').selectAll().executeTakeFirst();
@@ -75,9 +81,12 @@ export async function lireReglages(trx: Trx): Promise<ReglagesBoutique> {
     enLigne: b.en_ligne, modele: b.modele, produitUniqueId: b.produit_unique_id, couleur: PALETTE[b.couleur] ? b.couleur : 'emeraude',
     logoId: b.logo_id, banniereId: b.banniere_id,
     accueil: { fr: b.accueil_fr, ar: b.accueil_ar }, livraison: { fr: b.livraison_fr, ar: b.livraison_ar }, retour: { fr: b.retour_fr, ar: b.retour_ar },
-    sections: [...sections, ...SECTIONS.filter((x) => !sections.includes(x))], reseaux: b.reseaux ?? {}, whatsapp: b.whatsapp,
+    sections: completerSections(sections), reseaux: b.reseaux ?? {}, whatsapp: b.whatsapp,
     ruptures: b.ruptures, plusQue: b.plus_que, reservationHeures: b.reservation_heures,
     pixels: { facebook: b.pixel_facebook, tiktok: b.pixel_tiktok },
+    activite: ACTIVITES[b.activite] ? b.activite : 'autre', ambiance: b.ambiance, logoForme: b.logo_forme,
+    logoIcone: b.logo_icone && (ICONES_LOGO as readonly string[]).includes(b.logo_icone) ? b.logo_icone : null,
+    slogan: { fr: b.slogan_fr, ar: b.slogan_ar },
   };
 }
 
@@ -114,6 +123,7 @@ export type SaisieReglages = Omit<ReglagesBoutique, 'enLigne' | 'logoId' | 'bann
 
 export async function enregistrerReglages(trx: Trx, ctx: Contexte, r: SaisieReglages): Promise<{ ok: true } | { ok: false; raison: 'champ_requis' | 'telephone_invalide' | 'introuvable' }> {
   if (!MODELES.includes(r.modele) || !PALETTE[r.couleur] || (r.ruptures !== 'visible' && r.ruptures !== 'masque')) return { ok: false, raison: 'champ_requis' };
+  if (!ACTIVITES[r.activite] || !AMBIANCES.includes(r.ambiance) || !FORMES_LOGO.includes(r.logoForme) || (r.logoIcone !== null && !(ICONES_LOGO as readonly string[]).includes(r.logoIcone))) return { ok: false, raison: 'champ_requis' };
   if (!Number.isInteger(r.plusQue) || r.plusQue < 0 || r.plusQue > 99 || !Number.isInteger(r.reservationHeures) || r.reservationHeures < 1 || r.reservationHeures > 168) return { ok: false, raison: 'champ_requis' };
   let whatsapp: string | null = null;
   if (r.whatsapp?.trim()) {
@@ -132,6 +142,7 @@ export async function enregistrerReglages(trx: Trx, ctx: Contexte, r: SaisieRegl
     livraison_fr: propre(r.livraison.fr, 1000), livraison_ar: propre(r.livraison.ar, 1000),
     retour_fr: propre(r.retour.fr, 1000), retour_ar: propre(r.retour.ar, 1000),
     sections: JSON.stringify(sections), reseaux: JSON.stringify(reseaux), whatsapp, ruptures: r.ruptures, plus_que: r.plusQue, reservation_heures: r.reservationHeures,
+    activite: r.activite, ambiance: r.ambiance, logo_forme: r.logoForme, logo_icone: r.logoIcone, slogan_fr: propre(r.slogan.fr, 80), slogan_ar: propre(r.slogan.ar, 80),
   };
   await trx.insertInto('boutiques').values({ commercant_id: ctx.commercantId, ...valeurs }).onConflict((oc) => oc.column('commercant_id').doUpdateSet(valeurs)).execute();
   return { ok: true };
@@ -163,6 +174,54 @@ export async function mettreEnLigne(trx: Trx, ctx: Contexte, enLigne: boolean): 
   }
   await trx.insertInto('boutiques').values({ commercant_id: ctx.commercantId, en_ligne: enLigne }).onConflict((oc) => oc.column('commercant_id').doUpdateSet({ en_ligne: enLigne })).execute();
   return { ok: true };
+}
+
+/** Textes d'exemple d'une activité, en français et en arabe (lus dans les fichiers de traduction par l'appelant). */
+export type TextesExemple = Record<'slogan' | 'accueil' | 'livraison' | 'retour', { fr: string; ar: string }>;
+
+export interface SaisieCreation {
+  sousDomaine: string;
+  activite: string;
+  modele: ModeleBoutique;
+  couleur: string;
+  ambiance: AmbianceBoutique;
+  logoForme: FormeLogo;
+  logoIcone: string | null;
+  /** Publier tout de suite les produits du stock (la boutique reste coupée jusqu'à « Mettre en ligne »). */
+  publierTout: boolean;
+}
+
+/**
+ * Création guidée : adresse, activité, modèle, logo dessiné, couleur, ambiance, et textes d'exemple à remplacer.
+ * Une seule boutique par commerçant : la ligne de `boutiques` a pour clé le commerçant, et l'adresse est une colonne
+ * du commerçant. La boutique créée reste coupée.
+ */
+export async function creerBoutique(trx: Trx, ctx: Contexte, c: SaisieCreation, exemples: TextesExemple): Promise<{ ok: true } | { ok: false; raison: RefusBoutique }> {
+  const deja = await trx.selectFrom('commercants').select('sous_domaine').executeTakeFirstOrThrow();
+  if (deja.sous_domaine) return { ok: false, raison: 'boutique_existe' };
+  const adresse = await changerSousDomaine(trx, c.sousDomaine);
+  if (!adresse.ok) return adresse;
+  const fait = await enregistrerReglages(trx, ctx, {
+    ...REGLAGES_DEFAUT, ...(await lireReglages(trx)),
+    modele: c.modele, couleur: c.couleur, activite: c.activite, ambiance: c.ambiance, logoForme: c.logoForme, logoIcone: c.logoIcone,
+    slogan: exemples.slogan, accueil: exemples.accueil, livraison: exemples.livraison, retour: exemples.retour, sections: [...SECTIONS],
+  });
+  if (!fait.ok) return { ok: false, raison: 'champ_requis' };
+  if (c.publierTout) await trx.updateTable('produits').set({ visible_boutique: true }).where('archive_le', 'is', null).execute();
+  return { ok: true };
+}
+
+/**
+ * Suppression de la boutique par le commerçant : réglages, logo et bannière effacés, adresse libérée, produits retirés
+ * de la boutique. Rien d'autre ne bouge : produits et stock, commandes (y compris celles venues de la boutique),
+ * devis, factures et demandes restent. Le commerçant peut en recréer une plus tard.
+ */
+export async function supprimerBoutique(trx: Trx, ctx: Contexte): Promise<void> {
+  const b = await trx.selectFrom('boutiques').select(['logo_id', 'banniere_id']).executeTakeFirst();
+  await trx.deleteFrom('boutiques').execute();
+  for (const id of [b?.logo_id, b?.banniere_id]) if (id) await supprimerImageLibre(trx, ctx, id);
+  await trx.updateTable('produits').set({ visible_boutique: false, nouveau: false }).where('visible_boutique', '=', true).execute();
+  await trx.updateTable('commercants').set({ sous_domaine: null }).execute();
 }
 
 // ───────────── Demandes à l'administrateur ─────────────

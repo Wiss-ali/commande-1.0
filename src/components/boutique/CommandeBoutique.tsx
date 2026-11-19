@@ -142,7 +142,7 @@ export function CommandeBoutique({ sd, base, cle, wilayas, apercu }: { sd: strin
       </dl>
       {apercu ? <p role="status" className="rounded-lg border border-safran bg-safran-pale px-3 py-2.5 text-sm text-sur-safran">{t('apercuCommande')}</p> : null}
       {etat.erreur ? <p role="alert" className="rounded-lg border border-terre bg-terre-pale px-3 py-2.5 text-sm font-medium text-terre">{etat.erreur === 'carte_inactive' ? t('carteInactive') : te.has(etat.erreur) ? te(etat.erreur) : te('inconnue')}</p> : null}
-      <button type="submit" disabled={enCours || paiement === 'carte'} className="inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-prim shadow-prim hover:bg-prim-fort px-4 text-base font-semibold text-sur-prim disabled:opacity-50">
+      <button type="submit" disabled={enCours || paiement === 'carte'} className="b-bouton inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-prim shadow-prim hover:bg-prim-fort px-4 text-base font-semibold text-sur-prim disabled:opacity-50">
         {enCours ? t('patienter') : t('valider')}
       </button>
       <p className="text-center text-xs text-doux">{t('mentionPaiement')}</p>

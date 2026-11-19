@@ -2,6 +2,15 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 19/11/2026 — Boutiques : suppression, création guidée, logos dessinés, nouveau design
+
+- Demande du propriétaire : vérifier la coupure, la suppression et la règle « une seule boutique » ; refaire le design des boutiques avec du faux texte à remplacer ; création plus belle et plus fluide avec des choix de logos. Bilan : `docs/boutique-design/01-recherche-et-bilan.md`.
+- Vérifié : la coupure marchait (toutes les pages publiques, commandes refusées côté serveur) ; une seule boutique garantie par la base (clé = commerçant). **La suppression n'existait pas : ajoutée** (adresse à retaper ; réglages, logo, bannière effacés, produits dépubliés, adresse libérée ; produits, commandes, devis, factures gardés).
+- Migration `0019_boutique_design` : `activite`, `ambiance`, `logo_forme`, `logo_icone`, `slogan_fr/ar` ; `GRANT DELETE ON boutiques` (isolation inchangée).
+- Assistant de création en 5 étapes avec aperçu en direct ; logos dessinés (4 formes × 24 icônes ou initiales) ; 4 ambiances (polices Playfair/Amiri, Nunito/El Messiri, Space Grotesk/Cairo, servies par l'application) ; 11 couleurs ; textes d'exemple par activité (fr/ar, fichiers de traduction) signalés jusqu'à leur remplacement ; nouvelle section « atouts ». Boutique publique refaite (accueil plein écran, points forts, cartes produits, contact, pied de page) ; écran du commerçant réorganisé (Apparence, Textes, Réglages, suppression).
+- Défaut trouvé en testant et corrigé : la création mettait le texte français dans la version arabe (la traduction suit toujours la langue de l'écran) ; les deux fichiers sont maintenant lus directement.
+- Tests : 181 ✅ ; 88 parcours ✅. Test de chiffrement aléatoire rendu fiable.
+
 ## 18/11/2026 — Boutique de démonstration de l'administrateur (remplace « voir comme le commerçant »)
 
 - Choix du propriétaire : une boutique fictive remplie, pour essayer et montrer l'application sans créer de compte ni voir les données d'un vrai commerçant. Remise à zéro seulement quand il le décide ; accès réservé à l'administrateur ; réutiliser l'existant.

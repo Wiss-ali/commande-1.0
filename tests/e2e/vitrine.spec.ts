@@ -70,27 +70,46 @@ test.beforeAll(async ({ browser }) => {
   await connecter(yasmine, telYasmine, MDP);
 });
 
-test('le commerçant choisit l\'adresse, publie ses produits, personnalise et met en ligne', async () => {
+test('le commerçant crée sa boutique avec l\'assistant, publie ses produits, personnalise et met en ligne', async () => {
   await yasmine.goto('/boutique');
-  await expect(yasmine.getByText('Coupée', { exact: true })).toBeVisible();
-  await yasmine.getByLabel('Nom de l\'adresse').fill('Admin');
-  await yasmine.getByRole('button', { name: 'Enregistrer' }).first().click();
+  await expect(yasmine.getByRole('heading', { name: 'Que vendez-vous ?' })).toBeVisible();
+  await yasmine.getByText('Vêtements et mode').click();
+  await yasmine.getByRole('button', { name: 'Continuer' }).click();
+  await yasmine.getByLabel('Nom de l\'adresse').fill('admin');
+  for (let i = 0; i < 3; i++) await yasmine.getByRole('button', { name: 'Continuer' }).click();
+  await expect(yasmine.getByRole('heading', { name: 'Tout est prêt' })).toBeVisible();
+  await yasmine.getByText(/Publier mes \d+ produits/).click();
+  await yasmine.getByRole('button', { name: 'Créer ma boutique' }).click();
   await expect(yasmine.getByText('Adresse invalide')).toBeVisible();
+  await yasmine.getByRole('button', { name: 'Changer l\'adresse' }).click();
   await yasmine.getByLabel('Nom de l\'adresse').fill(sd);
-  await yasmine.getByRole('button', { name: 'Enregistrer' }).first().click();
+  for (let i = 0; i < 3; i++) await yasmine.getByRole('button', { name: 'Continuer' }).click();
+  await sansDebordement(yasmine);
+  await yasmine.screenshot({ path: `${CAPTURES}/assistant-fr-clair.png`, fullPage: true });
+  await yasmine.getByRole('button', { name: 'Créer ma boutique' }).click();
+  await expect(yasmine.getByText('Votre boutique est créée !')).toBeVisible();
   await expect(yasmine.getByText(`http://${sd}.boutiques.test`)).toBeVisible();
+  await expect(yasmine.getByText('Textes d\'exemple encore en place')).toBeVisible();
+  await expect(yasmine.getByText('Coupée', { exact: true })).toBeVisible();
 
   for (const nom of ['Robe kabyle', 'Foulard en soie', 'Bague en argent']) await yasmine.getByRole('button', { name: `Visible dans la boutique · ${nom}` }).click();
   await yasmine.getByRole('button', { name: 'Nouveau · Robe kabyle' }).click();
   await expect(yasmine.getByText('Produits : 3 publiés')).toBeVisible();
 
-  await yasmine.getByText('Bordeaux', { exact: true }).click();
-  await yasmine.getByLabel('Texte d\'accueil (FR)').fill('Tenues traditionnelles faites main à Tizi Ouzou.');
-  await yasmine.getByLabel('Texte d\'accueil (AR)').fill('ألبسة تقليدية مصنوعة يدويًا في تيزي وزو.');
-  await yasmine.getByLabel('Conditions de livraison (FR)').fill('Livraison en 48 h dans les 69 wilayas.');
-  await yasmine.getByLabel('Numéro WhatsApp').fill('0661 22 33 44');
+  await yasmine.getByRole('radio', { name: 'Bordeaux' }).check({ force: true });
   await yasmine.locator('form', { hasText: 'Couleur principale' }).getByRole('button', { name: 'Enregistrer' }).click();
-  await expect(yasmine.getByText('Modifications enregistrées.').last()).toBeVisible();
+  await expect(yasmine.getByText('Modifications enregistrées.').first()).toBeVisible();
+  const textes = yasmine.locator('form', { hasText: 'Phrase d\'accroche' });
+  for (const [nom, valeur] of [['slogan_fr', 'Atelier Yasmine'], ['slogan_ar', 'ورشة ياسمين'], ['accueil_fr', 'Tenues traditionnelles faites main à Tizi Ouzou.'], ['accueil_ar', 'ألبسة تقليدية مصنوعة يدويًا في تيزي وزو.'],
+    ['livraison_fr', 'Livraison en 48 h dans les 69 wilayas.'], ['livraison_ar', 'التوصيل خلال 48 ساعة إلى 69 ولاية.'], ['retour_fr', 'Échange sous 7 jours.'], ['retour_ar', 'الاستبدال خلال 7 أيام.']] as const) {
+    await textes.locator(`[name=${nom}]`).fill(valeur);
+  }
+  await textes.getByRole('button', { name: 'Enregistrer' }).click();
+  await expect(yasmine.getByText('Textes d\'exemple encore en place')).toHaveCount(0);
+  const reglages = yasmine.locator('form', { hasText: 'Numéro WhatsApp' });
+  await reglages.getByLabel('Numéro WhatsApp').fill('0661 22 33 44');
+  await reglages.getByRole('button', { name: 'Enregistrer' }).click();
+  await expect(reglages.getByText('Modifications enregistrées.')).toBeVisible();
 
   await yasmine.getByRole('button', { name: 'Mettre la boutique en ligne' }).click();
   await expect(yasmine.getByText('En ligne', { exact: true }).first()).toBeVisible();
@@ -111,7 +130,7 @@ test('l\'acheteur voit la boutique : identité, pastilles, rupture, prix barré'
   await expect(robe).toContainText('8 000 DA');
   await expect(acheteur.getByRole('link', { name: /Bague en argent/ })).toContainText('Rupture de stock');
   await expect(acheteur.getByText('Livraison en 48 h dans les 69 wilayas.')).toBeVisible();
-  await expect(acheteur.getByRole('link', { name: 'WhatsApp' })).toHaveAttribute('href', 'https://wa.me/213661223344');
+  await expect(acheteur.getByRole('link', { name: 'WhatsApp' }).first()).toHaveAttribute('href', 'https://wa.me/213661223344');
   await sansDebordement(acheteur);
   await acheteur.screenshot({ path: `${CAPTURES}/vitrine-fr-clair.png`, fullPage: true });
 
@@ -196,7 +215,7 @@ test('les quatre modèles, et le produit épuisé masqué sur réglage', async (
     await yasmine.goto('/boutique');
     await yasmine.getByText(modele, { exact: true }).click();
     if (nom === 'produit-unique') await yasmine.locator('select[name=produitUnique]').selectOption({ label: 'Robe kabyle' });
-    await yasmine.getByRole('button', { name: 'Choisir ce modèle' }).click();
+    await yasmine.locator('form', { hasText: 'Couleur principale' }).getByRole('button', { name: 'Enregistrer' }).click();
     await expect(yasmine.getByText('Modifications enregistrées.').first()).toBeVisible();
     await acheteur.goto(`/b/${sd}`);
     if (nom === 'catalogue') {
@@ -218,7 +237,7 @@ test('les quatre modèles, et le produit épuisé masqué sur réglage', async (
   }
   await yasmine.goto('/boutique');
   await yasmine.getByText('Le masquer jusqu\'au retour du stock').click();
-  await yasmine.locator('form', { hasText: 'Couleur principale' }).getByRole('button', { name: 'Enregistrer' }).click();
+  await yasmine.locator('form', { hasText: 'Numéro WhatsApp' }).getByRole('button', { name: 'Enregistrer' }).click();
   await expect(yasmine.getByText('Modifications enregistrées.').last()).toBeVisible();
   await acheteur.goto(`/b/${sd}`);
   await expect(acheteur.getByRole('link', { name: /Bague en argent/ })).toHaveCount(0);
@@ -289,6 +308,24 @@ test('la boutique et le module en arabe, en thème sombre', async () => {
   await yasmine.getByRole('button', { name: 'فاتح' }).click();
   await yasmine.goto('/plus');
   await yasmine.getByRole('button', { name: /Français/ }).click();
+});
+
+test('suppression de la boutique : adresse à retaper, adresse libérée, produits et commandes gardés', async () => {
+  await yasmine.goto('/boutique');
+  await yasmine.getByText('Supprimer la boutique').click();
+  await yasmine.getByLabel(/Pour confirmer/).fill('autre-chose');
+  await yasmine.getByRole('button', { name: 'Supprimer définitivement la boutique' }).click();
+  await expect(yasmine.getByText('L\'adresse tapée ne correspond pas. Rien n\'a été supprimé.')).toBeVisible();
+  await yasmine.getByLabel(/Pour confirmer/).fill(sd);
+  await yasmine.getByRole('button', { name: 'Supprimer définitivement la boutique' }).click();
+  await expect(yasmine.getByText(/Votre boutique a été supprimée/)).toBeVisible();
+  await expect(yasmine.getByRole('heading', { name: 'Que vendez-vous ?' })).toBeVisible();
+  expect((await acheteur.request.get(`/b/${sd}`)).status()).toBe(404);
+  await avecCommercant(commercantId, async (trx) => {
+    expect(await trx.selectFrom('boutiques').select('commercant_id').execute()).toHaveLength(0);
+    expect((await trx.selectFrom('produits').select('id').where('archive_le', 'is', null).execute()).length).toBeGreaterThan(0);
+    expect((await trx.selectFrom('commandes').select('id').execute()).length).toBeGreaterThan(0);
+  });
 });
 
 test('aucune erreur de script ni violation de la politique de sécurité pendant tout le parcours', async () => {

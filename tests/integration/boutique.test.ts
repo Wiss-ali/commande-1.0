@@ -6,8 +6,10 @@ import { avecCommercant, bd, fermerBD } from '../../src/lib/bd.ts';
 import {
   catalogue, changerSousDomaine, compterNonVues, creerTicket, demander, enregistrerAbonnement, enregistrerReglages, lireReglages, lireTicket, listerNotifications, marquerVues, ouvrirNotification,
   mettreEnLigne, PALETTE, REGLAGES_DEFAUT, trouverBoutique, verifierSousDomaine, type SaisieTicket, type Vitrine,
-  enregistrerPixels,
+  enregistrerPixels, creerBoutique, supprimerBoutique, type TextesExemple,
 } from '../../src/lib/boutique.ts';
+import { adresseProposee, initiales } from '../../src/lib/design-boutique.ts';
+import { textesExemple } from '../../src/lib/exemples-boutique.ts';
 import { confirmerCommande, expirerTickets, lireCommande } from '../../src/lib/commandes.ts';
 import { abonnementValide, adresseAutorisee, chiffrerMessage, creerClesVapid, jetonVapid } from '../../src/lib/push.ts';
 import { creerProduit, lireProduit, type Contexte } from '../../src/lib/stock.ts';
@@ -77,7 +79,7 @@ describe('adresse et mise en ligne', () => {
     expect(r).toEqual({ ok: true });
     const l = await chez(A, lireReglages);
     expect(l).toMatchObject({ modele: 'catalogue', couleur: 'bleu', whatsapp: '0661223344', reseaux: { facebook: 'https://www.facebook.com/magasin' } });
-    expect(l.sections).toEqual(['contact', 'produits', 'accueil', 'conditions']);
+    expect(l.sections).toEqual(['atouts', 'contact', 'produits', 'accueil', 'conditions']);
     expect(await chez(A, (trx) => enregistrerReglages(trx, A, { ...REGLAGES_DEFAUT, couleur: '#ff0000' }))).toEqual({ ok: false, raison: 'champ_requis' });
     await chez(A, (trx) => enregistrerReglages(trx, A, { ...l, modele: 'vitrine' }));
   });
@@ -277,5 +279,63 @@ describe('pixels publicitaires', () => {
     await expect(chezP((trx) => trx.updateTable('boutiques').set({ pixel_facebook: '1<script>' }).execute())).rejects.toThrow(/check/);
     expect(await chezP((trx) => enregistrerPixels(trx, P, { facebook: '', tiktok: '' }))).toEqual({ ok: true });
     expect((await chezP(lireReglages)).pixels).toEqual({ facebook: null, tiktok: null });
+  });
+});
+
+describe('création guidée, une seule boutique, suppression', () => {
+  const exemples: TextesExemple = { slogan: { fr: 'Accroche', ar: 'عبارة' }, accueil: { fr: 'Accueil', ar: 'ترحيب' }, livraison: { fr: 'Livraison', ar: 'توصيل' }, retour: { fr: 'Retour', ar: 'إرجاع' } };
+  let C: Contexte;
+  const saisie = (sousDomaine: string) => ({ sousDomaine, activite: 'beaute', modele: 'grandes_photos' as const, couleur: 'rose', ambiance: 'chaleureux' as const, logoForme: 'carre' as const, logoIcone: 'beaute', publierTout: true });
+
+  beforeAll(async () => {
+    C = (({ commercantId, proprietaireId }) => ({ commercantId, utilisateurId: proprietaireId }))(await creerCommercant((await creerAdmin()).id, 'Beauté C'));
+    await produit(C, 'Parfum', 2, false);
+  });
+
+  it('propose une adresse et des initiales à partir du nom', () => {
+    expect(adresseProposee('Magasin Démo d\'Ali')).toBe('magasin-demo-d-ali');
+    expect(adresseProposee('مكتبة')).toBe('');
+    expect(initiales('Atelier Yasmine')).toBe('AY');
+    expect(initiales('Hanout')).toBe('HA');
+    const ex = textesExemple('beaute');
+    expect(ex.slogan.fr).toBe('Prenez soin de vous');
+    expect(ex.slogan.ar).toMatch(/[\u0600-\u06FF]/);
+    expect(textesExemple('inconnue')).toEqual(textesExemple('autre'));
+  });
+
+  it('crée la boutique coupée avec ses choix, ses textes d\'exemple et ses produits publiés', async () => {
+    expect(await chez(C, (trx) => creerBoutique(trx, C, saisie('admin'), exemples))).toEqual({ ok: false, raison: 'sous_domaine_invalide' });
+    const sd = `beaute-c-${Date.now().toString(36)}`;
+    expect(await chez(C, (trx) => creerBoutique(trx, C, saisie(sd), exemples))).toEqual({ ok: true });
+    const r = await chez(C, lireReglages);
+    expect(r).toMatchObject({ enLigne: false, modele: 'grandes_photos', couleur: 'rose', activite: 'beaute', ambiance: 'chaleureux', logoForme: 'carre', logoIcone: 'beaute', slogan: exemples.slogan, retour: exemples.retour });
+    expect(await chez(C, (trx) => trx.selectFrom('produits').select('visible_boutique').execute())).toEqual([{ visible_boutique: true }]);
+  });
+
+  it('une seule boutique par commerçant : pas de seconde création, pas de seconde ligne', async () => {
+    expect(await chez(C, (trx) => creerBoutique(trx, C, saisie(`autre-c-${Date.now().toString(36)}`), exemples))).toEqual({ ok: false, raison: 'boutique_existe' });
+    await expect(chez(C, (trx) => trx.insertInto('boutiques').values({ commercant_id: C.commercantId }).execute())).rejects.toThrow();
+    expect(await chez(C, (trx) => trx.selectFrom('boutiques').select('commercant_id').execute())).toHaveLength(1);
+  });
+
+  it('refuse un logo ou une ambiance inconnus', async () => {
+    const r = await chez(C, lireReglages);
+    for (const faux of [{ logoIcone: 'virus' }, { ambiance: 'flashy' }, { logoForme: 'etoile' }, { activite: 'armes' }]) {
+      expect(await chez(C, (trx) => enregistrerReglages(trx, C, { ...r, ...faux } as never)), JSON.stringify(faux)).toEqual({ ok: false, raison: 'champ_requis' });
+    }
+  });
+
+  it('suppression : réglages effacés, adresse libérée, produits gardés mais retirés de la boutique ; recréation possible', async () => {
+    const { sous_domaine: sd } = await chez(C, (trx) => trx.selectFrom('commercants').select('sous_domaine').executeTakeFirstOrThrow());
+    await chez(C, (trx) => mettreEnLigne(trx, C, true));
+    await chez(C, (trx) => supprimerBoutique(trx, C));
+    expect(await chez(C, (trx) => trx.selectFrom('boutiques').select('commercant_id').execute())).toHaveLength(0);
+    expect(await chez(C, (trx) => trx.selectFrom('commercants').select('sous_domaine').executeTakeFirstOrThrow())).toEqual({ sous_domaine: null });
+    expect(await chez(C, (trx) => trx.selectFrom('produits').select(['visible_boutique', 'archive_le']).execute())).toEqual([{ visible_boutique: false, archive_le: null }]);
+    expect(await trouverBoutique(sd!)).toBeNull();
+    // L'adresse libérée peut être prise par un autre commerçant ; la boutique supprimée n'a touché qu'à elle-même.
+    expect(await chez(B, (trx) => changerSousDomaine(trx, sd!))).toEqual({ ok: true, sousDomaine: sd });
+    expect((await vitrine()).commercantId).toBe(A.commercantId);
+    expect(await chez(C, (trx) => creerBoutique(trx, C, { ...saisie(`nouvelle-c-${Date.now().toString(36)}`), publierTout: false }, exemples))).toEqual({ ok: true });
   });
 });

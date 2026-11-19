@@ -236,7 +236,7 @@
     "a2fActive": "La double authentification est active.",
     "a2fDesactiver": "Désactiver",
     "a2fMdp": "Votre mot de passe, pour confirmer",
-    "a2fCode": "Code de l'application ou code de secours",
+    "a2fCodeDesactiver": "Code de l'application ou code de secours",
     "a2fCodeAide": "Le code à 6 chiffres affiché par votre application (ou un code de secours).",
     "codesTitre": "Vos codes de secours",
     "codesTexte": "Notez-les maintenant : ils ne seront plus affichés. Chaque code sert une fois si vous perdez votre téléphone.",

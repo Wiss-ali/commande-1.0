@@ -158,10 +158,13 @@ export async function verifierCode(table: Table, id: string, code: string): Prom
   // Deviner un code à 6 chiffres : 5 essais par 10 minutes et 20 par jour (moins de 0,01 % de chances par jour),
   // et chaque erreur est notée dans le journal.
   const sujet = `${table}:${id}`;
-  if (!(await autoriser('code-2fa', sujet, 5, 600)) || !(await autoriser('code-2fa-jour', sujet, 20, 86_400))) return false;
+  // Seules les erreurs comptent : se connecter souvent avec le bon code ne bloque jamais.
+  if ((await limiteAtteinte('code-2fa', sujet, 5, 600)) || (await limiteAtteinte('code-2fa-jour', sujet, 20, 86_400))) return false;
   const ok = await codeCorrect(table, id, code);
   if (ok) await oublierEssais('code-2fa', sujet);
   else {
+    await compterEssai('code-2fa', sujet, 600);
+    await compterEssai('code-2fa-jour', sujet, 86_400);
     const commercant = table === 'utilisateurs' ? (await bd('auth').selectFrom('utilisateurs').select('commercant_id').where('id', '=', id).executeTakeFirst())?.commercant_id ?? null : null;
     await journaliserAuth({ commercantId: commercant, acteurType: 'anonyme', action: table === 'utilisateurs' ? 'double_auth.echec' : 'admin.double_auth.echec', objetType: table === 'utilisateurs' ? 'utilisateur' : 'administrateur', objetId: id });
   }
@@ -187,9 +190,11 @@ async function codeCorrect(table: Table, id: string, code: string): Promise<bool
 /** Vérifie le mot de passe actuel d'un utilisateur (avant une action sensible). */
 export async function motDePasseCorrect(utilisateurId: string, motDePasse: string): Promise<boolean> {
   // Téléphone resté ouvert : pas plus de 5 essais du mot de passe actuel par quart d'heure.
-  if (!(await autoriser('mdp-actuel', utilisateurId, 5, 900))) return false;
+  if (await limiteAtteinte('mdp-actuel', utilisateurId, 5, 900)) return false;
   const u = await bd('auth').selectFrom('utilisateurs').select('mot_de_passe').where('id', '=', utilisateurId).executeTakeFirst();
-  return !!u && (await verifier(u.mot_de_passe, motDePasse));
+  const ok = !!u && (await verifier(u.mot_de_passe, motDePasse));
+  if (!ok) await compterEssai('mdp-actuel', utilisateurId, 900);
+  return ok;
 }
 
 export async function changerMotDePasse(utilisateurId: string, nouveau: string): Promise<void> {

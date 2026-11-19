@@ -15,7 +15,7 @@ Entrées les plus récentes en haut. Une entrée par action importante.
 - **8.** PDF : refusé si ni Factures ni Caisse n'est ouvert.
 - **10.** Numéro du magasin obligatoire pour mettre la boutique en ligne ; le numéro personnel du propriétaire n'est plus jamais montré. La démo reçoit son numéro fictif comme numéro de magasin.
 - Pas faits, expliqués au propriétaire : 7 (compromis voulu), 9 (pixels : question), 11 (le numéro sert d'identifiant), 13 (réseaux Docker séparés : question).
-- Tests : 182 ✅ (6 nouveaux).
+- Tests : 182 ✅ (6 nouveaux) ; 87 parcours ✅. Défaut trouvé par les parcours et corrigé : un nouveau texte remplaçait « Code à 6 chiffres » (clé en double) ; les limites du code et du mot de passe actuel ne comptent que les erreurs.
 
 ## 18/11/2026 — Audit « comme un pirate » (lecture du code)
 

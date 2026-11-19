@@ -19,7 +19,9 @@ describe('chiffrement champ par champ', () => {
   it('refuse une valeur déplacée vers une autre ligne ou modifiée', () => {
     const a = chiffrer('secret', 'commercants.nif:1');
     expect(() => dechiffrer(a, 'commercants.nif:2')).toThrow();
-    expect(() => dechiffrer(a.slice(0, -2) + 'AA', 'commercants.nif:1')).toThrow();
+    // Un caractère changé au milieu (la fin peut ne porter que des bits de remplissage ignorés au décodage).
+    const m = Math.floor(a.length / 2);
+    expect(() => dechiffrer(a.slice(0, m) + (a[m] === 'A' ? 'B' : 'A') + a.slice(m + 1), 'commercants.nif:1')).toThrow();
   });
   it('lit encore les valeurs chiffrées avec une ancienne clé après un renouvellement', () => {
     const c = config();

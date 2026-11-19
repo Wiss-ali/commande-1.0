@@ -1,6 +1,6 @@
 # État du projet
 
-Dernière mise à jour : 18/11/2026 — lot d'ajouts n° 1 terminé (bilan `docs/ajouts-1/02-bilan.md`) caisse simplifiée, boutique de démonstration de l'administrateur ; **mis dans `main`** (identique à `claude/gracious-euler-kwf1eo`).
+Dernière mise à jour : 19/11/2026 — boutiques : suppression, création guidée, logos dessinés, nouveau design (bilan `docs/boutique-design/01-recherche-et-bilan.md`), sur la branche `claude/magical-goodall-2jle45`, **pas encore dans `main`**. Avant : lot d'ajouts n° 1, caisse simplifiée, boutique de démonstration, dans `main`.
 
 ## Où on en est
 
@@ -14,7 +14,8 @@ Dernière mise à jour : 18/11/2026 — lot d'ajouts n° 1 terminé (bilan `docs
 - **Lot d'ajouts n° 1 (18/11/2026)**, demandé par le propriétaire après la revue des modules (`docs/revue-modules/01-rapport.md`) : moyens de paiement (timbre seulement sur les espèces), remises, retour d'une partie (avoir partiel), vente à crédit et versements, 1 541 communes, pixel Facebook/TikTok (désactivé par défaut), fournisseurs et arrivages (coût moyen pondéré), argent des colis livrés, dépenses et bénéfice net, 6 photos par produit, export dans Factures, barre du bas au choix. Migrations 0012 à 0017. 174 tests et 86 parcours passent. Caisse simplifiée à sa demande (Espèces / Carte « pas encore activée » / menu déroulant ; facture seulement si cochée). **Dans `main`** : à mettre sur le serveur (`git pull` puis `./deployer.sh test` : les migrations 0012 à 0018 passent toutes seules).
 - **Refonte visuelle (18/11/2026)** : blanc, contours bleutés, bleu principal, sombre bleu nuit, police Inter. Voir `docs/refonte-visuelle/01-recherche.md`. Pour l'avoir sur le serveur : `cd /srv/hanout && git pull && cd deploiement && ./deployer.sh test`.
 
-- **Audit « comme un pirate »** (rapport `docs/audit-securite/01-rapport.md`) : **corrections faites le 19/11/2026** (points 1, 3, 4, 5, 6, 8, 10, 12, 14 ; migration 0019). À mettre sur le serveur (`git pull` puis `./deployer.sh test`) **après les avoir mises dans `main`** ; vérifier que Caddy redémarre bien (fichier modifié). Restent : 2 (clé privée à effacer par le propriétaire), 9 et 13 (questions posées), 7 et 11 (laissés exprès).
+- **Boutiques (19/11/2026)**, branche `claude/magical-goodall-2jle45` : suppression de la boutique (adresse à retaper, produits/commandes/factures gardés), assistant de création en 5 étapes avec aperçu, logos dessinés, 4 ambiances, 11 couleurs, textes d'exemple fr/ar signalés jusqu'à leur remplacement, boutique publique refaite. Migration 0019. 181 tests et 88 parcours passent. **À faire essayer au propriétaire, puis à mettre dans `main` avec son accord.**
+- **Audit « comme un pirate »** (rapport `docs/audit-securite/01-rapport.md`) : **corrections faites le 19/11/2026** (points 1, 3, 4, 5, 6, 8, 10, 12, 14 ; migration 0020). À mettre sur le serveur (`git pull` puis `./deployer.sh test`) (dans `main` depuis le 19/11/2026, avec les nouvelles boutiques) ; vérifier que Caddy redémarre bien (fichier modifié). Restent : 2 (clé privée à effacer par le propriétaire), 9 et 13 (questions posées), 7 et 11 (laissés exprès).
 
 ## Façon de travailler (décidée par le propriétaire le 16/11/2026)
 
@@ -25,6 +26,8 @@ Dernière mise à jour : 18/11/2026 — lot d'ajouts n° 1 terminé (bilan `docs
   et la liste « à essayer » de chaque étape restent écrits, pour la vérification finale.
 
 ## Prochaine action
+
+- **Boutiques (19/11)** : faire essayer (liste « À essayer » du bilan `docs/boutique-design/`), **dans `main` depuis le 19/11/2026** ; à mettre sur le serveur (`git pull` puis `./deployer.sh test` : les migrations 0019 et 0020 passent toutes seules).
 
 - **Lot d'ajouts n° 1** : faire essayer au propriétaire (liste dans `docs/ajouts-1/02-bilan.md`), le mettre sur le serveur de test. **Boutique de démonstration** faite (Administration › Boutique de démonstration ; remplace « voir comme le commerçant ») : à lui faire essayer. Questions ouvertes : activation de la carte (plus tard), pixel, commandes abandonnées, timbre d'un paiement fait plus tard (comptable). Elles sont aussi dans `docs/VERIFICATION-FINALE.md` (questions 9 à 13).
 0. La revue du 18/11 est dans `main` : la mettre sur le serveur (`git pull` puis `./deployer.sh test`) et recueillir l'avis du propriétaire. **Le propriétaire doit effacer la clé privée du serveur** : `rm /srv/hanout/deploiement/secrets/*/CLE-PRIVEE-A-RECUPERER.asc` (après avoir vérifié qu'il en a bien une copie).
@@ -104,6 +107,7 @@ Sur le serveur : utiliser la **boutique de démonstration de l'administration** 
 | `docs/revue-modules/01-rapport.md` | Revue des modules : ce qui manque, ce qu'il faudrait déplacer ou ajouter |
 | `docs/ajouts-1/` | Lot d'ajouts n° 1 : recherche, bilan, captures |
 | `docs/audit-securite/01-rapport.md` | Audit « comme un pirate » : défauts trouvés et corrections proposées |
+| `docs/boutique-design/` | Boutiques : suppression, création guidée, logos, nouveau design |
 | `docs/GUIDE-INSTALLATION.md` | Guide pas à pas : louer, installer, mettre à jour, restaurer, alertes |
 | `docs/VERIFICATION-FINALE.md` | Tout ce que le propriétaire doit essayer, et les questions à trancher |
 | `deploiement/` | Fichiers et scripts de production (Docker, Caddy, sauvegardes, mise à jour) |

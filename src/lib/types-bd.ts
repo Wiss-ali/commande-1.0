@@ -547,7 +547,16 @@ export interface Boutiques {
   modifie_le: Generated<Date>;
   pixel_facebook: string | null;
   pixel_tiktok: string | null;
+  activite: Generated<string>;
+  ambiance: Generated<AmbianceBoutique>;
+  logo_forme: Generated<FormeLogo>;
+  logo_icone: string | null;
+  slogan_fr: Generated<string>;
+  slogan_ar: Generated<string>;
 }
+
+export type AmbianceBoutique = 'moderne' | 'elegant' | 'chaleureux' | 'audacieux';
+export type FormeLogo = 'rond' | 'carre' | 'contour' | 'texte';
 
 export type TypeDemande = 'paiement_carte' | 'site_personnalise';
 

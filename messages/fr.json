@@ -420,7 +420,9 @@
     "caisse_cloturee": "La caisse de cette journée est déjà clôturée : ce n'est plus modifiable.",
     "trop_de_photos": "6 photos au plus par produit. Retirez-en une d'abord.",
     "barre_invalide": "Choisissez de 1 à 4 entrées différentes.",
-    "confirmation_requise": "Cochez la case pour confirmer."
+    "confirmation_requise": "Cochez la case pour confirmer.",
+    "boutique_existe": "Vous avez déjà une boutique : un seul site par commerçant.",
+    "confirmation_incorrecte": "L'adresse tapée ne correspond pas. Rien n'a été supprimé."
   },
   "pageErreur": {
     "titre": "Quelque chose n'a pas marché",
@@ -1321,7 +1323,21 @@
     "choisirCommune": "Choisir votre commune",
     "mentionPixels": "Cette boutique mesure l'efficacité de ses publicités (Facebook, TikTok) : pages vues et montant des commandes, sans vos coordonnées.",
     "photos": "{n} photos",
-    "photoN": "Photo {n}"
+    "photoN": "Photo {n}",
+    "decouvrir": "Découvrir nos produits",
+    "atoutsTitre": "Pourquoi commander ici",
+    "atout_paiement": "Paiement à la livraison",
+    "atout_sansCompte": "Commande sans créer de compte",
+    "atout_confirmation": "Le vendeur vous appelle pour confirmer",
+    "nbProduits": "{n, plural, =0 {Aucun produit} one {# produit} other {# produits}}",
+    "chercherBouton": "Chercher",
+    "exempleProduits": "Exemple : vos produits publiés apparaîtront ici. Les acheteurs ne voient pas ces cases.",
+    "exempleProduit": "Exemple de produit {n}",
+    "exemplePrix": "0 DA",
+    "conditionsTitre": "Livraison et retours",
+    "contactTitre": "Une question ?",
+    "contactTexte": "Appelez-nous ou écrivez-nous sur WhatsApp, nous répondons vite.",
+    "remise": "-{n} %"
   },
   "notifications": {
     "titre": "Notifications",
@@ -1390,7 +1406,12 @@
       "bordeaux": "Bordeaux",
       "violet": "Violet",
       "terre": "Terre cuite",
-      "encre": "Encre"
+      "encre": "Encre",
+      "canard": "Bleu canard",
+      "marine": "Bleu marine",
+      "rose": "Framboise",
+      "ocre": "Ocre",
+      "olive": "Olive"
     },
     "logo": "Logo",
     "banniere": "Bannière",
@@ -1403,7 +1424,8 @@
       "accueil": "Bannière et texte d'accueil",
       "produits": "Produits",
       "conditions": "Conditions de livraison et de retour",
-      "contact": "Contact et réseaux sociaux"
+      "contact": "Contact et réseaux sociaux",
+      "atouts": "Points forts (paiement, confirmation)"
     },
     "contactTitre": "Contact",
     "whatsapp": "Numéro WhatsApp",
@@ -1441,7 +1463,118 @@
     "pixelTiktok": "Identifiant du pixel TikTok",
     "pixelTiktokAide": "Lettres majuscules et chiffres, par exemple C1A2B3C4D5E6F7G8H9I0 (TikTok Ads Manager).",
     "pixelsEnregistrer": "Enregistrer les pixels",
-    "pixelsEnregistres": "Enregistré. Les pixels sont actifs sur votre boutique en ligne."
+    "pixelsEnregistres": "Enregistré. Les pixels sont actifs sur votre boutique en ligne.",
+    "assistant": {
+      "etape": "Étape {n} sur {total}",
+      "activiteTitre": "Que vendez-vous ?",
+      "activiteTexte": "Nous préparons des couleurs, un logo et des textes d'exemple adaptés. Vous pourrez tout changer.",
+      "adresseTitre": "L'adresse de votre boutique",
+      "adresseTexte": "C'est le lien que vous partagerez sur Facebook, Instagram, TikTok ou WhatsApp.",
+      "modeleTitre": "Choisissez la mise en page",
+      "modeleTexte": "Vous pourrez en changer à tout moment sans rien perdre.",
+      "logoTitre": "Votre logo et vos couleurs",
+      "logoTexte": "Choisissez une forme et une icône : le logo est dessiné avec le nom de votre magasin.",
+      "resumeTitre": "Tout est prêt",
+      "resumeTexte": "Votre boutique sera créée hors ligne : vous la regardez, vous remplacez les textes d'exemple, puis vous la mettez en ligne.",
+      "logoImage": "Vous avez déjà un logo en image ? Vous pourrez l'envoyer juste après, dans « Apparence ».",
+      "publierTout": "{n, plural, one {Publier mon produit dans la boutique} other {Publier mes # produits dans la boutique}}",
+      "publierToutAide": "Vous pourrez retirer un produit ensuite. Rien n'est visible tant que la boutique est hors ligne.",
+      "aucunProduit": "Vous n'avez pas encore de produits : ajoutez-les dans le Stock, ils pourront être publiés ici.",
+      "textesExemple": "Des textes d'exemple (accroche, accueil, livraison, retours) sont mis pour vous. Ils sont signalés jusqu'à ce que vous les remplaciez par les vôtres.",
+      "precedent": "Retour",
+      "suivant": "Continuer",
+      "creer": "Créer ma boutique",
+      "creation": "Création…",
+      "corrigerAdresse": "Changer l'adresse"
+    },
+    "activite": {
+      "vetements": "Vêtements et mode",
+      "beaute": "Beauté et parfums",
+      "bijoux": "Bijoux et accessoires",
+      "electronique": "Téléphones et électronique",
+      "epicerie": "Épicerie et alimentation",
+      "maison": "Maison et décoration",
+      "enfants": "Enfants et jouets",
+      "autre": "Autre chose"
+    },
+    "logoForme": "Forme du logo",
+    "forme": {
+      "rond": "Rond",
+      "carre": "Carré",
+      "contour": "Contour",
+      "texte": "Nom seul"
+    },
+    "logoIcone": "Icône",
+    "initiales": "Initiales du magasin",
+    "initialesCourt": "AB",
+    "icone": {
+      "sac": "Sac",
+      "vetement": "Vêtement",
+      "beaute": "Beauté",
+      "bijou": "Bijou",
+      "montre": "Montre",
+      "chaussure": "Chaussure",
+      "telephone": "Téléphone",
+      "maison": "Maison",
+      "panier": "Panier",
+      "cafe": "Café",
+      "gateau": "Gâteau",
+      "fleur": "Fleur",
+      "feuille": "Feuille",
+      "enfant": "Enfant",
+      "sport": "Sport",
+      "livre": "Livre",
+      "cadeau": "Cadeau",
+      "coeur": "Cœur",
+      "etoile": "Étoile",
+      "couronne": "Couronne",
+      "ciseaux": "Ciseaux",
+      "palette": "Palette",
+      "voiture": "Voiture",
+      "magasin": "Magasin"
+    },
+    "ambianceTitre": "Ambiance",
+    "ambianceExemple": "Aa",
+    "ambiance": {
+      "moderne": "Moderne",
+      "elegant": "Élégante",
+      "chaleureux": "Chaleureuse",
+      "audacieux": "Audacieuse"
+    },
+    "ambianceTexte": {
+      "moderne": "Nette et simple, pour tout vendre.",
+      "elegant": "Titres raffinés, pour la mode et les bijoux.",
+      "chaleureux": "Formes douces, pour la beauté, l'épicerie, les enfants.",
+      "audacieux": "Couleur forte, pour l'électronique et les promos."
+    },
+    "apercuDirect": "Aperçu",
+    "apercuBouton": "Découvrir",
+    "apercuProduits": "Nos produits",
+    "logoImage": "Ou envoyez votre propre logo (il remplace le logo dessiné)",
+    "banniereAide": "Facultatif : une belle photo large de votre magasin ou de vos produits. Sans bannière, un fond à votre couleur est utilisé.",
+    "lectureSeule": "Votre compte est en lecture seule : la boutique ne peut pas être créée pour l'instant.",
+    "supprimeeOk": "Votre boutique a été supprimée. Vos produits, commandes et factures sont toujours là. Vous pouvez en créer une nouvelle.",
+    "creeeTitre": "Votre boutique est créée !",
+    "creeeTexte": "Elle est encore hors ligne. Ouvrez l'aperçu, remplacez les textes d'exemple par les vôtres, puis appuyez sur « Mettre la boutique en ligne ».",
+    "avantEnLigne": "Avant de mettre en ligne, remplacez les textes d'exemple (voir « Textes de la boutique » plus bas).",
+    "apparenceTitre": "Apparence",
+    "exemplesTitre": "Textes d'exemple encore en place",
+    "exemplesTexte": "À remplacer par vos vraies informations : {liste}. Vos clients les liront.",
+    "exemple": "Exemple",
+    "texte_slogan": "Phrase d'accroche",
+    "texteAide_slogan": "Le grand titre en haut de votre boutique, en quelques mots.",
+    "texteAide_accueil": "Présentez votre magasin : ce que vous vendez, où vous êtes, ce qui vous rend différent.",
+    "texteAide_livraison": "Délais, wilayas desservies, frais, point relais.",
+    "texteAide_retour": "Échange, remboursement, délai, état de l'article.",
+    "enFrancais": "En français",
+    "enArabe": "En arabe",
+    "supprimerTitre": "Supprimer la boutique",
+    "supprimerTexte": "La boutique disparaît d'Internet tout de suite. Si vous voulez seulement la fermer un moment, utilisez plutôt « Couper la boutique » en haut.",
+    "supprimerEfface": "Effacé : modèle, couleurs, logo, bannière, textes, réglages ; vos produits ne sont plus publiés.",
+    "supprimerGarde": "Gardé : vos produits et votre stock, toutes les commandes (même celles venues de la boutique), devis et factures.",
+    "supprimerAdresse": "L'adresse est libérée : quelqu'un d'autre pourra la prendre. Les liens des tickets déjà envoyés ne marcheront plus.",
+    "supprimerBouton": "Supprimer définitivement la boutique",
+    "supprimerConfirmer": "Pour confirmer, tapez l'adresse : {adresse}"
   },
   "moyens": {
     "ccp": "CCP",
@@ -1688,5 +1821,55 @@
     "enregistrer": "Enregistrer ma barre",
     "enregistre": "Enregistré.",
     "parDefaut": "Revenir à la barre par défaut"
+  },
+  "boutiqueExemples": {
+    "vetements": {
+      "slogan": "La mode qui vous ressemble",
+      "accueil": "Bienvenue chez nous ! Découvrez notre sélection de vêtements pour femmes, hommes et enfants, choisis avec soin. Nouveautés chaque semaine.",
+      "livraison": "Livraison dans toutes les wilayas en 24 à 72 heures. Paiement à la livraison. Frais selon la wilaya, affichés avant de commander.",
+      "retour": "Échange possible sous 7 jours si l'article n'a pas été porté et garde son étiquette. Appelez-nous avant de renvoyer."
+    },
+    "beaute": {
+      "slogan": "Prenez soin de vous",
+      "accueil": "Parfums, soins et maquillage de qualité, sélectionnés pour vous. Produits authentiques, conseils par téléphone ou WhatsApp.",
+      "livraison": "Livraison dans toutes les wilayas en 24 à 72 heures. Paiement à la livraison. Emballage soigné.",
+      "retour": "Pour votre hygiène, les produits ouverts ne sont ni repris ni échangés. Produit abîmé à la réception : appelez-nous sous 48 heures."
+    },
+    "bijoux": {
+      "slogan": "Des bijoux pour chaque occasion",
+      "accueil": "Bijoux et accessoires choisis avec goût : colliers, bagues, bracelets et montres. Idéal pour offrir ou se faire plaisir.",
+      "livraison": "Livraison dans toutes les wilayas en 24 à 72 heures, dans une jolie boîte. Paiement à la livraison.",
+      "retour": "Échange possible sous 7 jours si le bijou n'a pas été porté, dans son emballage d'origine."
+    },
+    "electronique": {
+      "slogan": "La technologie au meilleur prix",
+      "accueil": "Téléphones, accessoires et petit électronique. Produits neufs et garantis, conseils avant l'achat.",
+      "livraison": "Livraison dans toutes les wilayas en 24 à 72 heures. Paiement à la livraison. Vérifiez le colis devant le livreur.",
+      "retour": "Garantie selon le produit. Retour accepté sous 7 jours si le produit est neuf, complet, dans sa boîte d'origine."
+    },
+    "epicerie": {
+      "slogan": "Le bon goût, livré chez vous",
+      "accueil": "Produits frais et du terroir, épicerie fine et douceurs. Commandez simplement, nous préparons votre panier avec soin.",
+      "livraison": "Livraison dans notre wilaya et les wilayas voisines. Paiement à la livraison. Produits frais livrés le jour même ou le lendemain.",
+      "retour": "Produit abîmé ou non conforme : appelez-nous le jour de la livraison, nous le remplaçons."
+    },
+    "maison": {
+      "slogan": "Une maison qui vous ressemble",
+      "accueil": "Décoration, linge de maison et objets du quotidien pour embellir votre intérieur. Des idées pour chaque pièce.",
+      "livraison": "Livraison dans toutes les wilayas en 48 à 96 heures. Paiement à la livraison. Emballage protégé pour les objets fragiles.",
+      "retour": "Échange possible sous 7 jours, article non utilisé et dans son emballage. Casse à la livraison : refusez le colis et appelez-nous."
+    },
+    "enfants": {
+      "slogan": "Tout pour les petits",
+      "accueil": "Jouets, vêtements et accessoires pour bébés et enfants. Des produits sûrs et joyeux, choisis par des parents.",
+      "livraison": "Livraison dans toutes les wilayas en 24 à 72 heures. Paiement à la livraison.",
+      "retour": "Échange possible sous 7 jours si l'article est neuf, dans son emballage d'origine."
+    },
+    "autre": {
+      "slogan": "Bienvenue dans notre boutique",
+      "accueil": "Découvrez nos produits et commandez en quelques secondes, sans créer de compte. Nous vous appelons pour confirmer.",
+      "livraison": "Livraison dans toutes les wilayas en 24 à 72 heures. Paiement à la livraison.",
+      "retour": "Échange possible sous 7 jours si l'article est neuf, dans son emballage d'origine. Appelez-nous avant de renvoyer."
+    }
   }
 }

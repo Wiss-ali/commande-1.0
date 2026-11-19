@@ -1,0 +1,106 @@
+/* Ambiances des boutiques en ligne : police des titres, forme des cartes et des boutons, fond de l'accueil.
+   Les polices sont servies par l'application (CSP inchangée) et ne sont téléchargées que si une page les utilise. */
+@import '@fontsource-variable/playfair-display/index.css';
+@import '@fontsource/amiri/arabic-400.css';
+@import '@fontsource/amiri/arabic-700.css';
+@import '@fontsource-variable/nunito/index.css';
+@import '@fontsource-variable/el-messiri/index.css';
+@import '@fontsource-variable/space-grotesk/index.css';
+@import '@fontsource-variable/cairo/index.css';
+
+[data-ambiance] {
+  --b-titre: 'Inter Variable', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --b-espacement: -0.02em;
+  --b-rayon: 1.25rem;
+  --b-rayon-bouton: 0.875rem;
+}
+[data-ambiance='elegant'] {
+  --b-titre: 'Playfair Display Variable', 'Amiri', Georgia, serif;
+  --b-espacement: 0;
+  --b-rayon: 0.375rem;
+  --b-rayon-bouton: 0.25rem;
+}
+[data-ambiance='chaleureux'] {
+  --b-titre: 'Nunito Variable', 'El Messiri Variable', system-ui, sans-serif;
+  --b-espacement: -0.01em;
+  --b-rayon: 1.75rem;
+  --b-rayon-bouton: 9999px;
+}
+[data-ambiance='audacieux'] {
+  --b-titre: 'Space Grotesk Variable', 'Cairo Variable', system-ui, sans-serif;
+  --b-espacement: -0.035em;
+  --b-rayon: 0.5rem;
+  --b-rayon-bouton: 0.375rem;
+}
+.b-titre {
+  font-family: var(--b-titre);
+  letter-spacing: var(--b-espacement);
+}
+html[lang='ar'] .b-titre {
+  letter-spacing: 0;
+}
+[data-ambiance='audacieux'] .b-titre {
+  font-weight: 700;
+}
+.b-carte {
+  border-radius: var(--b-rayon);
+}
+.b-bouton {
+  border-radius: var(--b-rayon-bouton);
+}
+
+/* Fond de l'accueil sans bannière : dégradé doux dans la couleur de la boutique, motif léger selon l'ambiance. */
+.b-hero {
+  background:
+    radial-gradient(circle at 12% 18%, color-mix(in srgb, var(--prim) 22%, transparent), transparent 46%),
+    radial-gradient(circle at 92% 88%, color-mix(in srgb, var(--prim) 16%, transparent), transparent 50%),
+    var(--prim-pale);
+}
+[data-ambiance='elegant'] .b-hero {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--prim) 10%, transparent) 0 50%, transparent 50%),
+    var(--prim-pale);
+}
+[data-ambiance='audacieux'] .b-hero {
+  background:
+    radial-gradient(color-mix(in srgb, var(--sur-prim) 18%, transparent) 1px, transparent 1.5px) 0 0 / 18px 18px,
+    var(--prim);
+  color: var(--sur-prim);
+}
+[data-ambiance='audacieux'] .b-hero .b-hero-doux {
+  color: color-mix(in srgb, var(--sur-prim) 82%, transparent);
+}
+[data-ambiance='audacieux'] .b-hero .b-hero-bouton {
+  background: var(--sur-prim);
+  color: var(--prim);
+}
+/* Bannière : voile dégradé pour garder le texte lisible sur n'importe quelle photo. */
+.b-voile {
+  background: linear-gradient(to top, rgb(0 0 0 / 0.72), rgb(0 0 0 / 0.25) 55%, rgb(0 0 0 / 0.05));
+}
+/* Produit sans photo : la première lettre sur un fond pâle de la couleur de la boutique. */
+.b-sans-photo {
+  background:
+    radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--prim) 14%, transparent), transparent 60%),
+    var(--prim-pale);
+  color: var(--prim);
+}
+.b-carte-produit {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+@media (hover: hover) {
+  .b-carte-produit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -10px color-mix(in srgb, var(--prim) 45%, transparent);
+  }
+}
+/* Accueil collé aux bords sur téléphone, en carte arrondie sur un écran plus large. */
+.b-plein {
+  border-radius: 0;
+}
+@media (min-width: 640px) {
+  .b-plein {
+    border-radius: var(--b-rayon);
+    margin-top: 0;
+  }
+}

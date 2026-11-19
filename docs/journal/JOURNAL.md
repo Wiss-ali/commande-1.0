@@ -2,10 +2,17 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 19/11/2026 — Fusion dans `main` : corrections de l'audit + nouvelles boutiques
+
+- Demande du propriétaire : mettre les corrections de l'audit dans `main` en vérifiant les conflits avec la branche `claude/magical-goodall-2jle45` (boutiques, poussée par une autre conversation).
+- Conflits réglés à la main (`src/lib/boutique.ts`, `src/app/actions/boutique.ts`, `src/app/b/[sd]/page.tsx`) en gardant les deux travaux : les deux limites anti-faux tickets sont dans l'onglet « Réglages » de la nouvelle boutique.
+- Les deux branches avaient créé une migration 0019 : celle de l'audit devient **`0020_anti_abus_boutique`** (aucune n'était encore passée sur le serveur). Captures : celles du nouveau design, régénérées par les parcours.
+- Tests de la version fusionnée : 187 ✅ ; 88 parcours ✅. Mis dans `main` avec l'accord du propriétaire (« les deux »).
+
 ## 19/11/2026 — Corrections de l'audit « comme un pirate »
 
 - Demande du propriétaire : corriger 1, 4, 3 (« le propriétaire donne l'accès ou non »), la saturation, retirer l'adresse du serveur, « et le reste après ».
-- **1. Faux tickets** (migration `0019_anti_abus_boutique`) : pièces d'un même article par ticket limitées (5 par défaut) ; au-delà de 20 tickets non confirmés en même temps, la boutique ne réserve plus de stock et demande d'appeler le vendeur. Deux réglages du commerçant (Boutique › Stock et réservation). Limite par adresse : 10 tickets par heure (au lieu de 20) et 30 par jour.
+- **1. Faux tickets** (migration `0020_anti_abus_boutique`, numérotée 0019 avant la fusion) : pièces d'un même article par ticket limitées (5 par défaut) ; au-delà de 20 tickets non confirmés en même temps, la boutique ne réserve plus de stock et demande d'appeler le vendeur. Deux réglages du commerçant (Boutique › Stock et réservation). Limite par adresse : 10 tickets par heure (au lieu de 20) et 30 par jour.
 - **4. Administrateur** : blocage pour cet identifiant depuis cette adresse seulement (plus du compte entier) ; même réponse que l'identifiant existe ou non.
 - **3. Factures** : sans la permission « remises » (renommée « Peut faire des remises et changer les prix », accordée par le propriétaire dans Équipe), un vendeur garde le prix de la fiche et ne fait pas de remise ; en modifiant un devis, il peut garder les prix déjà écrits. Lignes libres (sans stock) inchangées.
 - **12. Saturation** : limite par adresse dans l'application sur les pages publiques des boutiques (300 requêtes/min, 30 envois/min, réglables) ; Caddy : délais courts contre les connexions lentes, envois limités à 6 Mo. Le fichier Caddy n'a pas pu être vérifié ici (Caddy pas téléchargeable) : à vérifier au déploiement.
@@ -23,6 +30,15 @@ Entrées les plus récentes en haut. Une entrée par action importante.
 - Rapport : `docs/audit-securite/01-rapport.md`. 15 points : 2 importants (faux tickets qui vident le stock d'une boutique ; clé privée de sauvegarde encore sur le serveur), 3 moyens (vendeur qui contourne l'interdiction de remise par Factures ; blocage du compte administrateur par un inconnu ; code à 6 chiffres devinable à la longue), le reste faible.
 - Aucune attaque lancée contre le serveur en ligne. Essai local d'un fichier Excel piégé : résiste.
 - Rien n'est corrigé : corrections proposées, en attente de l'accord du propriétaire.
+
+## 19/11/2026 — Boutiques : suppression, création guidée, logos dessinés, nouveau design
+
+- Demande du propriétaire : vérifier la coupure, la suppression et la règle « une seule boutique » ; refaire le design des boutiques avec du faux texte à remplacer ; création plus belle et plus fluide avec des choix de logos. Bilan : `docs/boutique-design/01-recherche-et-bilan.md`.
+- Vérifié : la coupure marchait (toutes les pages publiques, commandes refusées côté serveur) ; une seule boutique garantie par la base (clé = commerçant). **La suppression n'existait pas : ajoutée** (adresse à retaper ; réglages, logo, bannière effacés, produits dépubliés, adresse libérée ; produits, commandes, devis, factures gardés).
+- Migration `0019_boutique_design` : `activite`, `ambiance`, `logo_forme`, `logo_icone`, `slogan_fr/ar` ; `GRANT DELETE ON boutiques` (isolation inchangée).
+- Assistant de création en 5 étapes avec aperçu en direct ; logos dessinés (4 formes × 24 icônes ou initiales) ; 4 ambiances (polices Playfair/Amiri, Nunito/El Messiri, Space Grotesk/Cairo, servies par l'application) ; 11 couleurs ; textes d'exemple par activité (fr/ar, fichiers de traduction) signalés jusqu'à leur remplacement ; nouvelle section « atouts ». Boutique publique refaite (accueil plein écran, points forts, cartes produits, contact, pied de page) ; écran du commerçant réorganisé (Apparence, Textes, Réglages, suppression).
+- Défaut trouvé en testant et corrigé : la création mettait le texte français dans la version arabe (la traduction suit toujours la langue de l'écran) ; les deux fichiers sont maintenant lus directement.
+- Tests : 181 ✅ ; 88 parcours ✅. Test de chiffrement aléatoire rendu fiable.
 
 ## 18/11/2026 — Boutique de démonstration de l'administrateur (remplace « voir comme le commerçant »)
 

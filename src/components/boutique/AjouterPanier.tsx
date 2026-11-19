@@ -29,7 +29,7 @@ export function AjouterPanier({ sd, base, produitId, nom, variantes, direct, max
   return (
     <div className="flex flex-col gap-3">
       <p className="flex items-baseline gap-2">
-        <span className="text-2xl font-bold">{formaterMontant(v.prix, langue)}</span>
+        <span className="b-titre text-3xl font-bold text-prim">{formaterMontant(v.prix, langue)}</span>
         {v.prixBarre && v.prixBarre > v.prix ? <s className="text-doux">{formaterMontant(v.prixBarre, langue)}</s> : null}
       </p>
       {variantes.length > 1 ? (
@@ -37,7 +37,7 @@ export function AjouterPanier({ sd, base, produitId, nom, variantes, direct, max
           <legend className="mb-1.5 text-sm font-medium">{t('choisirVariante')}</legend>
           <div className="flex flex-wrap gap-2">
             {variantes.map((x) => (
-              <label key={x.varianteId} className={`inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg border px-3 text-sm font-semibold ${x.varianteId === choix ? 'border-prim bg-prim-pale text-prim' : 'border-trait'} ${x.disponible <= 0 ? 'line-through opacity-60' : ''}`}>
+              <label key={x.varianteId} className={`b-bouton inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg border px-3 text-sm font-semibold ${x.varianteId === choix ? 'border-prim bg-prim-pale text-prim' : 'border-trait'} ${x.disponible <= 0 ? 'line-through opacity-60' : ''}`}>
                 <input type="radio" name="variante" value={x.varianteId} checked={x.varianteId === choix} onChange={() => { setChoix(x.varianteId); setQuantite(1); setAjoute(false); }} className="sr-only" />
                 {x.libelle}
               </label>
@@ -64,7 +64,7 @@ export function AjouterPanier({ sd, base, produitId, nom, variantes, direct, max
           setAjoute(true);
           if (direct) window.location.assign(`${base}/panier`);
         }}
-        className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-prim shadow-prim hover:bg-prim-fort px-4 text-base font-semibold text-sur-prim disabled:opacity-50"
+        className="b-bouton inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-prim shadow-prim hover:bg-prim-fort px-4 text-base font-semibold text-sur-prim disabled:opacity-50"
       >
         {t(direct ? 'commanderMaintenant' : 'ajouter')}
       </button>

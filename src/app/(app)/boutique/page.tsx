@@ -1,25 +1,32 @@
-import { ExternalLink, Globe, Sparkles } from 'lucide-react';
+import { AlertTriangle, ExternalLink, Globe, PartyPopper, Sparkles, Trash2 } from 'lucide-react';
+import { headers } from 'next/headers';
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
-import { basculerBoutique, basculerProduit, choisirAdresse, choisirModele, enregistrerPixelsBoutique, envoyerDemande, personnaliser } from '@/app/actions/boutique';
-import { ChampPhoto } from '@/components/ChampPhoto';
+import { basculerBoutique, basculerProduit, choisirAdresse, creerMaBoutique, enregistrerPixelsBoutique, envoyerDemande, personnaliser, supprimerMaBoutique } from '@/app/actions/boutique';
+import { ApparenceBoutique } from '@/components/boutique/ApparenceBoutique';
+import { CreationBoutique } from '@/components/boutique/CreationBoutique';
+import { LogoBoutique } from '@/components/boutique/LogoBoutique';
 import { EnTete } from '@/components/EnTete';
 import { Formulaire } from '@/components/Formulaire';
 import { Page } from '@/components/Page';
 import { Carte, Champ, classeBouton, Message, Pastille, TitreSection } from '@/components/ui';
 import { avecCommercant } from '@/lib/bd';
-import { demandesDuCommercant, lireReglages, MODELES, PALETTE, RESEAUX, SECTIONS } from '@/lib/boutique';
+import { demandesDuCommercant, lireReglages, PALETTE, RESEAUX, SECTIONS } from '@/lib/boutique';
+import { LISTE_ACTIVITES, styleCouleur } from '@/lib/design-boutique';
+import { textesExemple } from '@/lib/exemples-boutique';
 import { config } from '@/lib/config';
 import { formaterDate, nomLocal } from '@/lib/formats';
 import type { Langue } from '@/lib/types-bd';
 import { pageUtilisateur } from '@/lib/web';
 
 /** Module Boutique en ligne : mise en ligne, adresse, modèle, personnalisation, produits publiés, paiement par carte. */
-export default async function ModuleBoutique() {
+export default async function ModuleBoutique({ searchParams }: { searchParams: Promise<{ creee?: string; supprimee?: string }> }) {
   const s = await pageUtilisateur('reglages', 'boutique');
   const t = await getTranslations('boutiqueAdmin');
   const tc = await getTranslations('commun');
   const langue = (await getLocale()) as Langue;
+  const sp = await searchParams;
+  const nonce = (await headers()).get('x-nonce') ?? '';
   const { r, c, produits, demandes, moi } = await avecCommercant(s.commercant.id, async (trx) => ({
     r: await lireReglages(trx),
     c: await trx.selectFrom('commercants').select(['sous_domaine', 'paiement_carte_actif', 'nom', 'telephone']).executeTakeFirstOrThrow(),
@@ -28,9 +35,11 @@ export default async function ModuleBoutique() {
     moi: await trx.selectFrom('utilisateurs').select('telephone').where('id', '=', s.utilisateur.id).executeTakeFirst(),
   }));
   const app = config();
-  const adresse = c.sous_domaine
-    ? app.DOMAINE_BOUTIQUES ? `${app.https ? 'https' : 'http'}://${c.sous_domaine}.${app.DOMAINE_BOUTIQUES}` : `${app.URL_APP.replace(/\/$/, '')}/b/${c.sous_domaine}`
-    : null;
+  const [prefixe, suffixe] = app.DOMAINE_BOUTIQUES ? [`${app.https ? 'https' : 'http'}://`, `.${app.DOMAINE_BOUTIQUES}`] : [`${app.URL_APP.replace(/\/$/, '')}/b/`, ''];
+  const adresse = c.sous_domaine ? `${prefixe}${c.sous_domaine}${suffixe}` : null;
+  // Couleurs des aperçus : une classe par couleur de la palette (les styles en ligne sont interdits par la CSP).
+  const stylesCouleurs = <style nonce={nonce}>{Object.keys(PALETTE).map((k) => styleCouleur(k, `.b-c-${k}`)).join('')}</style>;
+  const te = await getTranslations('boutiqueExemples');
   const lienLocal = c.sous_domaine ? `/b/${c.sous_domaine}` : null;
   const ouverte = (type: string) => demandes.find((d) => d.type === type && d.etat === 'nouvelle');
   const ecrit = s.commercant.etat === 'actif';
@@ -43,17 +52,50 @@ export default async function ModuleBoutique() {
     </>
   );
 
+  // Pas encore de boutique (ou supprimée) : assistant de création.
+  if (!c.sous_domaine) {
+    return (
+      <>
+        <EnTete titre={t('titre')} retour="/plus" />
+        <Page>
+          {stylesCouleurs}
+          {sp.supprimee ? <Message ton="succes">{t('supprimeeOk')}</Message> : null}
+          {ecrit ? (
+            <CreationBoutique action={creerMaBoutique} nom={s.commercant.nom} prefixe={prefixe} suffixe={suffixe} nbProduits={produits.length}
+              slogans={Object.fromEntries(LISTE_ACTIVITES.map((a) => [a, te(`${a}.slogan`)]))} />
+          ) : <Message ton="info">{t('lectureSeule')}</Message>}
+        </Page>
+      </>
+    );
+  }
+
+  // Textes d'exemple de l'activité encore en place : à remplacer avant de mettre en ligne.
+  const ex = textesExemple(r.activite);
+  const restants = (['slogan', 'accueil', 'livraison', 'retour'] as const).filter((k) => (r[k].fr && r[k].fr === ex[k].fr) || (r[k].ar && r[k].ar === ex[k].ar));
+  const logoUrl = r.logoId && lienLocal ? `${lienLocal}/photo/${r.logoId}?t=p` : null;
+
   return (
     <>
       <EnTete titre={t('titre')} retour="/plus" />
       <Page>
+        {stylesCouleurs}
+        {sp.creee ? (
+          <div className={`b-c-${r.couleur} flex items-start gap-3 rounded-2xl border border-prim bg-prim-pale p-4`}>
+            <PartyPopper aria-hidden className="size-6 shrink-0 text-prim" />
+            <div className="flex flex-col gap-1"><p className="font-semibold">{t('creeeTitre')}</p><p className="text-sm">{t('creeeTexte')}</p></div>
+          </div>
+        ) : null}
         {/* ───── En ligne ou coupée ───── */}
         <Carte className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2"><Globe aria-hidden className="size-5 text-prim" /><h2 className="font-semibold">{t('etat')}</h2></div>
+            <div className={`b-c-${r.couleur} flex min-w-0 items-center gap-2`} data-ambiance={r.ambiance}>
+              <LogoBoutique nom={s.commercant.nom} forme={r.logoForme} icone={r.logoIcone} image={logoUrl} taille="s" avecNom={r.logoForme !== 'texte' || !!logoUrl} />
+            </div>
             <Pastille ton={r.enLigne ? 'vert' : 'neutre'}>{t(r.enLigne ? 'enLigne' : 'coupee')}</Pastille>
           </div>
+          <h2 className="flex items-center gap-2 font-semibold"><Globe aria-hidden className="size-5 text-prim" />{t('etat')}</h2>
           <p className="text-sm text-doux">{t(r.enLigne ? 'enLigneTexte' : 'coupeeTexte')}</p>
+          {restants.length && !r.enLigne ? <Message ton="info">{t('avantEnLigne')}</Message> : null}
           {ecrit ? (
             <Formulaire action={basculerBoutique} bouton={t(r.enLigne ? 'couper' : 'mettreEnLigne')} style={r.enLigne ? 'danger' : 'principal'} garder>
               <input type="hidden" name="enLigne" value={r.enLigne ? 'non' : 'oui'} />
@@ -62,37 +104,49 @@ export default async function ModuleBoutique() {
           {lienLocal ? <a href={lienLocal} target="_blank" rel="noopener" className={classeBouton.secondaire}><ExternalLink aria-hidden className="size-4" />{t(r.enLigne ? 'voir' : 'apercu')}</a> : null}
         </Carte>
 
-        {/* ───── Adresse ───── */}
-        <Carte className="flex flex-col gap-3">
-          <h2 className="font-semibold">{t('adresseTitre')}</h2>
-          {adresse ? <p className="break-all text-sm font-semibold text-prim" dir="ltr">{adresse}</p> : <Message ton="info">{t('adresseVide')}</Message>}
-          {ecrit ? (
-            <Formulaire action={choisirAdresse} bouton={tc('enregistrer')} style="secondaire" succes={tc('enregistre')} garder>
-              <Champ libelle={t('sousDomaine')} name="sousDomaine" defaultValue={c.sous_domaine ?? ''} maxLength={40} dir="ltr" autoComplete="off" aide={t('sousDomaineAide')} required />
-            </Formulaire>
-          ) : null}
-        </Carte>
+        {/* ───── Apparence : modèle, logo, couleur, ambiance, bannière (aperçu en direct) ───── */}
+        <TitreSection>{t('apparenceTitre')}</TitreSection>
+        {ecrit ? (
+          <ApparenceBoutique action={personnaliser} nom={s.commercant.nom} slogan={r.slogan[langue] || r.slogan.fr}
+            initial={{ modele: r.modele, couleur: r.couleur, ambiance: r.ambiance, forme: r.logoForme, icone: r.logoIcone, produitUniqueId: r.produitUniqueId }}
+            logo={logoUrl} banniere={r.banniereId && lienLocal ? `${lienLocal}/photo/${r.banniereId}?t=p` : null}
+            produits={produits.filter((p) => p.visible_boutique).map((p) => ({ id: p.id, nom: nomLocal(p, langue) }))} />
+        ) : null}
 
-        {/* ───── Modèle ───── */}
-        <TitreSection>{t('modeleTitre')}</TitreSection>
-        <Formulaire action={choisirModele} bouton={t('choisirModele')} style="secondaire" succes={tc('enregistre')} garder>
-          <fieldset className="flex flex-col gap-2">
-            <legend className="sr-only">{t('modeleTitre')}</legend>
-            {MODELES.map((m) => (
-              <label key={m} className="flex min-h-16 cursor-pointer items-start gap-3 rounded-2xl border border-trait bg-surface shadow-doux p-3 has-[:checked]:border-prim has-[:checked]:bg-prim-pale">
-                <input type="radio" name="modele" value={m} defaultChecked={r.modele === m} className="mt-1 size-5 accent-prim" />
-                <span><span className="block font-semibold">{t(`modele.${m}`)}</span><span className="block text-sm text-doux">{t(`modeleTexte.${m}`)}</span></span>
-              </label>
+        {/* ───── Textes : les textes d'exemple de l'activité sont signalés jusqu'à ce qu'ils soient remplacés ───── */}
+        <TitreSection>{t('textes')}</TitreSection>
+        {restants.length ? (
+          <div className="flex items-start gap-3 rounded-2xl border border-safran bg-safran-pale p-4 text-sur-safran">
+            <AlertTriangle aria-hidden className="size-5 shrink-0" />
+            <div className="flex flex-col gap-1 text-sm"><p className="font-semibold">{t('exemplesTitre')}</p><p>{t('exemplesTexte', { liste: restants.map((k) => t(`texte_${k}`)).join(', ') })}</p></div>
+          </div>
+        ) : null}
+        {ecrit ? (
+          <Formulaire action={personnaliser} bouton={tc('enregistrer')} succes={tc('enregistre')} garder>
+            <input type="hidden" name="partie" value="textes" />
+            {(['slogan', 'accueil', 'livraison', 'retour'] as const).map((k) => (
+              <Carte key={k} className={`flex flex-col gap-3 ${restants.includes(k) ? 'border-safran' : ''}`}>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="font-semibold">{t(`texte_${k}`)}</h3>
+                  {restants.includes(k) ? <Pastille ton="safran">{t('exemple')}</Pastille> : null}
+                </div>
+                <p className="-mt-2 text-sm text-doux">{t(`texteAide_${k}`)}</p>
+                {(['fr', 'ar'] as const).map((l) => {
+                  const max = k === 'slogan' ? 80 : k === 'accueil' ? 500 : 1000;
+                  return (
+                    <label key={l} className="flex flex-col gap-1.5">
+                      <span className="text-sm font-medium">{t(l === 'fr' ? 'enFrancais' : 'enArabe')}</span>
+                      {k === 'slogan'
+                        ? <input name={`${k}_${l}`} defaultValue={r[k][l]} maxLength={max} lang={l} dir={l === 'ar' ? 'rtl' : 'ltr'} className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre" />
+                        : <textarea name={`${k}_${l}`} defaultValue={r[k][l]} maxLength={max} lang={l} dir={l === 'ar' ? 'rtl' : 'ltr'} className={champTexte} />}
+                    </label>
+                  );
+                })}
+              </Carte>
             ))}
-          </fieldset>
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">{t('produitUnique')}</span>
-            <select name="produitUnique" defaultValue={r.produitUniqueId ?? ''} className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre">
-              <option value="">{t('premierProduit')}</option>
-              {produits.filter((p) => p.visible_boutique).map((p) => <option key={p.id} value={p.id}>{nomLocal(p, langue)}</option>)}
-            </select>
-          </label>
-        </Formulaire>
+          </Formulaire>
+        ) : null}
+
         <Carte className="flex flex-col gap-3 border-dashed">
           <div className="flex items-center gap-2"><Sparkles aria-hidden className="size-5 text-prim" /><h2 className="font-semibold">{t('sitePersoTitre')}</h2></div>
           <p className="text-sm">{t('sitePersoTexte')}</p>
@@ -108,34 +162,12 @@ export default async function ModuleBoutique() {
           ) : null}
         </Carte>
 
-        {/* ───── Personnalisation ───── */}
+
+        {/* ───── Réglages : sections, contact, stock ───── */}
         <TitreSection>{t('personnaliserTitre')}</TitreSection>
+        {ecrit ? (
         <Formulaire action={personnaliser} bouton={tc('enregistrer')} succes={tc('enregistre')} garder>
-          <Carte className="flex flex-col gap-3">
-            <fieldset>
-              <legend className="mb-2 text-sm font-medium">{t('couleur')}</legend>
-              <div className="flex flex-wrap gap-2">
-                {Object.entries(PALETTE).map(([cle, p]) => (
-                  <label key={cle} className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-trait px-3 has-[:checked]:border-encre has-[:checked]:ring-2 has-[:checked]:ring-encre">
-                    <input type="radio" name="couleur" value={cle} defaultChecked={r.couleur === cle} className="sr-only" />
-                    <svg aria-hidden viewBox="0 0 20 20" className="size-5"><circle cx={10} cy={10} r={10} fill={p.fond} /></svg>
-                    <span className="text-sm">{t(`couleurs.${cle}`)}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-            <ChampPhoto nom="logo" libelle={t('logo')} actuelle={r.logoId && lienLocal ? `${lienLocal}/photo/${r.logoId}?t=p` : null} />
-            <ChampPhoto nom="banniere" libelle={t('banniere')} actuelle={r.banniereId && lienLocal ? `${lienLocal}/photo/${r.banniereId}?t=p` : null} />
-          </Carte>
-          <Carte className="flex flex-col gap-3">
-            <h3 className="font-semibold">{t('textes')}</h3>
-            {(['accueil', 'livraison', 'retour'] as const).map((k) => (
-              <div key={k} className="flex flex-col gap-2">
-                <label className="flex flex-col gap-1.5"><span className="text-sm font-medium">{t(`texte_${k}`)} (FR)</span><textarea name={`${k}_fr`} defaultValue={r[k].fr} maxLength={k === 'accueil' ? 500 : 1000} lang="fr" dir="ltr" className={champTexte} /></label>
-                <label className="flex flex-col gap-1.5"><span className="text-sm font-medium">{t(`texte_${k}`)} (AR)</span><textarea name={`${k}_ar`} defaultValue={r[k].ar} maxLength={k === 'accueil' ? 500 : 1000} lang="ar" dir="rtl" className={champTexte} /></label>
-              </div>
-            ))}
-          </Carte>
+          <input type="hidden" name="partie" value="reglages" />
           <Carte className="flex flex-col gap-3">
             <h3 className="font-semibold">{t('ordreSections')}</h3>
             {SECTIONS.map((x) => (
@@ -166,6 +198,18 @@ export default async function ModuleBoutique() {
             <Champ libelle={t('maxTicketsAttente')} name="maxTicketsAttente" defaultValue={String(r.maxTicketsAttente)} inputMode="numeric" dir="ltr" maxLength={3} aide={t('maxTicketsAttenteAide')} />
           </Carte>
         </Formulaire>
+        ) : null}
+
+        {/* ───── Adresse ───── */}
+        <Carte className="flex flex-col gap-3">
+          <h2 className="font-semibold">{t('adresseTitre')}</h2>
+          {adresse ? <p className="break-all text-sm font-semibold text-prim" dir="ltr">{adresse}</p> : <Message ton="info">{t('adresseVide')}</Message>}
+          {ecrit ? (
+            <Formulaire action={choisirAdresse} bouton={tc('enregistrer')} style="secondaire" succes={tc('enregistre')} garder>
+              <Champ libelle={t('sousDomaine')} name="sousDomaine" defaultValue={c.sous_domaine ?? ''} maxLength={40} dir="ltr" autoComplete="off" aide={t('sousDomaineAide')} required />
+            </Formulaire>
+          ) : null}
+        </Carte>
 
         {/* ───── Mesure des publicités (pixels), désactivée tant que rien n'est collé ───── */}
         <details className="rounded-2xl border border-trait bg-surface shadow-doux" open={Boolean(r.pixels.facebook || r.pixels.tiktok)}>
@@ -218,6 +262,24 @@ export default async function ModuleBoutique() {
             </details>
           ) : null) : null}
         </Carte>
+
+        {/* ───── Supprimer la boutique : il faut retaper l'adresse ───── */}
+        {ecrit ? (
+          <details className="rounded-2xl border border-terre/40 bg-surface">
+            <summary className="flex min-h-12 cursor-pointer items-center gap-2 px-4 font-semibold text-terre"><Trash2 aria-hidden className="size-5" />{t('supprimerTitre')}</summary>
+            <div className="flex flex-col gap-3 p-4 pt-0">
+              <p className="text-sm">{t('supprimerTexte')}</p>
+              <ul className="list-disc ps-5 text-sm text-doux">
+                <li>{t('supprimerEfface')}</li>
+                <li>{t('supprimerGarde')}</li>
+                <li>{t('supprimerAdresse')}</li>
+              </ul>
+              <Formulaire action={supprimerMaBoutique} bouton={t('supprimerBouton')} style="danger">
+                <Champ libelle={t('supprimerConfirmer', { adresse: c.sous_domaine })} name="confirmation" dir="ltr" autoComplete="off" maxLength={60} required />
+              </Formulaire>
+            </div>
+          </details>
+        ) : null}
       </Page>
     </>
   );

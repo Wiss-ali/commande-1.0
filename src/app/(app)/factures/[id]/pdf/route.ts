@@ -9,7 +9,8 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export async function GET(requete: Request, { params }: { params: Promise<{ id: string }> }) {
   const s = await sessionUtilisateur();
-  if (!s?.complete || !peut(s.utilisateur.role, 'vendre')) return new Response(null, { status: 401 });
+  // Module Factures, ou Caisse pour imprimer le ticket d'une vente.
+  if (!s?.complete || !peut(s.utilisateur.role, 'vendre') || !(s.commercant.modules.factures || s.commercant.modules.caisse)) return new Response(null, { status: 401 });
   const { id } = await params;
   if (!UUID.test(id)) return new Response(null, { status: 404 });
   const choix = new URL(requete.url).searchParams.get('langue');

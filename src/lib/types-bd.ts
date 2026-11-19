@@ -542,6 +542,8 @@ export interface Boutiques {
   ruptures: Generated<'visible' | 'masque'>;
   plus_que: Generated<number>;
   reservation_heures: Generated<number>;
+  max_par_article: Generated<number>;
+  max_tickets_attente: Generated<number>;
   modifie_le: Generated<Date>;
   pixel_facebook: string | null;
   pixel_tiktok: string | null;

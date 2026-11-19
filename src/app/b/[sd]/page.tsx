@@ -51,7 +51,7 @@ export default async function Boutique({ params, searchParams }: { params: Promi
       <section key="produits" className="flex flex-col gap-4" aria-labelledby="titre-produit">
         {unique.photoId ? <img src={`${base}/photo/${unique.photoId}`} alt="" className="aspect-square w-full rounded-xl object-cover" /> : null}
         <h1 id="titre-produit" className="text-2xl font-bold">{nomLocal(unique, langue)}</h1>
-        <AjouterPanier sd={v.sousDomaine} base={base} produitId={unique.id} nom={nomLocal(unique, langue)} variantes={unique.variantes} />
+        <AjouterPanier sd={v.sousDomaine} base={base} produitId={unique.id} nom={nomLocal(unique, langue)} variantes={unique.variantes} maxParArticle={r.maxParArticle} />
         <h2 className="pt-2 text-lg font-semibold">{t('commanderIci')}</h2>
         <CommandeBoutique sd={v.sousDomaine} base={base} cle={randomUUID()} wilayas={wilayas} apercu={c.apercu} />
       </section>

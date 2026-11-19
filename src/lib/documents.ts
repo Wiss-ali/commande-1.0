@@ -437,6 +437,22 @@ export function vendreEnCaisse(trx: Trx, ctx: Contexte, v: VenteCaisse) {
 }
 
 /** Modifie un devis tant qu'il est en attente : lignes, client, note. Son numéro ne change pas. */
+/** Vrai si chaque article garde le prix de sa fiche (ou celui déjà écrit sur le devis modifié), sans nouvelle remise. */
+export async function prixPermis(trx: Trx, lignes: LigneSaisie[], remiseGlobale: number, devisId: string | null): Promise<boolean> {
+  if (remiseGlobale) return false;
+  const ids = [...new Set(lignes.flatMap((l) => (l.varianteId ? [l.varianteId] : [])))];
+  const fiches = ids.length ? await trx.selectFrom('variantes').select(['id', 'prix_vente']).where('id', 'in', ids).execute() : [];
+  const fiche = new Map(fiches.map((x) => [x.id, Number(x.prix_vente)]));
+  const deja = devisId ? ((await lireDocument(trx, devisId))?.lignes ?? []) : [];
+  return lignes.every((l) => {
+    if (!l.varianteId) return true; // ligne libre (service, frais) : pas de stock, prix libre
+    const anciennes = deja.filter((d) => d.varianteId === l.varianteId);
+    const prixOk = l.prixUnitaire === fiche.get(l.varianteId) || anciennes.some((d) => d.prixUnitaire === l.prixUnitaire);
+    const remiseOk = !l.remise || anciennes.some((d) => d.remise === l.remise);
+    return prixOk && remiseOk;
+  });
+}
+
 export async function modifierDevis(trx: Trx, ctx: Contexte, id: string, m: { lignes: LigneSaisie[]; acheteur?: Mentions | null; note?: string; remiseGlobale?: number }): Promise<Resultat<object>> {
   const d = await trx.selectFrom('documents').select(['type', 'etat']).where('id', '=', id).executeTakeFirst();
   if (!d) return { ok: false, raison: 'introuvable' };

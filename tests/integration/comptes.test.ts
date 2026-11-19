@@ -118,6 +118,17 @@ describe('connexion', () => {
     expect((await connecterUtilisateur({ telephone: c.telephone, motDePasse: MDP, ip: null })).ok).toBe(true);
   });
 
+  it('administrateur : un inconnu ne peut pas le bloquer, et le blocage ne révèle pas si l\'identifiant existe', async () => {
+    const admin = await creerAdmin();
+    for (let i = 0; i < 5; i++) await connecterAdmin({ identifiant: admin.identifiant, motDePasse: 'faux', ip: '10.66.6.0' });
+    expect(await connecterAdmin({ identifiant: admin.identifiant, motDePasse: MDP, ip: '10.66.6.0' })).toEqual({ ok: false, raison: 'bloque' });
+    // Depuis une autre adresse, le vrai administrateur entre.
+    expect(await connecterAdmin({ identifiant: admin.identifiant, motDePasse: MDP, ip: '10.77.7.0' })).toMatchObject({ ok: true });
+    // Un identifiant qui n'existe pas est « bloqué » de la même façon.
+    for (let i = 0; i < 5; i++) await connecterAdmin({ identifiant: 'personne-xyz', motDePasse: 'faux', ip: '10.66.7.0' });
+    expect(await connecterAdmin({ identifiant: 'personne-xyz', motDePasse: 'faux', ip: '10.66.7.0' })).toEqual({ ok: false, raison: 'bloque' });
+  });
+
   it('bloque l\'adresse après cinq échecs, même avec le bon mot de passe ensuite, sans bloquer le titulaire ailleurs', async () => {
     const c = await creerCommercant(admin.id, 'Blocage');
     for (let i = 0; i < 5; i++) await connecterUtilisateur({ telephone: c.telephone, motDePasse: 'faux', ip: '10.1.0.1' });
@@ -195,6 +206,16 @@ describe('double authentification', () => {
 
     const stocke = await sqlProprietaire<{ totp_secret_chiffre: string }>('SELECT totp_secret_chiffre FROM administrateurs WHERE id = $1', [admin.id]);
     expect(stocke.rows[0]!.totp_secret_chiffre).not.toContain(secret);
+  });
+
+  it('code à 6 chiffres : après 5 erreurs, même le bon code est refusé un moment, et chaque erreur est notée', async () => {
+    const autre = await creerAdmin();
+    const secret = await preparerTotp('administrateurs', autre.id);
+    await activerTotp('administrateurs', autre.id, codeTotpActuel(secret, Date.now() - 30_000));
+    for (let i = 0; i < 5; i++) expect(await verifierCode('administrateurs', autre.id, '000000')).toBe(false);
+    expect(await verifierCode('administrateurs', autre.id, codeTotpActuel(secret))).toBe(false);
+    const notes = await bd('plateforme').selectFrom('journal_actions').select('id').where('action', '=', 'admin.double_auth.echec').where('objet_id', '=', autre.id).execute();
+    expect(notes).toHaveLength(5);
   });
 });
 

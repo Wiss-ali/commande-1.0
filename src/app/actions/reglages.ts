@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache';
 import { action, actionSimple, secret, texte } from '@/lib/actions';
 import { avecCommercant } from '@/lib/bd';
 import { chiffrerOuNul } from '@/lib/chiffrement';
-import { activerTotp, changerMotDePasse, desactiverTotp, motDePasseCorrect, preparerTotp } from '@/lib/comptes';
+import { activerTotp, changerMotDePasse, desactiverTotp, motDePasseCorrect, preparerTotp, verifierCode } from '@/lib/comptes';
 import { MODULES } from '@/lib/droits';
 import { journaliser } from '@/lib/journal';
 import { defautMotDePasse } from '@/lib/mots-de-passe';
@@ -84,6 +84,8 @@ export const activer2fa = action(async (f) => {
 export const desactiver2fa = action(async (f) => {
   const s = await exigerUtilisateur();
   if (!(await motDePasseCorrect(s.utilisateur.id, secret(f, 'motDePasse')))) return { erreur: 'mdp_actuel_faux' };
+  // Le mot de passe seul ne suffit pas : il faut aussi un code de l'application (ou un code de secours).
+  if (!(await verifierCode('utilisateurs', s.utilisateur.id, texte(f, 'code', 20)))) return { erreur: 'code_invalide' };
   await desactiverTotp(s.utilisateur.id);
   const { ip } = await infoRequete();
   await avecCommercant(s.commercant.id, (trx) => journaliser(trx, { commercantId: s.commercant.id, acteurType: 'utilisateur', acteurId: s.utilisateur.id, action: 'double_auth.desactivee', ip }));

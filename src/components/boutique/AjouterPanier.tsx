@@ -17,7 +17,7 @@ interface Variante {
   disponible: number;
 }
 
-export function AjouterPanier({ sd, base, produitId, nom, variantes, direct }: { sd: string; base: string; produitId: string; nom: string; variantes: Variante[]; direct?: boolean }) {
+export function AjouterPanier({ sd, base, produitId, nom, variantes, direct, maxParArticle = 99 }: { sd: string; base: string; produitId: string; nom: string; variantes: Variante[]; direct?: boolean; maxParArticle?: number }) {
   const t = useTranslations('boutique');
   const langue = useLocale() as Langue;
   const premiere = variantes.find((v) => v.disponible > 0) ?? variantes[0]!;
@@ -51,7 +51,7 @@ export function AjouterPanier({ sd, base, produitId, nom, variantes, direct }: {
         <label className="flex items-center gap-3">
           <span className="text-sm font-medium">{t('quantite')}</span>
           <select value={quantite} onChange={(e) => setQuantite(Number(e.target.value))} className="min-h-11 rounded-xl border border-trait bg-surface px-3 text-base">
-            {Array.from({ length: Math.min(10, v.disponible) }, (_, i) => i + 1).map((n) => <option key={n} value={n}>{n}</option>)}
+            {Array.from({ length: Math.min(10, maxParArticle, v.disponible) }, (_, i) => i + 1).map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
         </label>
       )}
@@ -59,7 +59,7 @@ export function AjouterPanier({ sd, base, produitId, nom, variantes, direct }: {
         type="button"
         disabled={epuise}
         onClick={() => {
-          ajouterAuPanier(sd, { varianteId: v.varianteId, produitId, nom, libelle: v.libelle, prix: v.prix, max: v.disponible }, quantite);
+          ajouterAuPanier(sd, { varianteId: v.varianteId, produitId, nom, libelle: v.libelle, prix: v.prix, max: Math.min(maxParArticle, v.disponible) }, quantite);
           signalerPub('AddToCart', { valeur: v.prix * quantite, produitId });
           setAjoute(true);
           if (direct) window.location.assign(`${base}/panier`);

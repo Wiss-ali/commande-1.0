@@ -92,6 +92,14 @@ test('le commerçant choisit l\'adresse, publie ses produits, personnalise et me
   await yasmine.locator('form', { hasText: 'Couleur principale' }).getByRole('button', { name: 'Enregistrer' }).click();
   await expect(yasmine.getByText('Modifications enregistrées.').last()).toBeVisible();
 
+  // Sans numéro du magasin, la boutique refuse de se mettre en ligne (le numéro personnel n'est jamais montré).
+  await yasmine.getByRole('button', { name: 'Mettre la boutique en ligne' }).click();
+  await expect(yasmine.getByText(/Ajoutez d'abord le numéro de téléphone du magasin/)).toBeVisible();
+  await yasmine.goto('/reglages/entreprise');
+  await yasmine.getByLabel('Téléphone du magasin').fill(telYasmine);
+  await yasmine.getByRole('button', { name: 'Enregistrer' }).click();
+  await expect(yasmine.getByText('Modifications enregistrées.').last()).toBeVisible();
+  await yasmine.goto('/boutique');
   await yasmine.getByRole('button', { name: 'Mettre la boutique en ligne' }).click();
   await expect(yasmine.getByText('En ligne', { exact: true }).first()).toBeVisible();
   await sansDebordement(yasmine);

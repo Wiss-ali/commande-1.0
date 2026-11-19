@@ -53,6 +53,7 @@ test.beforeAll(async ({ browser }) => {
     }
     // Boutique en ligne, avec ses produits publiés.
     await changerSousDomaine(trx, sd);
+    await trx.updateTable('commercants').set({ telephone: '0550998877' }).execute();
     await mettreEnLigne(trx, ctx, true);
     await trx.updateTable('produits').set({ visible_boutique: true }).execute();
     // Deux colis livrés, dont l'argent n'est pas encore reversé par le transporteur.

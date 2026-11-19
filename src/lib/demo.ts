@@ -83,6 +83,9 @@ export async function remplirMagasin(ctx: Contexte, o: { sousDomaine: string; wh
       livraison: { fr: 'Livraison en 48 à 72 heures. Paiement à la livraison.', ar: 'التوصيل خلال 48 إلى 72 ساعة. الدفع عند الاستلام.' },
       whatsapp: o.whatsapp ?? null,
     });
+    // Magasin fictif : son numéro de magasin est le numéro (fictif) de son propriétaire.
+    const proprietaire = await trx.selectFrom('utilisateurs').select('telephone').where('id', '=', ctx.utilisateurId).executeTakeFirstOrThrow();
+    await trx.updateTable('commercants').set({ telephone: proprietaire.telephone }).where('telephone', 'is', null).execute();
     await mettreEnLigne(trx, ctx, true);
   });
 }

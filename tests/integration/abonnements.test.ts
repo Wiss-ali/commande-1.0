@@ -107,6 +107,7 @@ describe('paiements et échéances', () => {
     const sd = `abonne-${Date.now().toString(36)}`;
     await avecCommercant(A.commercantId, async (trx) => {
       await changerSousDomaine(trx, sd);
+      await trx.updateTable('commercants').set({ telephone: '0550998877' }).execute();
       await mettreEnLigne(trx, { commercantId: A.commercantId, utilisateurId: A.proprietaireId }, true);
       await trx.updateTable('commercants').set({ modules: JSON.stringify({ stock: true, caisse: true, factures: true, commandes: true, clients: true, rapports: true, boutique: true }) }).execute();
     });

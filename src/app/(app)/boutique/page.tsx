@@ -162,6 +162,8 @@ export default async function ModuleBoutique() {
             </fieldset>
             <Champ libelle={t('plusQue')} name="plusQue" defaultValue={String(r.plusQue)} inputMode="numeric" dir="ltr" maxLength={2} aide={t('plusQueAide')} />
             <Champ libelle={t('reservation')} name="reservationHeures" defaultValue={String(r.reservationHeures)} inputMode="numeric" dir="ltr" maxLength={3} aide={t('reservationAide')} />
+            <Champ libelle={t('maxParArticle')} name="maxParArticle" defaultValue={String(r.maxParArticle)} inputMode="numeric" dir="ltr" maxLength={2} aide={t('maxParArticleAide')} />
+            <Champ libelle={t('maxTicketsAttente')} name="maxTicketsAttente" defaultValue={String(r.maxTicketsAttente)} inputMode="numeric" dir="ltr" maxLength={3} aide={t('maxTicketsAttenteAide')} />
           </Carte>
         </Formulaire>
 

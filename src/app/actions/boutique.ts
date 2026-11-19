@@ -89,6 +89,8 @@ export const personnaliser = action(async (f) => {
       ruptures: f.get('ruptures') === 'masque' ? 'masque' : 'visible',
       plusQue: entier(f, 'plusQue', actuels.plusQue),
       reservationHeures: entier(f, 'reservationHeures', actuels.reservationHeures),
+      maxParArticle: entier(f, 'maxParArticle', actuels.maxParArticle),
+      maxTicketsAttente: entier(f, 'maxTicketsAttente', actuels.maxTicketsAttente),
     });
     if (!fait.ok) return fait;
     for (const quoi of ['logo', 'banniere'] as const) {

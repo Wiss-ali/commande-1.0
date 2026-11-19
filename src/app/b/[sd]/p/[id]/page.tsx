@@ -51,7 +51,7 @@ export default async function ProduitBoutique({ params }: { params: Promise<{ sd
         {p.disponible > 0 && c.v.reglages.plusQue > 0 && p.disponible <= c.v.reglages.plusQue ? <span className="rounded-full bg-safran px-2 py-0.5 text-xs font-bold text-encre">{t('plusQue', { n: p.disponible })}</span> : null}
       </div>
       {p.categorie ? <p className="text-sm text-doux">{nomLocal(p.categorie, langue)}</p> : null}
-      <AjouterPanier sd={c.v.sousDomaine} base={c.base} produitId={p.id} nom={nom} variantes={p.variantes} />
+      <AjouterPanier sd={c.v.sousDomaine} base={c.base} produitId={p.id} nom={nom} variantes={p.variantes} maxParArticle={c.v.reglages.maxParArticle} />
       {!c.apercu ? <SignalPub evenement="ViewContent" valeur={p.variantes[0]?.prix ?? 0} produitId={p.id} /> : null}
       <p className="text-sm text-doux">{t('paiementLivraisonSeul')}</p>
     </>

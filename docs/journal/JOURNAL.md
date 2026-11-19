@@ -2,6 +2,21 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 19/11/2026 — Corrections de l'audit « comme un pirate »
+
+- Demande du propriétaire : corriger 1, 4, 3 (« le propriétaire donne l'accès ou non »), la saturation, retirer l'adresse du serveur, « et le reste après ».
+- **1. Faux tickets** (migration `0019_anti_abus_boutique`) : pièces d'un même article par ticket limitées (5 par défaut) ; au-delà de 20 tickets non confirmés en même temps, la boutique ne réserve plus de stock et demande d'appeler le vendeur. Deux réglages du commerçant (Boutique › Stock et réservation). Limite par adresse : 10 tickets par heure (au lieu de 20) et 30 par jour.
+- **4. Administrateur** : blocage pour cet identifiant depuis cette adresse seulement (plus du compte entier) ; même réponse que l'identifiant existe ou non.
+- **3. Factures** : sans la permission « remises » (renommée « Peut faire des remises et changer les prix », accordée par le propriétaire dans Équipe), un vendeur garde le prix de la fiche et ne fait pas de remise ; en modifiant un devis, il peut garder les prix déjà écrits. Lignes libres (sans stock) inchangées.
+- **12. Saturation** : limite par adresse dans l'application sur les pages publiques des boutiques (300 requêtes/min, 30 envois/min, réglables) ; Caddy : délais courts contre les connexions lentes, envois limités à 6 Mo. Le fichier Caddy n'a pas pu être vérifié ici (Caddy pas téléchargeable) : à vérifier au déploiement.
+- **14.** Adresse du serveur retirée de `ETAT.md` et `JOURNAL.md` (elle reste dans l'historique git).
+- **5.** Code à 6 chiffres : 5 essais par 10 minutes et 20 par jour, chaque erreur notée dans le journal.
+- **6.** Mot de passe actuel : 5 essais par quart d'heure ; désactiver la double authentification demande aussi un code.
+- **8.** PDF : refusé si ni Factures ni Caisse n'est ouvert.
+- **10.** Numéro du magasin obligatoire pour mettre la boutique en ligne ; le numéro personnel du propriétaire n'est plus jamais montré. La démo reçoit son numéro fictif comme numéro de magasin.
+- Pas faits, expliqués au propriétaire : 7 (compromis voulu), 9 (pixels : question), 11 (le numéro sert d'identifiant), 13 (réseaux Docker séparés : question).
+- Tests : 182 ✅ (6 nouveaux).
+
 ## 18/11/2026 — Audit « comme un pirate » (lecture du code)
 
 - Demande du propriétaire : chercher tous les défauts, sécurité comprise, comme une personne malveillante.
@@ -74,7 +89,7 @@ Entrées les plus récentes en haut. Une entrée par action importante.
 
 ## 18/11/2026 — Mise en ligne d'essai sur le VPS Contabo, puis refonte visuelle
 
-- **Mise en ligne d'essai** : VPS Contabo (Ubuntu 24.04, 4 processeurs, 8 Go, 96 Go, hors d'Algérie, **données de démonstration seulement**), adresse gratuite `155-133-198-241.sslip.io` (copie de test : `test.155-133-198-241.sslip.io`). Le propriétaire a tapé les commandes lui-même, guidé pas à pas (aucun identifiant transmis). Guide suivi sans correction : `installer.sh proxy`, `environnement prod` et `test`, `deployer.sh test` (image Debian + Chromium construite sans réglage, migrations, première sauvegarde), compte administrateur créé. Clé privée et `app.env` du site réel copiés sur son ordinateur. Le propriétaire confirme : « tout a l'air fonctionnel, même le bip ».
+- **Mise en ligne d'essai** : VPS Contabo (Ubuntu 24.04, 4 processeurs, 8 Go, 96 Go, hors d'Algérie, **données de démonstration seulement**), adresse gratuite en sslip.io (adresse exacte gardée par le propriétaire, retirée du dépôt le 19/11/2026). Le propriétaire a tapé les commandes lui-même, guidé pas à pas (aucun identifiant transmis). Guide suivi sans correction : `installer.sh proxy`, `environnement prod` et `test`, `deployer.sh test` (image Debian + Chromium construite sans réglage, migrations, première sauvegarde), compte administrateur créé. Clé privée et `app.env` du site réel copiés sur son ordinateur. Le propriétaire confirme : « tout a l'air fonctionnel, même le bip ».
 - Au passage, le mot de passe root du serveur est apparu dans un nom de fichier, et le mot de passe administrateur s'est affiché pendant sa saisie. Changement conseillé ; **le propriétaire préfère ne pas le faire** (serveur d'essai d'un mois). À refaire proprement sur le vrai serveur.
 - **Refonte visuelle** (demande : « design un peu vieux », « blanc, contours fins bleus, sombre plus stylé ») : recherche `docs/refonte-visuelle/01-recherche.md`.
   - Couleur principale renommée `vert` → `prim` dans tout le code (`bg-prim`, `text-prim`, `prim-pale`, `sur-prim`, `prim-fort`) : bleu `#2563eb` (sombre `#60a5fa`). Nouveau jeton **`ok`** (vert) pour les bonnes nouvelles : pastilles « vert », messages de succès, quantités positives. La propriété `ton="vert"` des pastilles garde son nom (sens « tout va bien »).

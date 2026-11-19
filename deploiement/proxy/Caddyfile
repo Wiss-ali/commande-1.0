@@ -5,12 +5,24 @@
 	on_demand_tls {
 		ask http://prod-app:3000/api/tls-autorise
 	}
+	# Contre la saturation par connexions lentes (un robot qui envoie sa requête octet par octet) : délais courts.
+	servers {
+		timeouts {
+			read_header 10s
+			read_body 30s
+			idle 2m
+		}
+	}
 	{$CADDY_OPTIONS}
 }
 
 # Deux copies de l'application derrière chaque adresse : si l'une redémarre (mise à jour), l'autre répond.
 (prod) {
 	encode zstd gzip
+	# Taille d'un envoi : photos (4 Mo dans l'application) et un peu de marge.
+	request_body {
+		max_size 6MB
+	}
 	reverse_proxy prod-bleu:3000 prod-vert:3000 {
 		lb_policy first
 		lb_try_duration 15s
@@ -22,6 +34,10 @@
 
 (test) {
 	encode zstd gzip
+	# Taille d'un envoi : photos (4 Mo dans l'application) et un peu de marge.
+	request_body {
+		max_size 6MB
+	}
 	reverse_proxy test-bleu:3000 test-vert:3000 {
 		lb_policy first
 		lb_try_duration 15s

@@ -1,5 +1,6 @@
 // En-têtes de sécurité posés sur chaque page : politique CSP stricte avec un nonce par requête, HSTS, etc.
 import { NextResponse, type NextRequest } from 'next/server';
+import { autoriserMemoire } from './lib/debit-memoire';
 
 /** « magasin-ali.mondomaine.dz » → « magasin-ali » ; rien pour le domaine principal ou un autre hôte. */
 export function boutiqueDeHote(hote: string | null): string | null {
@@ -18,12 +19,36 @@ export function boutiqueDeHote(hote: string | null): string | null {
  */
 const MESURE_PUB = 'https://www.facebook.com https://connect.facebook.net https://analytics.tiktok.com https://analytics-ipv6.tiktok.com';
 
+/**
+ * Limites contre la saturation, par adresse et par minute. Pages publiques des boutiques : 300 requêtes (une page
+ * en déclenche plusieurs : photos, données) ; envois de formulaires sur ces pages : 30. Les envois de l'espace de
+ * gestion ont leurs propres limites en base (connexion, tickets…).
+ */
+const nombre = (v: string | undefined, defaut: number) => (v && /^\d+$/.test(v) ? Number(v) : defaut);
+// Réglables par l'environnement (les tests de bout en bout, tous depuis la même adresse, les relèvent).
+export const LIMITES = {
+  pagesPubliques: nombre(process.env.LIMITE_PAGES_PUBLIQUES, 300),
+  envoisPublics: nombre(process.env.LIMITE_ENVOIS_PUBLICS, 30),
+  fenetre: 60_000,
+} as const;
+
+function adresse(requete: NextRequest): string {
+  // Derrière Caddy, l'en-tête est réécrit par Caddy : la première adresse est celle du visiteur.
+  return requete.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || requete.headers.get('x-real-ip') || 'inconnue';
+}
+
 export function proxy(requete: NextRequest) {
   const nonce = btoa(crypto.randomUUID());
   const dev = process.env.NODE_ENV !== 'production';
   const https = (process.env.URL_APP ?? '').startsWith('https://');
   const sousDomaine = boutiqueDeHote(requete.headers.get('host'));
   const pagePublique = !!sousDomaine || requete.nextUrl.pathname.startsWith('/b/');
+  if (pagePublique) {
+    const ip = adresse(requete);
+    const envoi = requete.method === 'POST';
+    const ok = autoriserMemoire(`pages:${ip}`, LIMITES.pagesPubliques, LIMITES.fenetre) && (!envoi || autoriserMemoire(`envois:${ip}`, LIMITES.envoisPublics, LIMITES.fenetre));
+    if (!ok) return new NextResponse(null, { status: 429, headers: { 'Retry-After': '60', 'Cache-Control': 'no-store' } });
+  }
   const csp = [
     `default-src 'self'`,
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'wasm-unsafe-eval'${dev ? ` 'unsafe-eval'` : ''}`,

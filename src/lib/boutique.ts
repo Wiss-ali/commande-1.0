@@ -31,7 +31,7 @@ export const PALETTE: Record<string, { fond: string; pale: string }> = {
 /** Noms d'adresse réservés au service lui-même. */
 const RESERVES = new Set(['www', 'admin', 'api', 'app', 'mail', 'smtp', 'ftp', 'static', 'cdn', 'boutique', 'b', 'test', 'demo', 'hanout', 'support', 'aide', 'status', 'etat']);
 
-export type RefusBoutique = 'sous_domaine_invalide' | 'sous_domaine_pris' | 'sous_domaine_requis' | 'introuvable' | 'champ_requis' | 'telephone_invalide' | 'demande_en_cours';
+export type RefusBoutique = 'sous_domaine_invalide' | 'sous_domaine_pris' | 'sous_domaine_requis' | 'introuvable' | 'champ_requis' | 'telephone_invalide' | 'demande_en_cours' | 'telephone_magasin_requis';
 
 /** Nom d'adresse : minuscules, chiffres et tirets, 3 à 40 caractères, ni au début ni à la fin un tiret. */
 export function verifierSousDomaine(saisie: string): string | null {
@@ -57,6 +57,10 @@ export interface ReglagesBoutique {
   ruptures: 'visible' | 'masque';
   plusQue: number;
   reservationHeures: number;
+  /** Pièces d'un même article permises dans un ticket. */
+  maxParArticle: number;
+  /** Tickets non confirmés permis en même temps : au-delà, l'acheteur est invité à appeler (stock protégé). */
+  maxTicketsAttente: number;
   /** Identifiants de mesure des publicités ; null : rien n'est chargé. */
   pixels: { facebook: string | null; tiktok: string | null };
 }
@@ -64,7 +68,7 @@ export interface ReglagesBoutique {
 export const REGLAGES_DEFAUT: ReglagesBoutique = {
   enLigne: false, modele: 'vitrine', produitUniqueId: null, couleur: 'emeraude', logoId: null, banniereId: null,
   accueil: { fr: '', ar: '' }, livraison: { fr: '', ar: '' }, retour: { fr: '', ar: '' }, sections: [...SECTIONS], reseaux: {},
-  whatsapp: null, ruptures: 'visible', plusQue: 3, reservationHeures: 24, pixels: { facebook: null, tiktok: null },
+  whatsapp: null, ruptures: 'visible', plusQue: 3, reservationHeures: 24, maxParArticle: 5, maxTicketsAttente: 20, pixels: { facebook: null, tiktok: null },
 };
 
 export async function lireReglages(trx: Trx): Promise<ReglagesBoutique> {
@@ -77,6 +81,7 @@ export async function lireReglages(trx: Trx): Promise<ReglagesBoutique> {
     accueil: { fr: b.accueil_fr, ar: b.accueil_ar }, livraison: { fr: b.livraison_fr, ar: b.livraison_ar }, retour: { fr: b.retour_fr, ar: b.retour_ar },
     sections: [...sections, ...SECTIONS.filter((x) => !sections.includes(x))], reseaux: b.reseaux ?? {}, whatsapp: b.whatsapp,
     ruptures: b.ruptures, plusQue: b.plus_que, reservationHeures: b.reservation_heures,
+    maxParArticle: b.max_par_article, maxTicketsAttente: b.max_tickets_attente,
     pixels: { facebook: b.pixel_facebook, tiktok: b.pixel_tiktok },
   };
 }
@@ -115,6 +120,7 @@ export type SaisieReglages = Omit<ReglagesBoutique, 'enLigne' | 'logoId' | 'bann
 export async function enregistrerReglages(trx: Trx, ctx: Contexte, r: SaisieReglages): Promise<{ ok: true } | { ok: false; raison: 'champ_requis' | 'telephone_invalide' | 'introuvable' }> {
   if (!MODELES.includes(r.modele) || !PALETTE[r.couleur] || (r.ruptures !== 'visible' && r.ruptures !== 'masque')) return { ok: false, raison: 'champ_requis' };
   if (!Number.isInteger(r.plusQue) || r.plusQue < 0 || r.plusQue > 99 || !Number.isInteger(r.reservationHeures) || r.reservationHeures < 1 || r.reservationHeures > 168) return { ok: false, raison: 'champ_requis' };
+  if (!Number.isInteger(r.maxParArticle) || r.maxParArticle < 1 || r.maxParArticle > 99 || !Number.isInteger(r.maxTicketsAttente) || r.maxTicketsAttente < 1 || r.maxTicketsAttente > 500) return { ok: false, raison: 'champ_requis' };
   let whatsapp: string | null = null;
   if (r.whatsapp?.trim()) {
     whatsapp = normaliserTelephone(r.whatsapp);
@@ -132,6 +138,7 @@ export async function enregistrerReglages(trx: Trx, ctx: Contexte, r: SaisieRegl
     livraison_fr: propre(r.livraison.fr, 1000), livraison_ar: propre(r.livraison.ar, 1000),
     retour_fr: propre(r.retour.fr, 1000), retour_ar: propre(r.retour.ar, 1000),
     sections: JSON.stringify(sections), reseaux: JSON.stringify(reseaux), whatsapp, ruptures: r.ruptures, plus_que: r.plusQue, reservation_heures: r.reservationHeures,
+    max_par_article: r.maxParArticle, max_tickets_attente: r.maxTicketsAttente,
   };
   await trx.insertInto('boutiques').values({ commercant_id: ctx.commercantId, ...valeurs }).onConflict((oc) => oc.column('commercant_id').doUpdateSet(valeurs)).execute();
   return { ok: true };
@@ -158,8 +165,11 @@ export async function changerSousDomaine(trx: Trx, saisie: string): Promise<{ ok
 
 export async function mettreEnLigne(trx: Trx, ctx: Contexte, enLigne: boolean): Promise<{ ok: true } | { ok: false; raison: RefusBoutique }> {
   if (enLigne) {
-    const c = await trx.selectFrom('commercants').select('sous_domaine').executeTakeFirstOrThrow();
+    const c = await trx.selectFrom('commercants').select(['sous_domaine', 'telephone']).executeTakeFirstOrThrow();
     if (!c.sous_domaine) return { ok: false, raison: 'sous_domaine_requis' };
+    // Les acheteurs confirment leur ticket en appelant : il faut le numéro du magasin (jamais, en douce, celui
+    // du propriétaire, qui est aussi son identifiant de connexion).
+    if (!c.telephone) return { ok: false, raison: 'telephone_magasin_requis' };
   }
   await trx.insertInto('boutiques').values({ commercant_id: ctx.commercantId, en_ligne: enLigne }).onConflict((oc) => oc.column('commercant_id').doUpdateSet({ en_ligne: enLigne })).execute();
   return { ok: true };
@@ -208,9 +218,8 @@ export async function trouverBoutique(sousDomaine: string): Promise<Vitrine | nu
   const etat = etatEffectif(c.etat, ab.etat);
   const modules = modulesEffectifs(c.modules, ab.autorises);
   const reglages = await avecCommercant(c.id, lireReglages);
-  // Le ticket doit toujours montrer un numéro à appeler : à défaut du téléphone du magasin, celui du propriétaire.
-  const telephone = c.telephone ?? (await bd('auth').selectFrom('utilisateurs').select('telephone').where('commercant_id', '=', c.id).where('role', '=', 'proprietaire')
-    .where('supprime_le', 'is', null).orderBy('cree_le').executeTakeFirst())?.telephone ?? null;
+  // Seul le numéro du magasin est montré (obligatoire pour mettre la boutique en ligne).
+  const telephone = c.telephone;
   return {
     commercantId: c.id, sousDomaine: s, nom: c.nom, telephone, formeJuridique: c.forme_juridique,
     disponible: reglages.enLigne && etat === 'actif' && !!modules.boutique, paiementCarte: c.paiement_carte_actif, reglages,
@@ -296,11 +305,14 @@ export interface SaisieTicket {
   cle: string;
 }
 
-export type RefusTicket = RefusCommande | 'boutique_indisponible' | 'trop_de_tickets' | 'refuse' | 'produit_indisponible';
+export type RefusTicket = RefusCommande | 'boutique_indisponible' | 'trop_de_tickets' | 'refuse' | 'produit_indisponible' | 'quantite_max' | 'file_pleine';
 
+// Limites contre les faux tickets qui bloqueraient le stock. Le cookie de l'appareil s'efface et un numéro
+// s'invente : la limite par adresse (tronquée) est celle qu'un attaquant contourne le plus difficilement.
 export const MAX_TICKETS_TELEPHONE = 3; // par 24 heures et par boutique
 export const MAX_TICKETS_APPAREIL = 5; // par heure et par boutique
-export const MAX_TICKETS_IP = 20; // par heure et par boutique
+export const MAX_TICKETS_IP = 10; // par heure et par boutique (cybercafé, réseau mobile partagé)
+export const MAX_TICKETS_IP_JOUR = 30; // par 24 heures et par boutique
 
 /**
  * Ticket d'un acheteur sans compte : crée le devis « Boutique en ligne » et la commande « Nouvelle »,
@@ -313,13 +325,22 @@ export async function creerTicket(v: Vitrine, s: SaisieTicket): Promise<{ ok: tr
   if (!s.telephone.trim()) return { ok: false, raison: 'telephone_requis' };
   if (!telephone) return { ok: false, raison: 'telephone_invalide' };
   if (!s.lignes.length || s.lignes.length > 50) return { ok: false, raison: 'panier_vide' };
+  // Pièces d'un même article (les lignes en double sont additionnées).
+  const parArticle = new Map<string, number>();
+  for (const l of s.lignes) parArticle.set(l.varianteId, (parArticle.get(l.varianteId) ?? 0) + l.quantite);
+  if ([...parArticle.values()].some((q) => q > v.reglages.maxParArticle)) return { ok: false, raison: 'quantite_max' };
   if (!(await autoriser(`ticket-appareil:${v.commercantId}`, s.appareil, MAX_TICKETS_APPAREIL, 3600))) return { ok: false, raison: 'trop_de_tickets' };
   if (s.ip && !(await autoriser(`ticket-ip:${v.commercantId}`, s.ip, MAX_TICKETS_IP, 3600))) return { ok: false, raison: 'trop_de_tickets' };
+  if (s.ip && !(await autoriser(`ticket-ip-jour:${v.commercantId}`, s.ip, MAX_TICKETS_IP_JOUR, 24 * 3600))) return { ok: false, raison: 'trop_de_tickets' };
   if (!(await autoriser(`ticket-telephone:${v.commercantId}`, telephone, MAX_TICKETS_TELEPHONE, 24 * 3600))) return { ok: false, raison: 'trop_de_tickets' };
   const { jeton, hash } = nouveauJeton();
   return avecCommercant(v.commercantId, async (trx) => {
     const ctx = await contexteBoutique(trx, v.commercantId);
     await expirerTickets(trx, ctx);
+    // Trop de tickets pas encore confirmés : on ne réserve plus de stock, l'acheteur est invité à appeler.
+    const { n } = await trx.selectFrom('commandes').select((eb) => eb.fn.countAll<string>().as('n'))
+      .where('statut', '=', 'nouvelle').where('origine', '=', 'boutique').executeTakeFirstOrThrow();
+    if (Number(n) >= v.reglages.maxTicketsAttente) return { ok: false as const, raison: 'file_pleine' as const };
     // Seuls les articles publiés et encore disponibles peuvent être commandés.
     const ids = [...new Set(s.lignes.map((l) => l.varianteId))];
     const publies = await trx

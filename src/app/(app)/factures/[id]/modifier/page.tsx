@@ -7,6 +7,7 @@ import { Page } from '@/components/Page';
 import { avecCommercant } from '@/lib/bd';
 import { lireDocument } from '@/lib/documents';
 import { montantPourSaisie } from '@/lib/formats';
+import { peutRemiser } from '@/lib/droits';
 import { pageUtilisateur } from '@/lib/web';
 
 const UUID = /^[0-9a-f-]{36}$/i;
@@ -24,7 +25,7 @@ export default async function ModifierDevis({ params }: { params: Promise<{ id: 
       <EnTete titre={t('modifierDevis')} retour={`/factures/${id}`} />
       <Page>
         <FormulaireDocument
-          type="devis" id={id} cle={randomUUID()} note={d.note}
+          type="devis" id={id} cle={randomUUID()} note={d.note} prixModifiables={peutRemiser(s.utilisateur)}
           lignes={d.lignes.map((l) => ({ varianteId: l.varianteId, designation: l.designation, quantite: String(l.quantite), prix: montantPourSaisie(l.prixUnitaire), remise: l.remise ? montantPourSaisie(l.remise) : '' }))}
           client={a ? { nom: a.nom, telephone: a.telephone ?? '', adresse: a.adresse ?? '', nif: a.nif ?? '', rc: a.rc ?? '', nis: a.nis ?? '', ai: a.ai ?? '' } : {}}
         />

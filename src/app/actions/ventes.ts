@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { action, actionSimple, texte } from '@/lib/actions';
 import { avecCommercant } from '@/lib/bd';
 import {
-  changerEtatDevis, cloturerCaisse, creerAvoir, creerDocument, encaisserClient, encaisserFacture, fixerFondCaisse, lireDocument, modifierDevis, numeroTexte,
+  changerEtatDevis, cloturerCaisse, creerAvoir, creerDocument, encaisserClient, encaisserFacture, fixerFondCaisse, lireDocument, modifierDevis, numeroTexte, prixPermis,
   traiterEcart, transformer, vendreEnCaisse, type Encaissement, type LigneSaisie, type Mentions, type RetourLigne,
 } from '@/lib/documents';
 import { peutRemiser } from '@/lib/droits';
@@ -101,8 +101,12 @@ export const enregistrerDocument = action(async (f) => {
   const acheteur = acheteurDe(f);
   const note = texte(f, 'note', 500);
   const r = await avecCommercant(s.commercant.id, async (trx) => {
+    if (id && !UUID.test(id)) return { ok: false as const, raison: 'introuvable' };
+    // Sans la permission « remises » (accordée par le propriétaire), un vendeur garde le prix de la fiche et ne fait
+    // pas de remise : sinon un devis à prix cassé, transformé en facture, contournerait l'interdiction de la caisse.
+    // En modifiant un devis existant, il peut garder les prix et remises déjà écrits par quelqu'un d'autre.
+    if (!peutRemiser(s.utilisateur) && !(await prixPermis(trx, lignes, remiseGlobale, id || null))) return { ok: false as const, raison: 'prix_interdit' };
     if (id) {
-      if (!UUID.test(id)) return { ok: false as const, raison: 'introuvable' };
       const fait = await modifierDevis(trx, ctxDe(s), id, { lignes, acheteur, note, remiseGlobale });
       return fait.ok ? { ok: true as const, id } : fait;
     }

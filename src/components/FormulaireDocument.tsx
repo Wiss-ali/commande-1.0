@@ -25,9 +25,11 @@ interface Props {
   lignes: LigneFormulaire[];
   client: Record<string, string>;
   note: string;
+  /** Faux : vendeur sans la permission « remises » (prix de la fiche, pas de remise). */
+  prixModifiables?: boolean;
 }
 
-export function FormulaireDocument({ type, id, cle, lignes: initiales, client, note }: Props) {
+export function FormulaireDocument({ type, id, cle, lignes: initiales, client, note, prixModifiables = true }: Props) {
   const t = useTranslations('document');
   const tl = useTranslations('legal');
   const langue = useLocale() as Langue;
@@ -79,9 +81,10 @@ export function FormulaireDocument({ type, id, cle, lignes: initiales, client, n
           </div>
           <div className="grid grid-cols-2 gap-3">
             <Champ libelle={t('quantite')} value={l.quantite} onChange={(e) => changer(l.cle, 'quantite', e.target.value)} inputMode="numeric" dir="ltr" maxLength={7} autoComplete="off" />
-            <Champ libelle={t('prix')} value={l.prix} onChange={(e) => changer(l.cle, 'prix', e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" />
+            <Champ libelle={t('prix')} value={l.prix} onChange={(e) => changer(l.cle, 'prix', e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off"
+              readOnly={!prixModifiables && !!l.varianteId} aide={!prixModifiables && l.varianteId ? t('prixFiche') : undefined} />
           </div>
-          <Champ libelle={t('remiseLigne')} value={l.remise ?? ''} onChange={(e) => changer(l.cle, 'remise', e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('remiseLigneAide')} />
+          {prixModifiables || l.remise ? <Champ libelle={t('remiseLigne')} value={l.remise ?? ''} onChange={(e) => changer(l.cle, 'remise', e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('remiseLigneAide')} readOnly={!prixModifiables} /> : null}
         </Carte>
       ))}
 
@@ -128,7 +131,7 @@ export function FormulaireDocument({ type, id, cle, lignes: initiales, client, n
         <button type="button" onClick={() => ajouter({ varianteId: null, designation: '', quantite: '1', prix: '' })} className={classeBouton.secondaire}><Plus aria-hidden className="size-5" />{t('ligneLibre')}</button>
       </Carte>
 
-      <Champ libelle={t('remiseGlobale')} name="remiseGlobale" value={remiseGlobale} onChange={(e) => setRemiseGlobale(e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('remiseGlobaleAide')} />
+      {prixModifiables ? <Champ libelle={t('remiseGlobale')} name="remiseGlobale" value={remiseGlobale} onChange={(e) => setRemiseGlobale(e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('remiseGlobaleAide')} /> : null}
       <Champ libelle={t('note')} name="note" defaultValue={note} maxLength={500} autoComplete="off" />
       <p className="flex items-baseline justify-between rounded-2xl border border-trait bg-surface shadow-doux px-4 py-3"><span className="text-sm text-doux">{t('total')}</span><span className="text-2xl font-bold">{formaterMontant(total, langue)}</span></p>
     </Formulaire>

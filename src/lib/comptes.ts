@@ -17,18 +17,6 @@ export type ResultatConnexion =
 
 type Table = 'utilisateurs' | 'administrateurs';
 
-/** Administrateur seulement (les commerçants sont limités par appareil, voir `connecterUtilisateur`). */
-async function echec(table: Table, id: string): Promise<void> {
-  const max = await reglage('connexion_echecs_max');
-  const minutes = await reglage('connexion_blocage_minutes');
-  // Au-delà du nombre d'échecs permis, le compte est bloqué quelques minutes, puis le compteur repart.
-  await sql`
-    UPDATE ${sql.table(table)} SET
-      bloque_jusqua = CASE WHEN echecs + 1 >= ${max} THEN now() + make_interval(mins => ${minutes}) ELSE bloque_jusqua END,
-      echecs = CASE WHEN echecs + 1 >= ${max} THEN 0 ELSE echecs + 1 END
-    WHERE id = ${id}`.execute(bd('auth'));
-}
-
 const reussite = (table: Table, id: string, nouveauHache?: string) =>
   bd('auth')
     .updateTable(table)
@@ -111,17 +99,24 @@ export async function connecterUtilisateur(p: { telephone: string; motDePasse: s
 
 export async function connecterAdmin(p: { identifiant: string; motDePasse: string; ip: string | null }): Promise<ResultatConnexion> {
   if (!(await autoriser('admin-ip', p.ip ?? 'inconnue', 10, 600))) return { ok: false, raison: 'trop_de_tentatives' };
+  // Blocage après plusieurs échecs : pour cet identifiant depuis cette adresse seulement, jamais pour le compte entier.
+  // Un inconnu qui tape de faux mots de passe ne peut donc pas empêcher l'administrateur d'entrer depuis chez lui.
+  // Les échecs sont comptés de la même façon que l'identifiant existe ou non : la réponse ne le révèle pas.
+  const minutes = await reglage('connexion_blocage_minutes');
+  const source = `${p.identifiant}|ip:${p.ip ?? 'inconnue'}`;
+  if (await limiteAtteinte('admin-echecs', source, await reglage('connexion_echecs_max'), minutes * 60)) return { ok: false, raison: 'bloque' };
   const a = await bd('auth').selectFrom('administrateurs').selectAll().where('identifiant', '=', p.identifiant).executeTakeFirst();
   if (!a) {
     await verifierFactice(p.motDePasse);
+    await compterEssai('admin-echecs', source, minutes * 60);
     return { ok: false, raison: 'identifiants' };
   }
-  if (a.bloque_jusqua && a.bloque_jusqua > new Date()) return { ok: false, raison: 'bloque' };
   if (!(await verifier(a.mot_de_passe, p.motDePasse))) {
-    await echec('administrateurs', a.id);
+    await compterEssai('admin-echecs', source, minutes * 60);
     await journaliserAuth({ commercantId: null, acteurType: 'anonyme', action: 'admin.connexion.echec', ip: p.ip });
     return { ok: false, raison: 'identifiants' };
   }
+  await oublierEssais('admin-echecs', source);
   await reussite('administrateurs', a.id, aRehacher(a.mot_de_passe) ? await hacher(p.motDePasse) : undefined);
   await journaliserAuth({ commercantId: null, acteurType: 'administrateur', acteurId: a.id, action: 'admin.connexion.reussie', ip: p.ip });
   return { ok: true, id: a.id, commercantId: null, totpActif: a.totp_actif };
@@ -160,7 +155,20 @@ export async function desactiverTotp(id: string): Promise<void> {
 
 /** Vérifie un code à 6 chiffres ou un code de secours (consommé s'il est utilisé). */
 export async function verifierCode(table: Table, id: string, code: string): Promise<boolean> {
-  if (!(await autoriser('code-2fa', `${table}:${id}`, 8, 600))) return false;
+  // Deviner un code à 6 chiffres : 5 essais par 10 minutes et 20 par jour (moins de 0,01 % de chances par jour),
+  // et chaque erreur est notée dans le journal.
+  const sujet = `${table}:${id}`;
+  if (!(await autoriser('code-2fa', sujet, 5, 600)) || !(await autoriser('code-2fa-jour', sujet, 20, 86_400))) return false;
+  const ok = await codeCorrect(table, id, code);
+  if (ok) await oublierEssais('code-2fa', sujet);
+  else {
+    const commercant = table === 'utilisateurs' ? (await bd('auth').selectFrom('utilisateurs').select('commercant_id').where('id', '=', id).executeTakeFirst())?.commercant_id ?? null : null;
+    await journaliserAuth({ commercantId: commercant, acteurType: 'anonyme', action: table === 'utilisateurs' ? 'double_auth.echec' : 'admin.double_auth.echec', objetType: table === 'utilisateurs' ? 'utilisateur' : 'administrateur', objetId: id });
+  }
+  return ok;
+}
+
+async function codeCorrect(table: Table, id: string, code: string): Promise<boolean> {
   const l = await bd('auth').selectFrom(table).select(['totp_secret_chiffre', 'totp_actif', 'codes_secours']).where('id', '=', id).executeTakeFirst();
   if (!l?.totp_actif || !l.totp_secret_chiffre) return false;
   const pas = pasTotpValide(dechiffrer(l.totp_secret_chiffre, contexteTotp(table, id)), code);
@@ -178,6 +186,8 @@ export async function verifierCode(table: Table, id: string, code: string): Prom
 
 /** Vérifie le mot de passe actuel d'un utilisateur (avant une action sensible). */
 export async function motDePasseCorrect(utilisateurId: string, motDePasse: string): Promise<boolean> {
+  // Téléphone resté ouvert : pas plus de 5 essais du mot de passe actuel par quart d'heure.
+  if (!(await autoriser('mdp-actuel', utilisateurId, 5, 900))) return false;
   const u = await bd('auth').selectFrom('utilisateurs').select('mot_de_passe').where('id', '=', utilisateurId).executeTakeFirst();
   return !!u && (await verifier(u.mot_de_passe, motDePasse));
 }

@@ -41,7 +41,26 @@ Gravité : 🔴 important · 🟠 moyen · 🟡 faible.
 - **Certificats à la demande** : seulement pour une boutique qui existe.
 - **Paiement par carte** : jamais traité, refusé côté serveur.
 
-## Corrections proposées (pas encore faites)
+## Suite donnée (19/11/2026)
+
+| # | Décision | Ce qui a été fait |
+|---|---|---|
+| 1 | Corrigé | 5 pièces d'un même article par ticket, 20 tickets non confirmés en même temps (deux réglages du commerçant) ; 10 tickets par heure et 30 par jour par adresse |
+| 2 | Au propriétaire | Effacer la clé privée du serveur |
+| 3 | Corrigé | Prix et remises dans Factures seulement avec la permission accordée par le propriétaire |
+| 4 | Corrigé | Blocage par adresse, réponse identique que l'identifiant existe ou non |
+| 5 | Corrigé | 5 essais / 10 min, 20 / jour, erreurs notées dans le journal |
+| 6 | Corrigé | 5 essais / 15 min ; code demandé pour désactiver la double authentification |
+| 7 | Laissé | Compromis voulu : sans cette limite, un pirate pourrait essayer des mots de passe depuis des milliers d'adresses |
+| 8 | Corrigé | PDF seulement avec Factures ou Caisse |
+| 9 | Question | Pixels : à trancher par le propriétaire |
+| 10 | Corrigé | Numéro du magasin obligatoire pour mettre la boutique en ligne |
+| 11 | Laissé | Le numéro de téléphone est l'identifiant de connexion : il ne peut servir qu'à un compte |
+| 12 | Corrigé | Limite par adresse sur les pages publiques ; délais et taille des envois dans Caddy |
+| 13 | Question | Réseaux séparés pour la copie de test : à trancher |
+| 14 | Corrigé | Adresse retirée des fichiers (reste dans l'historique) |
+
+## Corrections proposées le 18/11/2026
 
 1. Boutique : limiter le nombre de pièces réservées par ticket et par jour, compter aussi par numéro de wilaya + nom, et laisser le commerçant régler un plafond ; envisager une confirmation par appel avant réservation longue.
 2. Effacer la clé privée du serveur (action du propriétaire).

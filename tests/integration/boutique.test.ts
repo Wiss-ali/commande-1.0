@@ -42,6 +42,7 @@ beforeAll(async () => {
   robe = await produit(A, 'Robe', 3, true);
   cache = await produit(A, 'Pas publié', 10, false);
   sdA = `test-a-${Date.now().toString(36)}`;
+  await chez(A, (trx) => trx.updateTable('commercants').set({ telephone: '0550998877' }).execute());
   await chez(A, (trx) => trx.insertInto('frais_livraison').values({ commercant_id: A.commercantId, wilaya_code: 16, domicile: 500_00, point_relais: null }).execute());
 });
 afterAll(fermerBD);
@@ -53,6 +54,9 @@ describe('adresse et mise en ligne', () => {
     expect(await chez(A, (trx) => changerSousDomaine(trx, sdA))).toEqual({ ok: true, sousDomaine: sdA });
     expect(await chez(B, (trx) => changerSousDomaine(trx, sdA))).toEqual({ ok: false, raison: 'sous_domaine_pris' });
     expect(await chez(B, (trx) => mettreEnLigne(trx, B, true))).toEqual({ ok: false, raison: 'sous_domaine_requis' });
+    // Sans numéro du magasin, pas de mise en ligne : le numéro personnel du propriétaire n'est jamais montré.
+    await chez(B, (trx) => changerSousDomaine(trx, `${sdA}-b`));
+    expect(await chez(B, (trx) => mettreEnLigne(trx, B, true))).toEqual({ ok: false, raison: 'telephone_magasin_requis' });
   });
 
   it('coupée par défaut ; en ligne seulement si le module est actif et le compte actif', async () => {
@@ -131,6 +135,37 @@ describe('catalogue et tickets', () => {
     expect(await creerTicket(v, ticket({ lignes: [{ varianteId: cache, quantite: 1 }] }))).toEqual({ ok: false, raison: 'produit_indisponible' });
     expect(await creerTicket(v, ticket({ lignes: [{ varianteId: robe, quantite: 5 }] }))).toEqual({ ok: false, raison: 'stock_insuffisant' });
     expect(await creerTicket({ ...v, disponible: false }, ticket())).toEqual({ ok: false, raison: 'boutique_indisponible' });
+  });
+
+  it('un pirate ne peut pas bloquer tout le stock : pièces par article, file d\'attente, adresse', async () => {
+    const pull = await produit(A, 'Pull anti-abus', 100, true);
+    const base = await vitrine();
+    // Plus de pièces que permis (5 par défaut), même réparties sur deux lignes.
+    expect(await creerTicket(base, ticket({ lignes: [{ varianteId: pull, quantite: 6 }] }))).toEqual({ ok: false, raison: 'quantite_max' });
+    expect(await creerTicket(base, ticket({ lignes: [{ varianteId: pull, quantite: 3 }, { varianteId: pull, quantite: 3 }] }))).toEqual({ ok: false, raison: 'quantite_max' });
+    // File d'attente pleine : plus aucune réservation, le stock reste libre.
+    const v = { ...base, reglages: { ...base.reglages, maxTicketsAttente: 2 } };
+    for (let i = 0; i < 2; i++) expect((await creerTicket(v, ticket({ lignes: [{ varianteId: pull, quantite: 5 }] }))).ok).toBe(true);
+    expect(await creerTicket(v, ticket({ lignes: [{ varianteId: pull, quantite: 5 }] }))).toEqual({ ok: false, raison: 'file_pleine' });
+    expect((await stock(pull)).reservee).toBe(10);
+    // Même adresse, nouveaux appareils et nouveaux numéros à chaque fois : arrêté à 10 par heure.
+    const ip = `10.${Math.floor(Math.random() * 250)}.${Math.floor(Math.random() * 250)}.0`;
+    const essais = [];
+    for (let i = 0; i < 11; i++) essais.push(await creerTicket(v, ticket({ ip, lignes: [{ varianteId: pull, quantite: 1 }] })));
+    expect(essais.at(-1)).toEqual({ ok: false, raison: 'trop_de_tickets' });
+    for (const c of await chez(A, (trx) => trx.selectFrom('commandes').select('id').where('statut', '=', 'nouvelle').execute())) await perimer(c.id);
+    await chez(A, (trx) => expirerTickets(trx, A));
+    await chez(A, (trx) => trx.updateTable('produits').set({ visible_boutique: false }).where('nom_fr', '=', 'Pull anti-abus').execute());
+  });
+
+  it('les deux limites se règlent, dans des bornes raisonnables', async () => {
+    const l = await chez(A, lireReglages);
+    expect(l).toMatchObject({ maxParArticle: 5, maxTicketsAttente: 20 });
+    expect(await chez(A, (trx) => enregistrerReglages(trx, A, { ...l, maxParArticle: 0 }))).toEqual({ ok: false, raison: 'champ_requis' });
+    expect(await chez(A, (trx) => enregistrerReglages(trx, A, { ...l, maxTicketsAttente: 501 }))).toEqual({ ok: false, raison: 'champ_requis' });
+    expect(await chez(A, (trx) => enregistrerReglages(trx, A, { ...l, maxParArticle: 10, maxTicketsAttente: 50 }))).toEqual({ ok: true });
+    expect(await chez(A, lireReglages)).toMatchObject({ maxParArticle: 10, maxTicketsAttente: 50 });
+    await chez(A, (trx) => enregistrerReglages(trx, A, l));
   });
 
   it('limite les tickets par téléphone et par appareil', async () => {

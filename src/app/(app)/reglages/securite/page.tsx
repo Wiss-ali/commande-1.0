@@ -35,6 +35,7 @@ export default async function Securite() {
               <Pastille ton="vert">{t('a2fActive')}</Pastille>
               <Formulaire action={desactiver2fa} bouton={t('a2fDesactiver')} style="danger">
                 <Champ libelle={t('a2fMdp')} name="motDePasse" type="password" autoComplete="current-password" required />
+                <Champ libelle={t('a2fCode')} name="code" inputMode="numeric" dir="ltr" autoComplete="one-time-code" maxLength={20} required aide={t('a2fCodeAide')} />
               </Formulaire>
             </>
           ) : (

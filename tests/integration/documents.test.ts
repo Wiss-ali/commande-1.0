@@ -4,7 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { avecCommercant, bd, fermerBD } from '../../src/lib/bd.ts';
 import {
   changerEtatDevis, cloturerCaisse, creerAvoir, creerDocument, encaisserFacture, fixerFondCaisse, caisseOuverte, lireDocument, listerDocuments, listerEcarts,
-  modifierDevis, numeroTexte, resumeCaisse, traiterEcart, transformer, vendreEnCaisse,
+  modifierDevis, numeroTexte, prixPermis, resumeCaisse, traiterEcart, transformer, vendreEnCaisse,
 } from '../../src/lib/documents.ts';
 import { oublierReglages } from '../../src/lib/reglages-plateforme.ts';
 import { creerProduit, lireProduit, type Contexte } from '../../src/lib/stock.ts';
@@ -330,5 +330,21 @@ describe('isolation', () => {
     expect(await chez(B, (trx) => vendreEnCaisse(trx, B, { lignes: [{ varianteId: cafe, quantite: 1 }], cle: cle() }))).toEqual({ ok: false, raison: 'introuvable' });
     expect(await chez(B, (trx) => trx.selectFrom('clients').select('id').execute())).toEqual([]);
     await expect(chez(B, (trx) => sql`INSERT INTO liens_documents (commercant_id, source_id, cible_id, nature) VALUES (${B.commercantId}, ${f.id}, ${f.id}, 'corrige_par')`.execute(trx))).rejects.toThrow(/foreign key/);
+  });
+});
+
+describe('permission « remises » dans Factures', () => {
+  it('vendeur sans permission « remises » : prix de la fiche, pas de remise, sauf ce qui était déjà écrit sur le devis', async () => {
+    const ok = (lignes: Parameters<typeof prixPermis>[1], globale = 0, devis: string | null = null) => chez(A, (trx) => prixPermis(trx, lignes, globale, devis));
+    expect(await ok([{ varianteId: cafe, quantite: 2, prixUnitaire: 25_000 }])).toBe(true);
+    expect(await ok([{ varianteId: cafe, quantite: 2, prixUnitaire: 100 }])).toBe(false); // prix cassé
+    expect(await ok([{ varianteId: cafe, quantite: 2, prixUnitaire: 25_000, remise: 10_000 }])).toBe(false);
+    expect(await ok([{ varianteId: cafe, quantite: 1, prixUnitaire: 25_000 }], 5_000)).toBe(false); // remise globale
+    expect(await ok([{ designation: 'Montage', quantite: 1, prixUnitaire: 300_000 }])).toBe(true); // ligne libre
+    // Devis écrit par le propriétaire avec un prix spécial : le vendeur peut le modifier en gardant ce prix.
+    const dv = await chez(A, (trx) => creerDocument(trx, A, { type: 'devis', origine: 'manuel', prixLibres: true, acheteur: { nom: 'Fidèle' }, lignes: [{ varianteId: cafe, quantite: 1, prixUnitaire: 20_000, remise: 1_000 }] }));
+    if (!dv.ok) throw new Error(dv.raison);
+    expect(await ok([{ varianteId: cafe, quantite: 3, prixUnitaire: 20_000, remise: 1_000 }], 0, dv.id)).toBe(true);
+    expect(await ok([{ varianteId: cafe, quantite: 3, prixUnitaire: 15_000 }], 0, dv.id)).toBe(false);
   });
 });

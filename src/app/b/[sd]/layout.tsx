@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getLocale, getTranslations } from 'next-intl/server';
@@ -21,6 +22,20 @@ export async function generateMetadata({ params }: { params: Promise<{ sd: strin
   const accueil = c.v.reglages.accueil[langue] || c.v.reglages.accueil.fr || c.v.reglages.accueil.ar;
   // Une boutique en ligne peut être trouvée par les moteurs de recherche ; l'espace de gestion, jamais.
   return { title: c.v.nom, description: accueil.slice(0, 160) || undefined, robots: c.v.disponible ? { index: true, follow: true } : { index: false, follow: false } };
+}
+
+/**
+ * Les pixels (programmes de Facebook, TikTok) ne tournent jamais sur une page qui demande ou montre des données de
+ * l'acheteur : panier et formulaire de commande, ticket (son adresse contient le lien privé), accueil d'une boutique
+ * « produit unique » (le formulaire y est). On y arrive par un chargement complet de la page (liens simples), pour
+ * que le programme chargé avant ne reste pas en mémoire. La commande est signalée par la page « merci », sans donnée.
+ */
+async function pixelsPermis(modele: string): Promise<boolean> {
+  const chemin = (await headers()).get('x-chemin') ?? '';
+  // « merci » charge lui-même le pixel, avec la commande.
+  if (/^\/b\/[^/]+\/(panier|t\/|merci)/.test(chemin)) return false;
+  if (modele === 'produit_unique' && /^\/b\/[^/]+\/?$/.test(chemin)) return false;
+  return true;
 }
 
 /** Cadre de chaque page d'une boutique : en-tête (logo, nom, langue, panier), couleur et ambiance choisies, pied avec l'identité du vendeur. */
@@ -52,7 +67,7 @@ export default async function CadreBoutique({ params, children }: { params: Prom
     <div className="boutique flex min-h-dvh flex-col" data-ambiance={r.ambiance}>
       <style nonce={c.nonce}>{css}</style>
       {/* Pixels publicitaires : seulement sur la boutique en ligne, jamais pendant l'aperçu du commerçant. */}
-      {!c.apercu ? <Pixels facebook={r.pixels.facebook} tiktok={r.pixels.tiktok} nonce={c.nonce} /> : null}
+      {!c.apercu && (await pixelsPermis(r.modele)) ? <Pixels facebook={r.pixels.facebook} tiktok={r.pixels.tiktok} nonce={c.nonce} /> : null}
       {c.apercu ? <p role="status" className="bg-safran px-4 py-2 text-center text-sm font-semibold text-encre">{t('apercuBandeau')}</p> : null}
       <header className="sticky top-0 z-10 border-b border-trait bg-surface/85 backdrop-blur-md">
         <div className="mx-auto flex min-h-16 w-full max-w-5xl items-center gap-2 px-4">

@@ -53,11 +53,11 @@ Gravité : 🔴 important · 🟠 moyen · 🟡 faible.
 | 6 | Corrigé | 5 essais / 15 min ; code demandé pour désactiver la double authentification |
 | 7 | Laissé | Compromis voulu : sans cette limite, un pirate pourrait essayer des mots de passe depuis des milliers d'adresses |
 | 8 | Corrigé | PDF seulement avec Factures ou Caisse |
-| 9 | Question | Pixels : à trancher par le propriétaire |
+| 9 | Corrigé (20/11, choix B) | Aucun pixel sur le panier, le ticket ni le formulaire ; la commande est signalée par une page isolée sans données ; commerçant prévenu |
 | 10 | Corrigé | Numéro du magasin obligatoire pour mettre la boutique en ligne |
 | 11 | Laissé | Le numéro de téléphone est l'identifiant de connexion : il ne peut servir qu'à un compte |
 | 12 | Corrigé | Limite par adresse sur les pages publiques ; délais et taille des envois dans Caddy |
-| 13 | Question | Réseaux séparés pour la copie de test : à trancher |
+| 13 | Plus tard | Le propriétaire préfère ne pas séparer pour l'instant |
 | 14 | Corrigé | Adresse retirée des fichiers (reste dans l'historique) |
 
 ## Corrections proposées le 18/11/2026

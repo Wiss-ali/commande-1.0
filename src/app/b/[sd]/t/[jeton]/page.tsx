@@ -2,7 +2,6 @@ import { CircleCheck, MessageCircle, Phone } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { LienPartage } from '@/components/LienPartage';
-import { SignalPub } from '@/components/boutique/MesurePub';
 import { ViderPanier } from '@/components/boutique/ViderPanier';
 import { lireTicket } from '@/lib/boutique';
 import { config } from '@/lib/config';
@@ -32,8 +31,8 @@ export default async function Ticket({ params, searchParams }: { params: Promise
   return (
     <>
       {nouveau ? <ViderPanier sd={c.v.sousDomaine} /> : null}
-      {/* Commande tout juste passée : signalée aux pixels publicitaires (montant seulement), une fois. */}
-      {nouveau ? <SignalPub evenement="Purchase" valeur={ticket.total} /> : null}
+      {/* Commande tout juste passée : signalée aux pixels par une page à part, sans le lien privé ni les coordonnées. */}
+      {nouveau && !c.apercu && (c.v.reglages.pixels.facebook || c.v.reglages.pixels.tiktok) ? <iframe src={`${c.base}/merci?v=${ticket.total}`} title="" aria-hidden tabIndex={-1} sandbox="allow-scripts" className="pointer-events-none fixed size-px opacity-0" /> : null}
       <section className="flex flex-col items-center gap-1 rounded-xl border-2 border-prim bg-surface p-5 text-center">
         <CircleCheck aria-hidden className="size-10 text-prim" />
         <h1 className="text-lg font-semibold">{t('ticketTitre')}</h1>

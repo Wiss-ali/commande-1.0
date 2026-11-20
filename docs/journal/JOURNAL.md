@@ -2,6 +2,13 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 20/11/2026 — Pixels : jamais sur une page avec des données de l'acheteur (choix B du propriétaire)
+
+- Question 9 de l'audit, réponse du propriétaire : « B » (ne pas charger le pixel sur la page de commande) ; avec (c), le commerçant est prévenu dans le texte de l'écran Boutique. Copie de test : **pas encore séparée** (sa demande).
+- Pas de pixel sur le panier (formulaire de commande), le ticket (son adresse contient le lien privé) ni l'accueil d'une boutique « produit unique » (le formulaire y est). Le proxy transmet le chemin de la page (`x-chemin`) au cadre de la boutique, qui décide.
+- Liens vers le panier en chargement complet (plus `Link`) : le programme chargé sur une page précédente ne reste pas en mémoire.
+- La commande est signalée par une page `merci` (montant seulement) ouverte dans un cadre invisible et isolé (`sandbox`) du ticket : le programme ne voit ni le ticket, ni son lien, ni le nom. Seule page qui accepte d'être dans un cadre, et seulement de la boutique elle-même.
+
 ## 19/11/2026 — Fusion dans `main` : corrections de l'audit + nouvelles boutiques
 
 - Demande du propriétaire : mettre les corrections de l'audit dans `main` en vérifiant les conflits avec la branche `claude/magical-goodall-2jle45` (boutiques, poussée par une autre conversation).

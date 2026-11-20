@@ -43,6 +43,7 @@ export function proxy(requete: NextRequest) {
   const https = (process.env.URL_APP ?? '').startsWith('https://');
   const sousDomaine = boutiqueDeHote(requete.headers.get('host'));
   const pagePublique = !!sousDomaine || requete.nextUrl.pathname.startsWith('/b/');
+  const pageMerci = pagePublique && /\/merci$/.test(requete.nextUrl.pathname);
   if (pagePublique) {
     const ip = adresse(requete);
     const envoi = requete.method === 'POST';
@@ -62,7 +63,8 @@ export function proxy(requete: NextRequest) {
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'`,
-    `frame-ancestors 'none'`,
+    // Page « merci » d'une boutique : ouverte dans un cadre invisible du ticket (mesure de la commande), par la boutique seulement.
+    pageMerci ? `frame-ancestors 'self'` : `frame-ancestors 'none'`,
     ...(https ? ['upgrade-insecure-requests'] : []),
   ].join('; ');
 
@@ -72,19 +74,22 @@ export function proxy(requete: NextRequest) {
   // Boutique sur son sous-domaine (« nom.mondomaine.dz ») : même application, pages de /b/nom.
   // Les liens de la boutique sont alors écrits sans le préfixe /b/nom (en-tête x-boutique-base).
   entetes.delete('x-boutique-base');
+  entetes.delete('x-chemin');
   let reponse: NextResponse;
   if (sousDomaine && !requete.nextUrl.pathname.startsWith('/_next')) {
     entetes.set('x-boutique-base', '');
     const cible = requete.nextUrl.clone();
     cible.pathname = `/b/${sousDomaine}${requete.nextUrl.pathname === '/' ? '' : requete.nextUrl.pathname}`;
+    entetes.set('x-chemin', cible.pathname);
     reponse = NextResponse.rewrite(cible, { request: { headers: entetes } });
   } else {
+    entetes.set('x-chemin', requete.nextUrl.pathname);
     reponse = NextResponse.next({ request: { headers: entetes } });
   }
 
   reponse.headers.set('Content-Security-Policy', csp);
   reponse.headers.set('X-Content-Type-Options', 'nosniff');
-  reponse.headers.set('X-Frame-Options', 'DENY');
+  reponse.headers.set('X-Frame-Options', pageMerci ? 'SAMEORIGIN' : 'DENY');
   // Les liens d'invitation contiennent un jeton : l'adresse de la page n'est jamais transmise à un autre site.
   reponse.headers.set('Referrer-Policy', 'no-referrer');
   reponse.headers.set('Cross-Origin-Opener-Policy', 'same-origin');

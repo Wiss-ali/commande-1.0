@@ -1,7 +1,6 @@
 'use client';
 // Choix de la variante et de la quantité, puis « Ajouter au panier ». Désactivé si l'article est épuisé.
 import { Check } from 'lucide-react';
-import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { formaterMontant } from '@/lib/formats';
@@ -71,7 +70,7 @@ export function AjouterPanier({ sd, base, produitId, nom, variantes, direct, max
       {ajoute && !direct ? (
         <p role="status" className="flex items-center justify-between gap-2 text-sm">
           <span className="inline-flex items-center gap-1 text-prim"><Check aria-hidden className="size-4" />{t('ajoute')}</span>
-          <Link href={`${base}/panier`} className="font-semibold text-prim underline">{t('voirPanier')}</Link>
+          <a href={`${base}/panier`} className="font-semibold text-prim underline">{t('voirPanier')}</a>
         </p>
       ) : null}
     </div>

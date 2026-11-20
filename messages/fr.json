@@ -1457,7 +1457,7 @@
     "pixelsTitre": "Mesure des publicités (Facebook, TikTok)",
     "pixelsActifs": "Activée",
     "pixelsInactifs": "Désactivée",
-    "pixelsTexte": "Si vous faites de la publicité sur Facebook, Instagram ou TikTok, collez ici l'identifiant de votre pixel : vous verrez combien de commandes vos publicités apportent. Laissez vide pour ne rien activer. Seuls la page vue, le produit et le montant de la commande sont envoyés, jamais le nom ni le téléphone de l'acheteur. Une mention l'indique en bas de votre boutique.",
+    "pixelsTexte": "Si vous faites de la publicité sur Facebook, Instagram ou TikTok, collez ici l'identifiant de votre pixel : vous verrez combien de commandes vos publicités apportent. Laissez vide pour ne rien activer. Seuls la page vue, le produit et le montant de la commande sont envoyés. Le programme de Facebook ou TikTok ne tourne jamais sur le panier, le formulaire de commande ni le ticket : il ne peut voir ni le nom, ni le téléphone, ni l'adresse de l'acheteur. Une mention l'indique en bas de votre boutique.",
     "pixelFacebook": "Identifiant du pixel Facebook / Instagram",
     "pixelFacebookAide": "Une suite de chiffres, par exemple 123456789012345 (Gestionnaire d'événements de Meta).",
     "pixelTiktok": "Identifiant du pixel TikTok",

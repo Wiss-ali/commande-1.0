@@ -231,6 +231,14 @@ test('pixel publicitaire : désactivé par défaut, puis chargé seulement sur l
   expect(html).toContain('"123456789012345"');
   expect(html).toContain('Cette boutique mesure l');
   expect(apres.headers()['content-security-policy']).toContain('https://www.facebook.com');
+  // Jamais sur une page qui demande ou montre des données de l'acheteur : panier, ticket.
+  expect(await (await karima.request.get(`/b/${sd}/panier`)).text()).not.toContain('fbevents.js');
+  expect(await (await karima.request.get(`/b/${sd}/t/${'x'.repeat(43)}`)).text()).not.toContain('fbevents.js');
+  // La commande est signalée par la page « merci » (montant seulement), qui ne s'ouvre que dans un cadre de la boutique.
+  const merci = await karima.request.get(`/b/${sd}/merci?v=820000`);
+  expect(await merci.text()).toContain(`fbq('track','Purchase',{"value":8200,"currency":"DZD"})`);
+  expect(merci.headers()['content-security-policy']).toContain("frame-ancestors 'self'");
+  expect(apres.headers()['content-security-policy']).toContain("frame-ancestors 'none'");
   // L'espace de gestion ne s'ouvre jamais à ces adresses.
   const gestion = await karima.request.get('/stock');
   expect(gestion.headers()['content-security-policy']).not.toContain('facebook');

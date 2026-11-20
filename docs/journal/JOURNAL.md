@@ -8,6 +8,7 @@ Entrées les plus récentes en haut. Une entrée par action importante.
 - Pas de pixel sur le panier (formulaire de commande), le ticket (son adresse contient le lien privé) ni l'accueil d'une boutique « produit unique » (le formulaire y est). Le proxy transmet le chemin de la page (`x-chemin`) au cadre de la boutique, qui décide.
 - Liens vers le panier en chargement complet (plus `Link`) : le programme chargé sur une page précédente ne reste pas en mémoire.
 - La commande est signalée par une page `merci` (montant seulement) ouverte dans un cadre invisible et isolé (`sandbox`) du ticket : le programme ne voit ni le ticket, ni son lien, ni le nom. Seule page qui accepte d'être dans un cadre, et seulement de la boutique elle-même.
+- Tests : 187 ✅ ; 88 parcours ✅. Mis dans `main` avec l'accord du propriétaire (« Oui go », 20/11/2026).
 
 ## 19/11/2026 — Fusion dans `main` : corrections de l'audit + nouvelles boutiques
 

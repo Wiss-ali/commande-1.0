@@ -261,6 +261,9 @@ test('plusieurs photos par produit, en galerie dans la boutique', async () => {
 
 test('barre du bas choisie par la personne, et export pour le comptable depuis Factures', async () => {
   await karima.goto('/plus');
+  // Propriétaire : « Barre du bas » est dans Réglages, une seule fois (plus de doublon dans « Plus »).
+  await expect(karima.getByRole('main').getByRole('link', { name: /Barre du bas/ })).toHaveCount(0);
+  await karima.getByRole('main').getByRole('link', { name: /Réglages/ }).click();
   await karima.getByRole('link', { name: /Barre du bas/ }).click();
   await karima.getByLabel('Place 2').selectOption('commandes');
   await karima.getByRole('button', { name: 'Enregistrer ma barre' }).click();

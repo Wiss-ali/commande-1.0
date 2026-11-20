@@ -1,6 +1,6 @@
 # État du projet
 
-Dernière mise à jour : 19/11/2026 — boutiques : suppression, création guidée, logos dessinés, nouveau design (bilan `docs/boutique-design/01-recherche-et-bilan.md`), sur la branche `claude/magical-goodall-2jle45`, **pas encore dans `main`**. Avant : lot d'ajouts n° 1, caisse simplifiée, boutique de démonstration, dans `main`.
+Dernière mise à jour : 20/11/2026 — test « comme un commerçant » (rapport `docs/test-commercant/01-rapport.md`) et « Barre du bas » plus en double, sur la branche `claude/zealous-cerf-oq0927`, **pas encore dans `main`**. Avant (19/11/2026) : boutiques : suppression, création guidée, logos dessinés, nouveau design (bilan `docs/boutique-design/01-recherche-et-bilan.md`), sur la branche `claude/magical-goodall-2jle45`, **pas encore dans `main`**. Avant : lot d'ajouts n° 1, caisse simplifiée, boutique de démonstration, dans `main`.
 
 ## Où on en est
 
@@ -27,6 +27,7 @@ Dernière mise à jour : 19/11/2026 — boutiques : suppression, création guid�
 
 ## Prochaine action
 
+- **Test commerçant (20/11)** : le propriétaire choisit parmi les 7 points du rapport `docs/test-commercant/01-rapport.md` (proposition : 1 Nouvelle facture, 2 ajouter/modifier un client, 3 grille de caisse qui ne bouge plus) ; mettre la correction « Barre du bas » dans `main` avec son accord.
 - **Boutiques (19/11)** : faire essayer (liste « À essayer » du bilan `docs/boutique-design/`), **dans `main` depuis le 19/11/2026** ; à mettre sur le serveur (`git pull` puis `./deployer.sh test` : les migrations 0019 et 0020 passent toutes seules).
 
 - **Lot d'ajouts n° 1** : faire essayer au propriétaire (liste dans `docs/ajouts-1/02-bilan.md`), le mettre sur le serveur de test. **Boutique de démonstration** faite (Administration › Boutique de démonstration ; remplace « voir comme le commerçant ») : à lui faire essayer. Questions ouvertes : activation de la carte (plus tard), pixel, commandes abandonnées, timbre d'un paiement fait plus tard (comptable). Elles sont aussi dans `docs/VERIFICATION-FINALE.md` (questions 9 à 13).
@@ -108,6 +109,7 @@ Sur le serveur : utiliser la **boutique de démonstration de l'administration** 
 | `docs/ajouts-1/` | Lot d'ajouts n° 1 : recherche, bilan, captures |
 | `docs/audit-securite/01-rapport.md` | Audit « comme un pirate » : défauts trouvés et corrections proposées |
 | `docs/boutique-design/` | Boutiques : suppression, création guidée, logos, nouveau design |
+| `docs/test-commercant/01-rapport.md` | Test « comme un commerçant » : ce qui gêne, ce qui manque |
 | `docs/GUIDE-INSTALLATION.md` | Guide pas à pas : louer, installer, mettre à jour, restaurer, alertes |
 | `docs/VERIFICATION-FINALE.md` | Tout ce que le propriétaire doit essayer, et les questions à trancher |
 | `deploiement/` | Fichiers et scripts de production (Docker, Caddy, sauvegardes, mise à jour) |

@@ -41,8 +41,16 @@ export default async function Plus() {
         ) : (
           <p className="text-sm text-doux">{t('aucunModule')}</p>
         )}
-        {peut(s.utilisateur.role, 'reglages') ? <LigneLien href="/reglages" titre={t('reglages')} icone={<Settings aria-hidden className="size-5" />} /> : <LigneLien href="/reglages/securite" titre={t('reglages')} icone={<Settings aria-hidden className="size-5" />} />}
-        <LigneLien href="/reglages/barre" titre={t('barre')} aide={t('barreAide')} icone={<PanelBottom aria-hidden className="size-5" />} />
+        {/* Le propriétaire trouve « Barre du bas » dans Réglages : pas de doublon ici. Les employés,
+            qui n'ont pas la page Réglages, gardent l'entrée dans « Plus ». */}
+        {peut(s.utilisateur.role, 'reglages') ? (
+          <LigneLien href="/reglages" titre={t('reglages')} icone={<Settings aria-hidden className="size-5" />} />
+        ) : (
+          <>
+            <LigneLien href="/reglages/securite" titre={t('reglages')} icone={<Settings aria-hidden className="size-5" />} />
+            <LigneLien href="/reglages/barre" titre={t('barre')} aide={t('barreAide')} icone={<PanelBottom aria-hidden className="size-5" />} />
+          </>
+        )}
         <TitreSection>{t('langue')}</TitreSection>
         <form action={changerLangue} className="grid grid-cols-2 gap-2">
           {/* Le nom d'une langue s'écrit toujours dans cette langue : ce n'est pas un texte à traduire. */}

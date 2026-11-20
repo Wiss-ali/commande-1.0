@@ -1,0 +1,61 @@
+# Test « comme un commerçant » — 20/11/2026
+
+Demande du propriétaire : se mettre à la place d'un commerçant, utiliser un compte complet, dire si tout est
+fluide et facile, et ce qui manque pour que ce soit le plus complet possible. Signalement : « Barre du bas » apparaissait deux fois.
+
+Comment : magasin de démonstration (`npm run demo`, propriétaire Ali), téléphone de 390 px de large, en français
+puis en arabe. Écrans parcourus : Accueil, Caisse (vraie vente avec monnaie), Stock, Nouveau produit, Commandes
+(liste, fiche, nouvelle commande), Factures, Clients (liste, fiche avec crédit), Rapports, Boutique en ligne
+(écran du commerçant et boutique publique), Notifications, Scan, Plus, Réglages, Sécurité, Équipe, Clôture.
+
+## Corrigé tout de suite
+
+- **« Barre du bas » en double** : pour le propriétaire, elle était dans « Plus » juste sous « Réglages », et encore dans Réglages.
+  Elle n'est plus que dans Réglages. Les employés, qui n'ont pas la page Réglages, la gardent dans « Plus ».
+  Test de parcours mis à jour : il vérifie l'absence du doublon. 187 tests ✅ ; 88 parcours ✅.
+
+## Ce qui marche bien
+
+- **Accueil** : les chiffres du jour et la liste « À faire » (commande à confirmer, colis à préparer, clients qui doivent) disent quoi faire en premier.
+- **Caisse** : toucher un produit, Encaisser, la monnaie à rendre s'affiche toute seule ; ticket et « Nouvelle vente » juste après. Rapide.
+- **Commandes** : boutons Appeler et WhatsApp, une seule question « Envoi ou vente directe ? ». Clair.
+- **Crédit client** : la fiche montre ce que le client doit et permet d'enregistrer un versement.
+- **Rapports** : marge réelle et bénéfice net (dépenses comprises) expliqués en une phrase.
+- **Boutique publique** : belle, claire, Appeler/WhatsApp, rupture et « plus que 3 » visibles.
+- **Arabe** : écran retourné, montants lisibles (vérifié chiffre par chiffre : « 10 510 » reste dans le bon ordre).
+
+## Ce qui gêne (classé du plus gênant au moins gênant)
+
+1. **Factures : pas de bouton « Nouvelle facture ».** Dans l'onglet Factures, rien pour en créer une. Il faut savoir
+   qu'on passe par un devis (« Transformer en facture ») ou par la caisse (« Faire aussi une facture »). Un commerçant
+   qui doit faire une facture à une entreprise va chercher ici et ne trouvera pas.
+   *Proposition* : un bouton « Nouvelle facture » qui ouvre le même formulaire que le devis et le transforme directement.
+2. **Clients : impossible d'ajouter ou de modifier un client.** Pas de bouton « Ajouter un client », pas de moyen de
+   corriger un nom, un numéro ou une adresse, pas de note (« client fidèle », « ne répond pas »). Les clients
+   n'apparaissent qu'après une vente ou une commande.
+3. **Caisse : la grille des produits bouge pendant qu'on vend.** Chaque nouvel article s'ajoute au panier *au-dessus*
+   de la grille, qui descend d'un cran : en allant vite, on touche le mauvais produit.
+   *Proposition* : panier en bas de l'écran (replié, avec le nombre d'articles), la grille ne bouge plus.
+4. **Écran « Boutique en ligne » du commerçant très long** : une seule page d'environ 20 écrans de téléphone
+   (apparence, logo, couleurs, textes, réglages, produits…). On s'y perd. *Proposition* : onglets ou parties repliables.
+5. **Facture et ticket : pas de bouton « Envoyer sur WhatsApp ».** En Algérie, le client demande souvent sa facture
+   sur WhatsApp ; aujourd'hui il faut télécharger le PDF puis le partager à la main.
+6. **Caisse, petits plus** : boutons rapides 500 / 1 000 / 2 000 DA pour le montant reçu ; stock restant sur chaque
+   produit ; filtre par catégorie quand il y a beaucoup de produits.
+7. **Mots** : dans Clients, un client qui a acheté à crédit en caisse affiche « Aucune commande » (il a pourtant
+   acheté). Écrire « 1 achat » plutôt que « commande » pour les ventes en caisse.
+
+## Ce qui manque pour être complet (déjà connu, rappelé)
+
+- Envoi automatique des colis chez Yalidine, ZR Express, EcoTrack… (aujourd'hui le numéro de suivi se tape à la main ; tout est prêt pour brancher).
+- Client reconnu à son numéro quand on tape une nouvelle commande.
+- Vente au poids, date de péremption, ventes par vendeur, comparaison avec le mois d'avant.
+- Rappels par SMS, impression directe sur petite imprimante de ticket (58 mm ou Bluetooth ; aujourd'hui PDF 80 mm).
+
+## Pas essayé ici
+
+- Le scan avec la caméra, les notifications sur le téléphone, l'aspect imprimé des PDF : il faut un vrai téléphone et le serveur en ligne.
+
+## Question au propriétaire
+
+Lesquels des points 1 à 7 faut-il faire, et dans quel ordre ? Proposition : 1, 2, 3 d'abord (les plus gênants au quotidien), puis 5 et 6.

@@ -2,6 +2,14 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 20/11/2026 — Test « comme un commerçant » ; « Barre du bas » plus en double
+
+- Demande du propriétaire : tester un compte complet comme un commerçant et faire un rapport ; « Barre du bas » apparaissait deux fois (dans Réglages, et dans « Plus » juste sous Réglages).
+- Corrigé : pour le propriétaire, « Barre du bas » n'est plus que dans Réglages ; les employés (sans page Réglages) la gardent dans « Plus ». Parcours mis à jour (vérifie l'absence du doublon).
+- Rapport : `docs/test-commercant/01-rapport.md`. Points gênants : pas de bouton « Nouvelle facture », impossible d'ajouter ou modifier un client, grille de la caisse qui bouge quand le panier grandit, écran Boutique très long, pas d'envoi WhatsApp de la facture, petits plus de caisse, mot « commande » pour un achat en caisse. Rien de cela n'est codé : en attente du choix du propriétaire.
+- Fausse alerte vérifiée : les montants en arabe s'affichent dans le bon ordre.
+- Tests : 187 ✅ ; 88 parcours ✅. Branche `claude/zealous-cerf-oq0927`, pas encore dans `main`.
+
 ## 20/11/2026 — Pixels : jamais sur une page avec des données de l'acheteur (choix B du propriétaire)
 
 - Question 9 de l'audit, réponse du propriétaire : « B » (ne pas charger le pixel sur la page de commande) ; avec (c), le commerçant est prévenu dans le texte de l'écran Boutique. Copie de test : **pas encore séparée** (sa demande).

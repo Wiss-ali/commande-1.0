@@ -71,9 +71,12 @@ function acheteurDe(f: FormData): Mentions | null {
 }
 
 const schemaLignes = z.array(z.object({ varianteId: z.string().regex(UUID).nullable(), designation: z.string().max(200), quantite: z.string().max(10), prix: z.string().max(20), remise: z.string().max(20).optional() })).min(1).max(200);
-const TYPES_MANUELS: readonly TypeDocument[] = ['devis', 'proforma', 'bon_commande'];
+const TYPES_MANUELS: readonly TypeDocument[] = ['devis', 'proforma', 'bon_commande', 'facture'];
 
-/** Crée un devis, une proforma ou un bon de commande écrits à la main, ou modifie un devis en attente. */
+/**
+ * Crée un devis, une proforma, un bon de commande ou une facture écrits à la main, ou modifie un devis en attente.
+ * Facture : même question que « Transformer en facture » (vente directe payée maintenant, ou à crédit ; ou envoi).
+ */
 export const enregistrerDocument = action(async (f) => {
   const s = await exigerEcriture('vendre', 'factures');
   const id = texte(f, 'id', 40);
@@ -100,21 +103,40 @@ export const enregistrerDocument = action(async (f) => {
   if (remiseGlobale === null) return { erreur: 'remise_invalide' };
   const acheteur = acheteurDe(f);
   const note = texte(f, 'note', 500);
-  const r = await avecCommercant(s.commercant.id, async (trx) => {
-    if (id && !UUID.test(id)) return { ok: false as const, raison: 'introuvable' };
-    // Sans la permission « remises » (accordée par le propriétaire), un vendeur garde le prix de la fiche et ne fait
-    // pas de remise : sinon un devis à prix cassé, transformé en facture, contournerait l'interdiction de la caisse.
-    // En modifiant un devis existant, il peut garder les prix et remises déjà écrits par quelqu'un d'autre.
-    if (!peutRemiser(s.utilisateur) && !(await prixPermis(trx, lignes, remiseGlobale, id || null))) return { ok: false as const, raison: 'prix_interdit' };
-    if (id) {
-      const fait = await modifierDevis(trx, ctxDe(s), id, { lignes, acheteur, note, remiseGlobale });
-      return fait.ok ? { ok: true as const, id } : fait;
-    }
-    return creerDocument(trx, ctxDe(s), { type, origine: 'manuel', lignes, acheteur, note, remiseGlobale, prixLibres: true, cle: UUID.test(texte(f, 'cle', 40)) ? texte(f, 'cle', 40) : undefined });
-  });
+  let r;
+  try {
+    r = await avecCommercant(s.commercant.id, async (trx) => {
+      if (id && !UUID.test(id)) return { ok: false as const, raison: 'introuvable' };
+      // Sans la permission « remises » (accordée par le propriétaire), un vendeur garde le prix de la fiche et ne fait
+      // pas de remise : sinon un devis à prix cassé, transformé en facture, contournerait l'interdiction de la caisse.
+      // En modifiant un devis existant, il peut garder les prix et remises déjà écrits par quelqu'un d'autre.
+      if (!peutRemiser(s.utilisateur) && !(await prixPermis(trx, lignes, remiseGlobale, id || null))) return { ok: false as const, raison: 'prix_interdit' };
+      if (id) {
+        if (type === 'facture') return { ok: false as const, raison: 'introuvable' };
+        const fait = await modifierDevis(trx, ctxDe(s), id, { lignes, acheteur, note, remiseGlobale });
+        return fait.ok ? { ok: true as const, id } : fait;
+      }
+      const cle = UUID.test(texte(f, 'cle', 40)) ? texte(f, 'cle', 40) : undefined;
+      if (type === 'facture') {
+        const envoi = f.get('mode') === 'envoi';
+        const paiement = f.get('paiement');
+        return creerDocument(trx, ctxDe(s), {
+          type, origine: 'manuel', lignes, acheteur, note, remiseGlobale, prixLibres: true, cle,
+          modeVente: envoi ? 'envoi' : 'directe', stock: envoi ? 'reserver' : 'vente',
+          // Vente directe : payée tout de suite par le moyen choisi, ou laissée à payer (à crédit).
+          ...(envoi ? {} : paiement === 'credit' ? { encaisse: [] } : { payeAvec: { mode: modeDe(paiement), reference: texte(f, 'reference', 60) } }),
+        });
+      }
+      return creerDocument(trx, ctxDe(s), { type, origine: 'manuel', lignes, acheteur, note, remiseGlobale, prixLibres: true, cle });
+    });
+  } catch (e) {
+    const raison = refusDepuisErreur(e);
+    if (!raison) throw e;
+    return { erreur: raison };
+  }
   if (!r.ok) return { erreur: r.raison };
-  revalidatePath('/factures', 'layout');
-  redirect(`/factures/${r.id}`);
+  revalidatePath(type === 'facture' ? '/' : '/factures', 'layout');
+  redirect(`/factures/${r.id}${'manques' in r && r.manques ? '?manques=1' : ''}`);
 });
 
 const CIBLES: readonly TypeDocument[] = ['facture', 'bon_livraison', 'proforma', 'bon_commande'];

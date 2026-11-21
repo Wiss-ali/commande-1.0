@@ -6,7 +6,7 @@ import { Page } from '@/components/Page';
 import { peutRemiser } from '@/lib/droits';
 import { pageUtilisateur } from '@/lib/web';
 
-const TYPES = ['devis', 'proforma', 'bon_commande'] as const;
+const TYPES = ['devis', 'proforma', 'bon_commande', 'facture'] as const;
 
 export default async function NouveauDocument({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
   const s = await pageUtilisateur('vendre', 'factures');
@@ -15,7 +15,7 @@ export default async function NouveauDocument({ searchParams }: { searchParams: 
   const type = TYPES.find((x) => x === demande) ?? 'devis';
   return (
     <>
-      <EnTete titre={t(`nouveau_${type}`)} retour={`/factures?onglet=${type === 'devis' ? 'devis' : 'autres'}`} />
+      <EnTete titre={t(`nouveau_${type}`)} retour={`/factures?onglet=${type === 'devis' ? 'devis' : type === 'facture' ? 'factures' : 'autres'}`} />
       <Page>
         <FormulaireDocument type={type} cle={randomUUID()} lignes={[]} client={{}} note="" prixModifiables={peutRemiser(s.utilisateur)} />
       </Page>

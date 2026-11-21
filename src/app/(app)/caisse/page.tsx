@@ -16,12 +16,13 @@ export default async function PageCaisse() {
   const t = await getTranslations('caisse');
   // Tous les produits, les plus vendus des 90 derniers jours en premier, puis par ordre alphabétique.
   const lignes = await avecCommercant(s.commercant.id, (trx) =>
-    sql<{ id: string; nom_fr: string; nom_ar: string; libelle: string; code_barres: string | null; prix_vente: string; disponible: number; photo_id: string | null }>`
-      SELECT v.id, p.nom_fr, p.nom_ar, v.libelle, v.code_barres, v.prix_vente, (k.quantite - k.reservee)::int AS disponible,
+    sql<{ id: string; nom_fr: string; nom_ar: string; libelle: string; code_barres: string | null; prix_vente: string; disponible: number; photo_id: string | null; categorie_id: string | null; cat_fr: string | null; cat_ar: string | null }>`
+      SELECT v.id, p.nom_fr, p.nom_ar, v.libelle, p.categorie_id, c.nom_fr AS cat_fr, c.nom_ar AS cat_ar, v.code_barres, v.prix_vente, (k.quantite - k.reservee)::int AS disponible,
         (SELECT ph.id FROM photos_produit ph WHERE ph.produit_id = p.id ORDER BY ph.ordre, ph.cree_le DESC LIMIT 1) AS photo_id
       FROM variantes v
       JOIN produits p ON p.id = v.produit_id
       JOIN stocks k ON k.variante_id = v.id
+      LEFT JOIN categories c ON c.id = p.categorie_id
       LEFT JOIN (
         SELECT l.variante_id, sum(l.quantite) AS vendus
         FROM lignes_document l JOIN documents d ON d.id = l.document_id
@@ -33,8 +34,11 @@ export default async function PageCaisse() {
       LIMIT ${MAX_ARTICLES}`.execute(trx));
   const articles: ArticleCaisse[] = lignes.rows.map((a) => ({
     id: a.id, nomFr: a.nom_fr, nomAr: a.nom_ar, libelle: a.libelle, code: a.code_barres, prix: Number(a.prix_vente), stock: a.disponible,
-    photo: a.photo_id ? `/photos/${a.photo_id}?t=p` : null,
+    photo: a.photo_id ? `/photos/${a.photo_id}?t=p` : null, categorie: a.categorie_id,
   }));
+  // Catégories utilisées par au moins un produit : boutons de filtre de la caisse (seulement s'il y en a deux ou plus).
+  const categories = [...new Map(lignes.rows.filter((a) => a.categorie_id).map((a) => [a.categorie_id!, { id: a.categorie_id!, nomFr: a.cat_fr ?? '', nomAr: a.cat_ar ?? '' }])).values()]
+    .sort((x, y) => (x.nomFr || x.nomAr).localeCompare(y.nomFr || y.nomAr, 'fr'));
 
   return (
     <>
@@ -48,7 +52,7 @@ export default async function PageCaisse() {
         {s.commercant.etat !== 'actif' ? (
           <Message ton="info">{t('lectureSeule')}</Message>
         ) : articles.length ? (
-          <Caisse articles={articles} magasin={s.commercant.id} remises={peutRemiser(s.utilisateur)} />
+          <Caisse articles={articles} categories={categories} magasin={s.commercant.id} remises={peutRemiser(s.utilisateur)} />
         ) : (
           <EtatVide titre={t('videTitre')} texte={t('videTexte')}>
             <Link href="/stock" className={`${classeBouton.secondaire} mt-2`}>{t('allerStock')}</Link>

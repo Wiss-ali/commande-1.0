@@ -1,6 +1,6 @@
 # État du projet
 
-Dernière mise à jour : 21/11/2026 — écrans simplifiés (l'essentiel d'abord, le reste replié ; liste `docs/simplification/01-recherche-et-liste.md`), **dans `main`** (21/11/2026) : à mettre sur le serveur (`git pull` puis `./deployer.sh test`, aucune migration). Avant : pixels (choix B), audit, nouvelles boutiques, tout dans `main`.
+Dernière mise à jour : 21/11/2026 — suite du test commerçant (nouvelle facture, ajout/modification des clients, panier de la caisse replié, montants rapides, stock et catégories en caisse, « achats ») sur la branche `claude/zealous-cerf-oq0927`, **pas encore dans `main`** (migration 0021). Avant, dans `main` : écrans simplifiés et correction « Barre du bas » (21/11/2026).
 
 ## Où on en est
 
@@ -29,7 +29,7 @@ Dernière mise à jour : 21/11/2026 — écrans simplifiés (l'essentiel d'abord
 
 ## Prochaine action
 
-- **Test commerçant (20/11)** : rapport `docs/test-commercant/01-rapport.md` dans `main`. Choix du propriétaire (21/11) : faire 1 (Nouvelle facture), 2 (ajouter/modifier un client), 3 (panier de la caisse : les 3 derniers articles en haut, le reste dans un volet qu'on rouvre), puis 6 et 7 ; 4 réglé par les écrans simplifiés ; 5 (WhatsApp) pas pour le moment.
+- **Test commerçant (21/11)** : points 1, 2, 3, 6, 7 faits (liste « À essayer » en bas de `docs/test-commercant/01-rapport.md`) ; à faire essayer, puis à mettre dans `main` avec l'accord du propriétaire, et sur le serveur (`git pull` puis `./deployer.sh test` : la migration 0021 passe toute seule). Point 5 : plus tard.
 - **Écrans simplifiés (21/11)** : faire essayer au propriétaire ; lui demander s'il voit d'autres écrans trop chargés, et s'il veut les « utiles » de `docs/simplification/01-recherche-et-liste.md` (premier lancement guidé par 3 questions, accueil allégé, fiche commande avec seulement l'action suivante).
 
 - **Boutiques (19/11)** : faire essayer (liste « À essayer » du bilan `docs/boutique-design/`), **dans `main` depuis le 19/11/2026** ; à mettre sur le serveur (`git pull` puis `./deployer.sh test` : les migrations 0019 et 0020 passent toutes seules).

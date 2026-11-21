@@ -1,12 +1,13 @@
 'use client';
-// Devis, proforma ou bon de commande écrit à la main : client, lignes (articles du stock ou lignes libres), note.
+// Devis, proforma, bon de commande ou facture écrits à la main : client, lignes (articles du stock ou lignes libres), note.
+// Facture : une question de plus, comme « Transformer en facture » : vente directe (payée, ou à crédit) ou envoi.
 import { Plus, Search, Trash2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { chercherTexte, type ArticleScan } from '@/app/actions/stock';
 import { enregistrerDocument } from '@/app/actions/ventes';
 import { analyserMontant, analyserQuantite, formaterMontant, montantPourSaisie, nomLocal } from '@/lib/formats';
-import type { Langue } from '@/lib/types-bd';
+import { MODES_ENCAISSEMENT, type Langue } from '@/lib/types-bd';
 import { Formulaire } from './Formulaire';
 import { Repli } from './Repli';
 import { Carte, Champ, classeBouton, TitreSection } from './ui';
@@ -20,7 +21,7 @@ export interface LigneFormulaire {
   remise?: string;
 }
 interface Props {
-  type: 'devis' | 'proforma' | 'bon_commande';
+  type: 'devis' | 'proforma' | 'bon_commande' | 'facture';
   id?: string;
   cle: string;
   lignes: LigneFormulaire[];
@@ -33,6 +34,9 @@ interface Props {
 export function FormulaireDocument({ type, id, cle, lignes: initiales, client, note, prixModifiables = true }: Props) {
   const t = useTranslations('document');
   const tl = useTranslations('legal');
+  const tp = useTranslations('paiement');
+  const td = useTranslations('pdf');
+  const [mode, setMode] = useState<'directe' | 'envoi'>('directe');
   const langue = useLocale() as Langue;
   const [lignes, setLignes] = useState(() => initiales.map((l, i) => ({ ...l, cle: i })));
   const [prochaine, setProchaine] = useState(initiales.length);
@@ -57,7 +61,7 @@ export function FormulaireDocument({ type, id, cle, lignes: initiales, client, n
 
       <Carte className="flex flex-col gap-3">
         <h2 className="font-semibold">{t('client')}</h2>
-        <Champ libelle={t('clientNom')} name="clientNom" defaultValue={client.nom} maxLength={120} autoComplete="off" />
+        <Champ libelle={t('clientNom')} name="clientNom" defaultValue={client.nom} maxLength={120} autoComplete="off" required={type === 'facture'} aide={type === 'facture' ? t('clientNomAide') : undefined} />
         <Champ libelle={t('clientTelephone')} name="clientTelephone" defaultValue={client.telephone} type="tel" inputMode="tel" dir="ltr" maxLength={30} autoComplete="off" />
         <details open={Boolean(client.adresse || client.nif || client.rc || client.nis || client.ai)}>
           <summary className="inline-flex min-h-11 cursor-pointer items-center text-sm font-semibold text-prim">{t('clientPro')}</summary>
@@ -135,6 +139,32 @@ export function FormulaireDocument({ type, id, cle, lignes: initiales, client, n
         ) : null}
         <button type="button" onClick={() => ajouter({ varianteId: null, designation: '', quantite: '1', prix: '' })} className={classeBouton.secondaire}><Plus aria-hidden className="size-5" />{t('ligneLibre')}</button>
       </Carte>
+
+      {type === 'facture' ? (
+        <Carte className="flex flex-col gap-3">
+          <fieldset className="flex min-w-0 flex-col gap-2">
+            <legend className="mb-1 font-semibold">{t('factureQuestion')}</legend>
+            <div className="grid grid-cols-2 gap-2">
+              {(['directe', 'envoi'] as const).map((m) => (
+                <label key={m} className={`flex min-h-12 cursor-pointer items-center justify-center rounded-xl border px-2 text-center text-sm font-semibold ${mode === m ? 'border-prim bg-prim-pale text-prim' : 'border-trait bg-surface'}`}>
+                  <input type="radio" name="mode" value={m} checked={mode === m} onChange={() => setMode(m)} className="sr-only" />
+                  {t(`mode_${m}`)}
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          {mode === 'directe' ? (
+            <label className="flex flex-col gap-1.5">
+              <span className="text-sm font-medium">{tp('commentPaye')}</span>
+              <select name="paiement" defaultValue="especes" className="min-h-12 rounded-xl border border-trait bg-surface px-3 text-base">
+                {MODES_ENCAISSEMENT.map((m) => <option key={m} value={m}>{td(`mode_${m}`)}</option>)}
+                <option value="credit">{tp('pasEncorePaye')}</option>
+              </select>
+            </label>
+          ) : null}
+          <p className="text-sm text-doux">{t(mode === 'directe' ? 'aideFactureDirecte' : 'aide_envoi')}</p>
+        </Carte>
+      ) : null}
 
       {/* Remise sur le total et note : rares, derrière un lien (ouvert si déjà rempli). */}
       {prixModifiables ? (

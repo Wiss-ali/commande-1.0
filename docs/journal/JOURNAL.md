@@ -2,6 +2,17 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 21/11/2026 — Suite du test commerçant : nouvelle facture, fiche client, panier de la caisse, montants rapides
+
+- Correction « Barre du bas » mise dans `main` d'abord (fusion avec les écrans simplifiés, qui avaient fait la même correction), avec l'accord du propriétaire.
+- Choix du propriétaire : points 1, 2, 3 puis 6 et 7 du rapport ; 4 déjà réglé ; 5 pas pour le moment. Pour la caisse : « on voit juste les trois premiers et le nouveau se met en haut », le reste dans un menu qu'on rouvre.
+- **1** : « Nouvelle facture » dans Factures ; `enregistrerDocument` accepte le type `facture` (création seulement) : vente directe payée par le moyen choisi (nouveau `payeAvec` dans `creerDocument`) ou à crédit, ou envoi (stock réservé). Pas de devis intermédiaire.
+- **2** : `/clients/nouveau`, `/clients/[id]/modifier`, `enregistrerFiche` (un numéro = un client, refus `client_existe`) ; migration `0021_note_client` (note chiffrée, effacée avec les données du client). Défaut ancien corrigé : une vente sans adresse effaçait l'adresse et les numéros légaux de la fiche du client.
+- **3** : panier de la caisse, le dernier produit touché ou scanné en haut, 3 lignes visibles, le reste dans un volet.
+- **6** : montants rapides (compte exact, puis billets et sommes rondes), stock sur chaque produit de la grille, filtre par catégorie. **7** : « achats » comptés à part des commandes dans la liste des clients.
+- Le point 5 du rapport était inexact (la facture a déjà « Partager (WhatsApp, e-mail…) ») : corrigé dans le rapport.
+- Tests : 190 ✅ ; 93 parcours ✅. Branche `claude/zealous-cerf-oq0927`, **pas encore dans `main`**.
+
 ## 21/11/2026 — Écrans simplifiés : l'essentiel d'abord, le reste replié
 
 - Demande du propriétaire : « des trucs sont ouverts ou visibles alors qu'on n'en a pas besoin, ou il faudrait répondre à autre chose avant ». Recherche et liste écran par écran : `docs/simplification/01-recherche-et-liste.md` (divulgation progressive : NN/g, Baymard, GOV.UK).

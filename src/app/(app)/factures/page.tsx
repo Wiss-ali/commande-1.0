@@ -48,6 +48,7 @@ export default async function Factures({ searchParams }: { searchParams: Promise
             </Link>
           ))}
         </nav>
+        {ecrit && onglet === 'factures' ? <Link href="/factures/nouveau?type=facture" className={classeBouton.principal}><Plus aria-hidden className="size-5" />{t('nouvelleFacture')}</Link> : null}
         {ecrit && onglet === 'devis' ? <Link href="/factures/nouveau?type=devis" className={classeBouton.principal}><Plus aria-hidden className="size-5" />{t('nouveauDevis')}</Link> : null}
         {ecrit && onglet === 'autres' ? (
           <div className="grid grid-cols-2 gap-2">

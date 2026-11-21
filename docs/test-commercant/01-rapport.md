@@ -59,3 +59,23 @@ puis en arabe. Écrans parcourus : Accueil, Caisse (vraie vente avec monnaie), S
 ## Question au propriétaire
 
 Lesquels des points 1 à 7 faut-il faire, et dans quel ordre ? Proposition : 1, 2, 3 d'abord (les plus gênants au quotidien), puis 5 et 6.
+
+## Suite : fait le 21/11/2026 (choix du propriétaire : 1, 2, 3, puis 6 et 7 ; 4 déjà réglé ; 5 plus tard)
+
+| Point | Ce qui est fait | Où |
+|---|---|---|
+| 1 | Bouton **« Nouvelle facture »** dans l'onglet Factures : la facture est créée directement (plus besoin de devis). Même question qu'avant : « Vente directe » (moyen de paiement, ou « à crédit ») ou « Envoi » (stock réservé, payée à la livraison). Nom du client obligatoire. | Factures › Nouvelle facture |
+| 2 | **Ajouter un client** (bouton en haut de la liste) et **Modifier** sa fiche : nom, téléphone, adresse et numéros légaux, **note** (chiffrée). Un numéro déjà pris par un autre client est refusé. Une vente sans adresse n'efface plus l'adresse de la fiche. | Clients |
+| 3 | **Panier de la caisse** : le produit touché (ou scanné) passe en haut ; seules les 3 dernières lignes sont visibles, le reste dans un volet « Voir N autres lignes » qu'on rouvre et replie. Les boutons + et − ne font pas bouger la ligne. | Caisse |
+| 6 | **Montants rapides** sous « Montant reçu » : « Compte exact » puis les billets et sommes rondes au-dessus (ex. 1 540 DA → 1 600, 2 000, 5 000). **Stock restant** sur chaque produit de la grille. **Filtre par catégorie** (s'il y a au moins deux catégories). | Caisse |
+| 7 | Liste des clients : « 1 achat » pour les ventes en caisse ou par facture, « 1 commande » pour les colis ; « Aucun achat » sinon. | Clients |
+
+Correction du rapport : le point 5 était inexact, la facture a déjà un bouton « Partager (WhatsApp, e-mail…) ».
+
+Migration `0021_note_client` (colonne `note_chiffre`, passe toute seule). Tests : 190 ✅ (3 nouveaux) ; 93 parcours ✅ (5 nouveaux, `tests/e2e/suivi-test-commercant.spec.ts`).
+
+### À essayer
+
+1. Factures › Nouvelle facture : un client, un produit, « Vente directe » par virement ; puis une autre « à crédit » : le client apparaît dans « Ils vous doivent ».
+2. Clients › Ajouter un client avec une note ; Modifier ; essayer le numéro d'un autre client (refusé).
+3. Caisse : toucher 5 produits, retoucher le premier (il remonte), ouvrir puis replier le reste du panier ; Encaisser et toucher un billet.

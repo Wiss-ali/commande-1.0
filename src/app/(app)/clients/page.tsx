@@ -1,4 +1,4 @@
-import { Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { EnTete } from '@/components/EnTete';
@@ -26,7 +26,7 @@ export default async function Clients({ searchParams }: { searchParams: Promise<
     const dettes = await clientsQuiDoivent(trx);
     return {
       clients: doivent
-        ? dettes.map((d) => ({ id: d.id, nom: d.nom, commandes: 0, depense: 0, du: d.du, dernier: d.depuis }))
+        ? dettes.map((d) => ({ id: d.id, nom: d.nom, commandes: 0, achats: 0, depense: 0, du: d.du, dernier: d.depuis }))
         : await listerClients(trx, { recherche, limite: PAR_PAGE * page + 1 }),
       totalDu: dettes.reduce((x, d) => x + d.du, 0),
     };
@@ -35,6 +35,7 @@ export default async function Clients({ searchParams }: { searchParams: Promise<
     <>
       <EnTete titre={t('titre')} retour="/plus" />
       <Page>
+        {s.commercant.etat === 'actif' ? <Link href="/clients/nouveau" className={classeBouton.principal}><Plus aria-hidden className="size-5" />{t('ajouter')}</Link> : null}
         <form action="/clients" role="search" className="flex gap-2">
           <input type="search" name="q" defaultValue={recherche} aria-label={t('chercher')} placeholder={t('chercher')} maxLength={40} className="min-h-12 min-w-0 flex-1 rounded-xl border border-trait bg-surface px-3 text-base text-encre placeholder:text-doux" />
           <button type="submit" aria-label={t('chercher')} className={`${classeBouton.secondaire} min-h-12 px-3`}><Search aria-hidden className="size-5" /></button>
@@ -52,7 +53,7 @@ export default async function Clients({ searchParams }: { searchParams: Promise<
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-semibold">{c.nom}</span>
                     <span className="block truncate text-sm text-doux">
-                      {doivent ? <>{t('depuisLe')} <span className="chiffres">{formaterDate(c.dernier!)}</span></> : <>{t('nbCommandes', { n: c.commandes })}{c.dernier ? <> · <span className="chiffres">{formaterDate(c.dernier)}</span></> : null}</>}
+                      {doivent ? <>{t('depuisLe')} <span className="chiffres">{formaterDate(c.dernier!)}</span></> : <>{[c.achats || !c.commandes ? t('nbAchats', { n: c.achats }) : null, c.commandes ? t('nbCommandes', { n: c.commandes }) : null].filter(Boolean).join(' · ')}{c.dernier ? <> · <span className="chiffres">{formaterDate(c.dernier)}</span></> : null}</>}
                     </span>
                   </span>
                   <span className="shrink-0 text-end">

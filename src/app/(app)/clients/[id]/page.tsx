@@ -1,4 +1,4 @@
-import { MessageCircle, Phone } from 'lucide-react';
+import { MessageCircle, Pencil, Phone } from 'lucide-react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getLocale, getTranslations } from 'next-intl/server';
@@ -46,8 +46,13 @@ export default async function Client({ params, searchParams }: { params: Promise
       <Page>
         {verse ? <Message ton="succes">{tp('versementFait')}</Message> : null}
         <Carte className="flex flex-col gap-2">
-          <p className="text-lg font-bold">{c.nom}</p>
+          <div className="flex items-start justify-between gap-2">
+            <p className="text-lg font-bold">{c.nom}</p>
+            {!c.supprimeLe && s.commercant.etat === 'actif' ? <Link href={`/clients/${c.id}/modifier`} className={`${classeBouton.secondaire} min-h-11 shrink-0 px-3`}><Pencil aria-hidden className="size-4" />{t('modifier')}</Link> : null}
+          </div>
           {c.telephone ? <p className="chiffres text-lg" dir="ltr">{formaterTelephone(c.telephone)}</p> : null}
+          {c.details.adresse ? <p className="text-sm">{c.details.adresse}</p> : null}
+          {c.note ? <p className="whitespace-pre-line rounded-xl bg-prim-pale px-3 py-2 text-sm">{c.note}</p> : null}
           <p className="text-sm text-doux">{t('depuis')} <span className="chiffres">{formaterDate(c.creeLe)}</span></p>
           {c.supprimeLe ? <Message ton="info">{t('donneesSupprimees', { date: formaterDate(c.supprimeLe) })}</Message> : null}
           {c.telephone ? (

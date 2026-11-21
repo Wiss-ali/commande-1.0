@@ -422,7 +422,8 @@
     "barre_invalide": "Choisissez de 1 à 4 entrées différentes.",
     "confirmation_requise": "Cochez la case pour confirmer.",
     "boutique_existe": "Vous avez déjà une boutique : un seul site par commerçant.",
-    "confirmation_incorrecte": "L'adresse tapée ne correspond pas. Rien n'a été supprimé."
+    "confirmation_incorrecte": "L'adresse tapée ne correspond pas. Rien n'a été supprimé.",
+    "client_existe": "Un client a déjà ce numéro. Cherchez-le dans la liste."
   },
   "pageErreur": {
     "titre": "Quelque chose n'a pas marché",
@@ -807,7 +808,15 @@
     "carteInactive": "Le paiement par carte n'est pas encore activé. Choisissez un autre moyen.",
     "autreMoyen": "Autre moyen : chèque, virement, CCP, crédit…",
     "genererFacture": "Faire aussi une facture (le client la demande)",
-    "faireRemise": "Faire une remise"
+    "faireRemise": "Faire une remise",
+    "panier": "Panier",
+    "voirPanier": "{n, plural, one {Voir # autre ligne} other {Voir # autres lignes}} ({articles} articles en tout)",
+    "replierPanier": "Replier le panier",
+    "categories": "Catégories",
+    "toutes": "Tout",
+    "enStock": "Stock : {n}",
+    "montantsRapides": "Montants rapides",
+    "compteExact": "Compte exact"
   },
   "cloture": {
     "titre": "Clôture de caisse",
@@ -869,13 +878,14 @@
       "autres": "Aucun document"
     },
     "videTexte": {
-      "factures": "Les factures faites à la caisse ou à partir d'un devis apparaîtront ici.",
+      "factures": "Touchez « Nouvelle facture », ou cochez « Faire aussi une facture » à la caisse.",
       "devis": "Créez un devis pour proposer un prix à un client.",
       "tickets": "Chaque vente en caisse crée un ticket.",
       "autres": "Proformas, bons de commande, bons de livraison, avoirs et reçus apparaîtront ici."
     },
     "voirPlus": "Voir plus",
-    "exporter": "Exporter"
+    "exporter": "Exporter",
+    "nouvelleFacture": "Nouvelle facture"
   },
   "document": {
     "enregistrer": "Enregistrer",
@@ -945,7 +955,11 @@
     "remiseGlobaleAide": "Facultatif. Elle est répartie entre les lignes pour garder une TVA juste.",
     "remiseSurLigne": "Remise sur cette ligne",
     "faireRemiseTotal": "Faire une remise sur le total",
-    "ajouterNote": "Ajouter une note"
+    "ajouterNote": "Ajouter une note",
+    "nouveau_facture": "Nouvelle facture",
+    "creer_facture": "Créer la facture",
+    "factureQuestion": "Le client repart-il avec la marchandise ?",
+    "aideFactureDirecte": "Vente directe : le stock sort maintenant. Choisissez comment le client paie, ou « à crédit » s'il paiera plus tard."
   },
   "facturation": {
     "titre": "Facturation",
@@ -1120,7 +1134,21 @@
     "doit": "Doit {montant}",
     "personneDoitTitre": "Personne ne vous doit d'argent",
     "personneDoitTexte": "Les ventes à crédit apparaîtront ici jusqu'à ce qu'elles soient payées.",
-    "resteDu": "Il vous doit encore"
+    "resteDu": "Il vous doit encore",
+    "ajouter": "Ajouter un client",
+    "nouveauTitre": "Nouveau client",
+    "modifier": "Modifier",
+    "modifierTitre": "Modifier le client",
+    "nom": "Nom du client",
+    "telephone": "Téléphone (facultatif)",
+    "telephoneAide": "Un numéro ne peut appartenir qu'à un seul client.",
+    "pro": "Client professionnel : adresse, NIF, RC…",
+    "note": "Note (facultatif)",
+    "noteAide": "Visible seulement par vous et votre équipe. Exemple : client fidèle, ne répond pas l'après-midi.",
+    "enregistrer": "Enregistrer",
+    "creer": "Ajouter le client",
+    "adresse": "Adresse",
+    "nbAchats": "{n, plural, =0 {Aucun achat} one {# achat} other {# achats}}"
   },
   "livraison": {
     "titre": "Livraison",

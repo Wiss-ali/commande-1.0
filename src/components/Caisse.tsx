@@ -4,13 +4,13 @@
 // Le catalogue est chargé une fois dans le téléphone : la recherche et le scan sont immédiats,
 // et la vente reste possible si la connexion coupe. Une vente non envoyée est gardée dans le téléphone
 // avec sa clé : elle part dès que la connexion revient, sans jamais être comptée deux fois.
-import { BadgePercent, Minus, Package, Plus, ScanLine, Search, Trash2, WifiOff, X } from 'lucide-react';
+import { BadgePercent, ChevronDown, Minus, Package, Plus, ScanLine, Search, Trash2, WifiOff, X } from 'lucide-react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { vendre, type ResultatVente } from '@/app/actions/ventes';
 import { normaliserCode } from '@/lib/codes-barres';
-import { analyserMontant, formaterMontant } from '@/lib/formats';
+import { analyserMontant, formaterMontant, formaterNombre } from '@/lib/formats';
 import { MODES_ENCAISSEMENT, type Langue, type ModeEncaissement } from '@/lib/types-bd';
 import { Repli } from './Repli';
 import { Scanner } from './Scanner';
@@ -25,7 +25,9 @@ export interface ArticleCaisse {
   prix: number;
   stock: number;
   photo: string | null;
+  categorie?: string | null;
 }
+export interface CategorieCaisse { id: string; nomFr: string; nomAr: string }
 interface Encaisse {
   mode: ModeEncaissement;
   montant: number;
@@ -64,6 +66,18 @@ type Fin = { etat: 'envoyee'; resultat: Extract<ResultatVente, { ok: true }>; re
 const CHAMPS_CLIENT = ['nom', 'telephone', 'adresse', 'nif', 'rc', 'nis', 'ai'] as const;
 /** Produits affichés d'un coup dans la grille (« Voir plus » pour la suite) : le téléphone reste rapide. */
 const PAR_PAGE = 60;
+/** Lignes du panier visibles quand il est replié : les dernières touchées, la plus récente en haut. */
+const LIGNES_VISIBLES = 3;
+/** Billets algériens et sommes rondes (5 000, 10 000 DA) pour les montants rapides (« Montant reçu »), en centimes. */
+const BILLETS = [20_000, 50_000, 100_000, 200_000, 500_000, 1_000_000];
+
+/** Montants que le client donne le plus souvent : le compte exact, puis les billets ou sommes rondes au-dessus. */
+function montantsRapides(du: number): number[] {
+  if (du <= 0) return [];
+  const choix = new Set<number>([du]);
+  for (const b of BILLETS) choix.add(Math.ceil(du / b) * b);
+  return [...choix].filter((m) => m >= du).sort((a, b) => a - b).slice(0, 4);
+}
 const sansAccents = (texte: string) => texte.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
 function lireFile(cle: string): VenteEnAttente[] {
@@ -75,7 +89,7 @@ function lireFile(cle: string): VenteEnAttente[] {
   }
 }
 
-export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse[]; magasin: string; remises: boolean }) {
+export function Caisse({ articles, categories = [], magasin, remises }: { articles: ArticleCaisse[]; categories?: CategorieCaisse[]; magasin: string; remises: boolean }) {
   const t = useTranslations('caisse');
   const te = useTranslations('erreurs');
   const tl = useTranslations('legal');
@@ -84,6 +98,8 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
   const [panier, setPanier] = useState<Map<string, number>>(new Map());
   const [recherche, setRecherche] = useState('');
   const [nbVisibles, setNbVisibles] = useState(PAR_PAGE);
+  const [categorie, setCategorie] = useState<string | null>(null);
+  const [panierOuvert, setPanierOuvert] = useState(false);
   const [scan, setScan] = useState(false);
   const [paiement, setPaiement] = useState(false);
   const [recu, setRecu] = useState('');
@@ -119,27 +135,32 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
   // Sans tenir compte des accents : « the » trouve « Thé ».
   const filtres = useMemo(() => {
     const q = sansAccents(recherche.trim());
-    if (!q) return articles;
-    return articles.filter((a) => sansAccents(a.nomFr).includes(q) || a.nomAr.includes(q) || sansAccents(a.libelle).includes(q) || a.code === recherche.trim());
-  }, [recherche, articles]);
+    const dansCategorie = categorie ? articles.filter((a) => a.categorie === categorie) : articles;
+    if (!q) return dansCategorie;
+    return dansCategorie.filter((a) => sansAccents(a.nomFr).includes(q) || a.nomAr.includes(q) || sansAccents(a.libelle).includes(q) || a.code === recherche.trim());
+  }, [recherche, articles, categorie]);
 
-  const ajouter = useCallback((id: string, n = 1) => {
+  // Panier : le produit touché dans la grille (ou scanné) passe en haut, pour toujours voir les derniers achats.
+  // Les boutons + et − du panier ne changent pas l'ordre : la ligne ne bouge pas sous le doigt.
+  const ajouter = useCallback((id: string, n = 1, enHaut = false) => {
     setMessage(null);
     setPanier((p) => {
-      const suivant = new Map(p);
-      const q = (suivant.get(id) ?? 0) + n;
+      const q = (p.get(id) ?? 0) + n;
       if (q <= 0) {
+        const suivant = new Map(p);
         suivant.delete(id);
         setRemisesLignes((r) => { const m = new Map(r); m.delete(id); return m; });
+        return suivant;
       }
-      else suivant.set(id, Math.min(q, 9999));
-      return suivant;
+      const quantite = Math.min(q, 9999);
+      if (!enHaut) return new Map(p).set(id, quantite);
+      return new Map([[id, quantite], ...[...p].filter(([cle]) => cle !== id)]);
     });
   }, []);
 
   const surCode = useCallback((code: string) => {
     const article = parCode.get(normaliserCode(code) ?? '');
-    if (article) ajouter(article.id);
+    if (article) ajouter(article.id, 1, true);
     else setMessage({ ton: 'erreur', texte: t('codeInconnu', { code }) });
   }, [parCode, ajouter, t]);
 
@@ -228,6 +249,7 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
     if (reponse && !reponse.ok) return setMessage({ ton: 'erreur', texte: te(reponse.raison) });
     setFin(reponse ? { etat: 'envoyee', resultat: reponse, rendu } : { etat: 'gardee', total, rendu });
     setPanier(new Map());
+    setPanierOuvert(false);
     setPaiement(false);
     setRecu('');
     setFacture(false);
@@ -295,8 +317,9 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
       <div aria-live="polite">{message && !paiement ? <Message ton={message.ton}>{message.texte}</Message> : null}</div>
 
       {lignes.length ? (
+        <section aria-label={t('panier')} className="flex flex-col gap-2">
         <ul className="flex flex-col gap-2">
-          {lignes.map(({ article, quantite, brut, remise }) => (
+          {(panierOuvert ? lignes : lignes.slice(0, LIGNES_VISIBLES)).map(({ article, quantite, brut, remise }) => (
             <li key={article.id} className="rounded-2xl border border-trait bg-surface shadow-doux p-3">
               <div className="flex items-start justify-between gap-3">
                 <p className="min-w-0 font-semibold">{nom(article)}</p>
@@ -323,10 +346,32 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
             </li>
           ))}
         </ul>
+        {/* Au-delà de 3 lignes, le reste du panier est replié : la grille ne descend plus à chaque produit. */}
+        {lignes.length > LIGNES_VISIBLES ? (
+          <button type="button" onClick={() => setPanierOuvert((o) => !o)} aria-expanded={panierOuvert}
+            className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-dashed border-trait-fort bg-surface px-3 text-sm font-semibold text-prim">
+            <ChevronDown aria-hidden className={`size-4 transition-transform ${panierOuvert ? 'rotate-180' : ''}`} />
+            {panierOuvert ? t('replierPanier') : t('voirPanier', { n: lignes.length - LIGNES_VISIBLES, articles: lignes.reduce((x, l) => x + l.quantite, 0) })}
+          </button>
+        ) : null}
+        </section>
       ) : null}
 
       <section aria-labelledby="caisse-produits" className="flex flex-col gap-2">
         <h2 id="caisse-produits" className="text-xs font-semibold uppercase tracking-wide text-doux">{t('produits')}</h2>
+        {categories.length > 1 ? (
+          <div role="group" aria-label={t('categories')} className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+            {[null, ...categories].map((c) => {
+              const ici = categorie === (c?.id ?? null);
+              return (
+                <button key={c?.id ?? 'toutes'} type="button" aria-pressed={ici} onClick={() => { setCategorie(c?.id ?? null); setNbVisibles(PAR_PAGE); }}
+                  className={`inline-flex min-h-10 shrink-0 items-center rounded-full border px-3 text-sm font-semibold ${ici ? 'border-prim bg-prim-pale text-prim' : 'border-trait bg-surface'}`}>
+                  {c ? (langue === 'ar' ? c.nomAr || c.nomFr : c.nomFr || c.nomAr) : t('toutes')}
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
         {filtres.length ? (
           <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-5">
             {filtres.slice(0, nbVisibles).map((a) => {
@@ -335,7 +380,7 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
                 <li key={a.id}>
                   <button
                     type="button"
-                    onClick={() => { ajouter(a.id); if (recherche) setRecherche(''); }}
+                    onClick={() => { ajouter(a.id, 1, true); if (recherche) setRecherche(''); }}
                     className={`relative flex h-full w-full flex-col gap-1 rounded-xl border bg-surface p-1.5 text-start active:scale-[.98] ${dansPanier ? 'border-prim ring-1 ring-prim' : 'border-trait'}`}
                   >
                     <span className="flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-lg bg-creux text-doux">
@@ -344,7 +389,7 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
                     </span>
                     <span className="line-clamp-2 text-xs font-semibold leading-snug">{nom(a)}</span>
                     <span className="mt-auto text-xs font-bold">{formaterMontant(a.prix, langue)}</span>
-                    {a.stock <= 0 ? <span className="text-[11px] font-medium text-terre">{t('rupture')}</span> : null}
+                    <span className={`chiffres text-[11px] font-medium ${a.stock <= 0 ? 'text-terre' : 'text-doux'}`}>{a.stock <= 0 ? t('rupture') : t('enStock', { n: a.stock })}</span>
                     {dansPanier ? <><span aria-hidden className="chiffres absolute end-1 top-1 inline-flex min-w-6 items-center justify-center rounded-full bg-prim px-1.5 text-xs font-bold text-sur-prim">{dansPanier}</span><span className="sr-only">{t('produitDansPanier', { n: dansPanier })}</span></> : null}
                   </button>
                 </li>
@@ -436,6 +481,15 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
               {partEspeces > 0 ? (
                 <>
                   <Champ libelle={t('recu')} value={recu} onChange={(e) => setRecu(e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('recuAide')} />
+                  {/* Montants rapides : le compte exact, puis les billets au-dessus. Un toucher remplit le montant reçu. */}
+                  <div role="group" aria-label={t('montantsRapides')} className="grid grid-cols-4 gap-2">
+                    {montantsRapides(partEspeces).map((m) => (
+                      <button key={m} type="button" onClick={() => setRecu(String(m / 100))} aria-pressed={rendu === m}
+                        className={`chiffres min-h-11 rounded-xl border px-1 text-sm font-semibold ${rendu === m ? 'border-prim bg-prim-pale text-prim' : 'border-trait bg-surface'}`}>
+                        {m === partEspeces ? t('compteExact') : formaterNombre(m / 100)}
+                      </button>
+                    ))}
+                  </div>
                   {rendu !== null && rendu >= partEspeces ? <p className="text-lg font-bold text-prim">{t('aRendre')} : {formaterMontant(rendu - partEspeces, langue)}</p> : null}
                 </>
               ) : null}

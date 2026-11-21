@@ -123,13 +123,15 @@ async function enregistrerClient(trx: Trx, ctx: Contexte, a: Mentions): Promise<
   const { nom, telephone, ...details } = a;
   const existant = hmac ? await trx.selectFrom('clients').select('id').where('telephone_hmac', '=', hmac).executeTakeFirst() : undefined;
   const id = existant?.id ?? randomUUID();
+  const avecDetails = Object.values(details).some(Boolean);
   const valeurs = {
     nom,
     telephone_chiffre: telephone ? chiffrer(telephone, `clients.telephone:${id}`) : null,
     telephone_hmac: hmac,
-    details_chiffre: Object.values(details).some(Boolean) ? chiffrer(JSON.stringify(details), `clients.details:${id}`) : null,
+    details_chiffre: avecDetails ? chiffrer(JSON.stringify(details), `clients.details:${id}`) : null,
   };
-  if (existant) await trx.updateTable('clients').set(valeurs).where('id', '=', id).execute();
+  // Client déjà connu : une vente sans adresse ni numéros légaux n'efface pas ceux de sa fiche.
+  if (existant) await trx.updateTable('clients').set(avecDetails ? valeurs : { nom: valeurs.nom, telephone_chiffre: valeurs.telephone_chiffre, telephone_hmac: hmac }).where('id', '=', id).execute();
   else await trx.insertInto('clients').values({ id, commercant_id: ctx.commercantId, ...valeurs }).execute();
   return id;
 }
@@ -278,6 +280,8 @@ export interface NouveauDocument {
   acheteur?: Mentions | null;
   /** Payé tout de suite et entièrement en espèces (vente directe). Raccourci de `encaisse`. */
   payeEnEspeces?: boolean;
+  /** Payé tout de suite et entièrement par ce moyen (facture écrite à la main, vente directe). */
+  payeAvec?: { mode: Encaissement['mode']; reference?: string };
   /**
    * Sommes reçues à l'émission (facture ou ticket), hors timbre. Moins que le total : le reste est dû
    * (vente à crédit), ce qui exige un client nommé.
@@ -328,7 +332,9 @@ export async function creerDocument(trx: Trx, ctx: Contexte, n: NouveauDocument)
 
   // Encaissements : seulement pour une vente (facture, ticket). Le reçu de paiement porte son propre moyen.
   const vente = n.type === 'facture' || n.type === 'ticket';
-  const encaisse = n.payeEnEspeces ? [{ mode: 'especes' as const, montant: t.ttc, reference: '' }] : verifierEncaissements(n.encaisse);
+  const encaisse = n.payeEnEspeces ? [{ mode: 'especes' as const, montant: t.ttc, reference: '' }]
+    : n.payeAvec ? verifierEncaissements([{ mode: n.payeAvec.mode, montant: t.ttc, reference: n.payeAvec.reference }])
+    : verifierEncaissements(n.encaisse);
   if (!encaisse) return { ok: false, raison: 'paiement_invalide' };
   const recuTotal = encaisse.reduce((s, e) => s + e.montant, 0);
   if (n.type !== 'recu' && (!vente ? encaisse.length > 0 : recuTotal > t.ttc)) return { ok: false, raison: 'paiement_invalide' };

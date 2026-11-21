@@ -318,6 +318,7 @@ test('TVA : une fois activée, la facture sépare le hors taxe et la taxe', asyn
   await salim.goto('/stock?q=thé');
   await salim.getByRole('link', { name: /Thé vert/ }).click();
   await salim.getByRole('link', { name: 'Modifier' }).click();
+  await salim.getByText('Plus de détails').click(); // le taux du produit est replié
   await salim.getByLabel('TVA de ce produit (%)').fill('9');
   await salim.getByRole('button', { name: 'Enregistrer' }).click();
   await expect(salim.getByRole('heading', { name: 'Thé vert' })).toBeVisible();

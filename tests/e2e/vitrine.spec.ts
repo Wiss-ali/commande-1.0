@@ -92,13 +92,18 @@ test('le commerçant crée sa boutique avec l\'assistant, publie ses produits, p
   await expect(yasmine.getByText('Textes d\'exemple encore en place')).toBeVisible();
   await expect(yasmine.getByText('Coupée', { exact: true })).toBeVisible();
 
+  // Un onglet à la fois : Textes s'ouvre d'abord tant que des textes d'exemple restent.
+  await expect(yasmine.getByRole('link', { name: /Textes/ })).toHaveAttribute('aria-current', 'page');
+  await yasmine.getByRole('link', { name: 'Produits' }).click();
   for (const nom of ['Robe kabyle', 'Foulard en soie', 'Bague en argent']) await yasmine.getByRole('button', { name: `Visible dans la boutique · ${nom}` }).click();
   await yasmine.getByRole('button', { name: 'Nouveau · Robe kabyle' }).click();
   await expect(yasmine.getByText('Produits : 3 publiés')).toBeVisible();
 
+  await yasmine.getByRole('link', { name: 'Apparence' }).click();
   await yasmine.getByRole('radio', { name: 'Bordeaux' }).check({ force: true });
   await yasmine.locator('form', { hasText: 'Couleur principale' }).getByRole('button', { name: 'Enregistrer' }).click();
   await expect(yasmine.getByText('Modifications enregistrées.').first()).toBeVisible();
+  await yasmine.getByRole('link', { name: /Textes/ }).click();
   const textes = yasmine.locator('form', { hasText: 'Phrase d\'accroche' });
   for (const [nom, valeur] of [['slogan_fr', 'Atelier Yasmine'], ['slogan_ar', 'ورشة ياسمين'], ['accueil_fr', 'Tenues traditionnelles faites main à Tizi Ouzou.'], ['accueil_ar', 'ألبسة تقليدية مصنوعة يدويًا في تيزي وزو.'],
     ['livraison_fr', 'Livraison en 48 h dans les 69 wilayas.'], ['livraison_ar', 'التوصيل خلال 48 ساعة إلى 69 ولاية.'], ['retour_fr', 'Échange sous 7 jours.'], ['retour_ar', 'الاستبدال خلال 7 أيام.']] as const) {
@@ -106,6 +111,7 @@ test('le commerçant crée sa boutique avec l\'assistant, publie ses produits, p
   }
   await textes.getByRole('button', { name: 'Enregistrer' }).click();
   await expect(yasmine.getByText('Textes d\'exemple encore en place')).toHaveCount(0);
+  await yasmine.getByRole('link', { name: 'Réglages' }).click();
   const reglages = yasmine.locator('form', { hasText: 'Numéro WhatsApp' });
   await reglages.getByLabel('Numéro WhatsApp').fill('0661 22 33 44');
   await reglages.getByRole('button', { name: 'Enregistrer' }).click();
@@ -243,7 +249,8 @@ test('les quatre modèles, et le produit épuisé masqué sur réglage', async (
     await sansDebordement(acheteur);
     await acheteur.screenshot({ path: `${CAPTURES}/modele-${nom}-fr-clair.png`, fullPage: true });
   }
-  await yasmine.goto('/boutique');
+  await yasmine.goto('/boutique?onglet=reglages');
+  await yasmine.getByText('Stock et réservation').click();
   await yasmine.getByText('Le masquer jusqu\'au retour du stock').click();
   await yasmine.locator('form', { hasText: 'Numéro WhatsApp' }).getByRole('button', { name: 'Enregistrer' }).click();
   await expect(yasmine.getByText('Modifications enregistrées.').last()).toBeVisible();
@@ -280,11 +287,13 @@ test('boutique coupée : « momentanément indisponible » pour l\'acheteur, ape
 });
 
 test('demandes à l\'administrateur : site personnalisé et paiement par carte', async () => {
-  await yasmine.goto('/boutique');
+  await yasmine.goto('/boutique?onglet=reglages');
+  await yasmine.getByText('Site personnalisé', { exact: true }).click();
   await yasmine.getByText('Demander un site personnalisé').click();
   await yasmine.getByLabel('Votre idée (facultatif)').fill('Un site avec mon propre nom de domaine.');
   await yasmine.getByRole('button', { name: 'Envoyer la demande' }).first().click();
   await expect(yasmine.getByText(/Demande envoyée le/).first()).toBeVisible();
+  await yasmine.getByText('Paiement par carte', { exact: true }).click();
   await yasmine.getByText('Demander l\'activation').click();
   await yasmine.getByRole('button', { name: 'Envoyer la demande' }).click();
   await expect(yasmine.getByText(/Demande envoyée le/)).toHaveCount(2);
@@ -319,7 +328,7 @@ test('la boutique et le module en arabe, en thème sombre', async () => {
 });
 
 test('suppression de la boutique : adresse à retaper, adresse libérée, produits et commandes gardés', async () => {
-  await yasmine.goto('/boutique');
+  await yasmine.goto('/boutique?onglet=reglages');
   await yasmine.getByText('Supprimer la boutique').click();
   await yasmine.getByLabel(/Pour confirmer/).fill('autre-chose');
   await yasmine.getByRole('button', { name: 'Supprimer définitivement la boutique' }).click();

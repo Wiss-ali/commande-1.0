@@ -81,6 +81,7 @@ test('caisse : remise sur un article et sur le total, paiement en deux moyens, m
   await expect(karima.getByText('2 160 DA').first()).toBeVisible();
   await sansDebordement(karima);
   await karima.getByRole('button', { name: 'Encaisser' }).click();
+  await karima.getByText('Faire une remise').click(); // repliée : rare
   await karima.getByLabel('Remise sur le total').fill('160');
   await expect(karima.getByRole('dialog').getByText('2 000 DA', { exact: true })).toBeVisible();
   // Paiement en deux moyens : rare, donc rangé dans le menu « Autre moyen ».
@@ -217,7 +218,7 @@ test('commande au téléphone : la commune se choisit dans la liste de la wilaya
 test('pixel publicitaire : désactivé par défaut, puis chargé seulement sur la boutique', async () => {
   const avant = await karima.request.get(`/b/${sd}`);
   expect(await avant.text()).not.toContain('fbevents.js');
-  await karima.goto('/boutique');
+  await karima.goto('/boutique?onglet=reglages');
   await karima.getByText('Mesure des publicités (Facebook, TikTok)').click();
   await karima.getByLabel('Identifiant du pixel Facebook / Instagram').fill('12345<script>');
   await karima.getByRole('button', { name: 'Enregistrer les pixels' }).click();
@@ -260,7 +261,7 @@ test('plusieurs photos par produit, en galerie dans la boutique', async () => {
 });
 
 test('barre du bas choisie par la personne, et export pour le comptable depuis Factures', async () => {
-  await karima.goto('/plus');
+  await karima.goto('/reglages'); // la barre du bas est rangée dans Réglages
   await karima.getByRole('link', { name: /Barre du bas/ }).click();
   await karima.getByLabel('Place 2').selectOption('commandes');
   await karima.getByRole('button', { name: 'Enregistrer ma barre' }).click();

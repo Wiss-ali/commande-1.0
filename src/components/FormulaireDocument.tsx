@@ -8,6 +8,7 @@ import { enregistrerDocument } from '@/app/actions/ventes';
 import { analyserMontant, analyserQuantite, formaterMontant, montantPourSaisie, nomLocal } from '@/lib/formats';
 import type { Langue } from '@/lib/types-bd';
 import { Formulaire } from './Formulaire';
+import { Repli } from './Repli';
 import { Carte, Champ, classeBouton, TitreSection } from './ui';
 
 export interface LigneFormulaire {
@@ -84,7 +85,11 @@ export function FormulaireDocument({ type, id, cle, lignes: initiales, client, n
             <Champ libelle={t('prix')} value={l.prix} onChange={(e) => changer(l.cle, 'prix', e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off"
               readOnly={!prixModifiables && !!l.varianteId} aide={!prixModifiables && l.varianteId ? t('prixFiche') : undefined} />
           </div>
-          {prixModifiables || l.remise ? <Champ libelle={t('remiseLigne')} value={l.remise ?? ''} onChange={(e) => changer(l.cle, 'remise', e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('remiseLigneAide')} readOnly={!prixModifiables} /> : null}
+          {prixModifiables || l.remise ? (
+            <Repli titre={t('remiseSurLigne')} ouvert={Boolean(l.remise)}>
+              <Champ libelle={t('remiseLigne')} value={l.remise ?? ''} onChange={(e) => changer(l.cle, 'remise', e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('remiseLigneAide')} readOnly={!prixModifiables} />
+            </Repli>
+          ) : null}
         </Carte>
       ))}
 
@@ -131,8 +136,15 @@ export function FormulaireDocument({ type, id, cle, lignes: initiales, client, n
         <button type="button" onClick={() => ajouter({ varianteId: null, designation: '', quantite: '1', prix: '' })} className={classeBouton.secondaire}><Plus aria-hidden className="size-5" />{t('ligneLibre')}</button>
       </Carte>
 
-      {prixModifiables ? <Champ libelle={t('remiseGlobale')} name="remiseGlobale" value={remiseGlobale} onChange={(e) => setRemiseGlobale(e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('remiseGlobaleAide')} /> : null}
-      <Champ libelle={t('note')} name="note" defaultValue={note} maxLength={500} autoComplete="off" />
+      {/* Remise sur le total et note : rares, derrière un lien (ouvert si déjà rempli). */}
+      {prixModifiables ? (
+        <Repli titre={t('faireRemiseTotal')}>
+          <Champ libelle={t('remiseGlobale')} name="remiseGlobale" value={remiseGlobale} onChange={(e) => setRemiseGlobale(e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" aide={t('remiseGlobaleAide')} />
+        </Repli>
+      ) : null}
+      <Repli titre={t('ajouterNote')} ouvert={Boolean(note)}>
+        <Champ libelle={t('note')} name="note" defaultValue={note} maxLength={500} autoComplete="off" />
+      </Repli>
       <p className="flex items-baseline justify-between rounded-2xl border border-trait bg-surface shadow-doux px-4 py-3"><span className="text-sm text-doux">{t('total')}</span><span className="text-2xl font-bold">{formaterMontant(total, langue)}</span></p>
     </Formulaire>
   );

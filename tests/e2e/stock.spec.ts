@@ -66,13 +66,16 @@ test('stock vide, puis création d\'un produit simple', async () => {
   await expect(nadia.locator('p[role=alert]')).toContainText('Prix invalide');
   await expect(nadia.getByLabel('Nom en français')).toHaveValue('Café moulu 250 g');
 
+  // Le facultatif est replié : « Plus de détails » et « Code-barres et alerte de stock ».
+  await nadia.getByText('Plus de détails').click();
   await nadia.getByLabel('Nom en arabe').fill('قهوة مطحونة');
   await nadia.getByLabel('Catégorie').selectOption({ label: 'Nouvelle catégorie…' });
   await nadia.getByLabel('Nom de la nouvelle catégorie').fill('Épicerie');
   await nadia.getByLabel('Prix de vente (DA)').fill('250');
   await nadia.getByLabel("Prix d'achat (DA)").fill('180,50');
-  await nadia.getByLabel('Code-barres').fill(CODE_CAMERA);
   await nadia.getByLabel('Quantité en stock').fill('12');
+  await nadia.getByText('Code-barres et alerte de stock').click();
+  await nadia.getByLabel('Code-barres').fill(CODE_CAMERA);
   await nadia.getByLabel("Seuil d'alerte").fill('5');
   const photo = await sharp({ create: { width: 1600, height: 1200, channels: 3, background: '#0e6b4e' } }).png().toBuffer();
   await nadia.locator('input[type=file]').first().setInputFiles({ name: 'cafe.png', mimeType: 'image/png', buffer: photo });
@@ -124,6 +127,7 @@ test('produit avec variantes, liste, recherche et filtres', async () => {
   await nadia.getByLabel('Variante 1').fill('M');
   await nadia.getByLabel('Prix de vente (DA)').fill('900');
   await nadia.getByLabel('Quantité en stock').fill('3');
+  await nadia.getByText('Code-barres et alerte de stock').click();
   await nadia.getByLabel("Seuil d'alerte").fill('1');
   await nadia.getByRole('button', { name: 'Ajouter une variante' }).click();
   await nadia.getByLabel('Variante 2').fill('L');

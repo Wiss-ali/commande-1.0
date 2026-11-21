@@ -10,6 +10,7 @@ import { analyserMontant, formaterMontant, montantPourSaisie, nomLocal } from '@
 import type { Alerte } from '@/lib/commandes';
 import type { Langue } from '@/lib/types-bd';
 import { Formulaire } from './Formulaire';
+import { Repli } from './Repli';
 import { Scanner } from './Scanner';
 import { Carte, Champ, classeBouton, Message, TitreSection } from './ui';
 
@@ -103,7 +104,8 @@ export function FormulaireCommande({ cle, wilayas }: { cle: string; wilayas: Wil
             {wilayas.map((w) => <option key={w.code} value={w.code}>{`${String(w.code).padStart(2, '0')} · ${nomLocal(w, langue)}`}</option>)}
           </select>
         </label>
-        {listeCommunes.length ? (
+        {/* La commune ne se demande qu'une fois la wilaya choisie. */}
+        {!wilaya ? null : listeCommunes.length ? (
           <label className="flex flex-col gap-1.5">
             <span className="text-sm font-medium">{t('commune')}</span>
             <select key={wilaya} name="commune" required defaultValue="" className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre">
@@ -180,7 +182,9 @@ export function FormulaireCommande({ cle, wilayas }: { cle: string; wilayas: Wil
       </Carte>
 
       <Champ libelle={t('frais')} name="frais" value={frais} onChange={(e) => setFrais(e.target.value)} inputMode="decimal" dir="ltr" maxLength={12} autoComplete="off" aide={wilaya && fraisGrille === null ? t('fraisAbsents') : undefined} />
-      <Champ libelle={t('note')} name="note" maxLength={500} autoComplete="off" />
+      <Repli titre={t('ajouterNote')}>
+        <Champ libelle={t('note')} name="note" maxLength={500} autoComplete="off" />
+      </Repli>
       <p className="flex items-baseline justify-between rounded-2xl border border-trait bg-surface shadow-doux px-4 py-3">
         <span className="text-sm text-doux">{t('totalClient')}</span>
         <span className="text-2xl font-bold">{formaterMontant(total, langue)}</span>

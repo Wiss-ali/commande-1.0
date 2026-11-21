@@ -471,7 +471,9 @@
     "aVerifierLigne": "{n} vendu(s) sans stock connu ·",
     "verifie": "Vérifié",
     "arrivage": "Arrivage",
-    "fournisseurs": "Fournisseurs"
+    "fournisseurs": "Fournisseurs",
+    "arrivageAide": "Enregistrer une livraison de votre fournisseur",
+    "fournisseursAide": "Vos fournisseurs et ce que vous leur devez"
   },
   "produit": {
     "nouveauTitre": "Nouveau produit",
@@ -523,7 +525,10 @@
     "retirerPhotoN": "Retirer la photo {n}",
     "retirerPhotoCourt": "Retirer",
     "ajouterPhoto": "Ajouter cette photo",
-    "nouvellePhoto": "Nouvelle photo"
+    "nouvellePhoto": "Nouvelle photo",
+    "codeEtAlerte": "Code-barres et alerte de stock",
+    "plusDetails": "Plus de détails",
+    "plusDetailsAide": "Facultatif : photo, catégorie, nom dans l'autre langue."
   },
   "mouvement": {
     "titre": "Historique du stock",
@@ -801,7 +806,8 @@
     "mode_carte": "Carte",
     "carteInactive": "Le paiement par carte n'est pas encore activé. Choisissez un autre moyen.",
     "autreMoyen": "Autre moyen : chèque, virement, CCP, crédit…",
-    "genererFacture": "Faire aussi une facture (le client la demande)"
+    "genererFacture": "Faire aussi une facture (le client la demande)",
+    "faireRemise": "Faire une remise"
   },
   "cloture": {
     "titre": "Clôture de caisse",
@@ -936,7 +942,10 @@
     "remiseLigneAide": "Facultatif.",
     "prixFiche": "Prix de la fiche (seul le propriétaire, ou un vendeur autorisé, peut le changer).",
     "remiseGlobale": "Remise sur le total (DA)",
-    "remiseGlobaleAide": "Facultatif. Elle est répartie entre les lignes pour garder une TVA juste."
+    "remiseGlobaleAide": "Facultatif. Elle est répartie entre les lignes pour garder une TVA juste.",
+    "remiseSurLigne": "Remise sur cette ligne",
+    "faireRemiseTotal": "Faire une remise sur le total",
+    "ajouterNote": "Ajouter une note"
   },
   "facturation": {
     "titre": "Facturation",
@@ -1079,7 +1088,8 @@
     "chercherArticle": "Chercher",
     "reserveJusqua": "Stock réservé jusqu'au {date}",
     "choisirCommune": "Choisir la commune",
-    "versements": "Argent reçu"
+    "versements": "Argent reçu",
+    "ajouterNote": "Ajouter une note"
   },
   "clients": {
     "titre": "Clients",
@@ -1574,7 +1584,12 @@
     "supprimerGarde": "Gardé : vos produits et votre stock, toutes les commandes (même celles venues de la boutique), devis et factures.",
     "supprimerAdresse": "L'adresse est libérée : quelqu'un d'autre pourra la prendre. Les liens des tickets déjà envoyés ne marcheront plus.",
     "supprimerBouton": "Supprimer définitivement la boutique",
-    "supprimerConfirmer": "Pour confirmer, tapez l'adresse : {adresse}"
+    "supprimerConfirmer": "Pour confirmer, tapez l'adresse : {adresse}",
+    "onglets": "Parties de la boutique",
+    "onglet_apparence": "Apparence",
+    "onglet_textes": "Textes",
+    "onglet_produits": "Produits",
+    "onglet_reglages": "Réglages"
   },
   "moyens": {
     "ccp": "CCP",

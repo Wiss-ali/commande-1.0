@@ -2,13 +2,26 @@
 
 Entrées les plus récentes en haut. Une entrée par action importante.
 
+## 21/11/2026 — Écrans simplifiés : l'essentiel d'abord, le reste replié
+
+- Demande du propriétaire : « des trucs sont ouverts ou visibles alors qu'on n'en a pas besoin, ou il faudrait répondre à autre chose avant ». Recherche et liste écran par écran : `docs/simplification/01-recherche-et-liste.md` (divulgation progressive : NN/g, Baymard, GOV.UK).
+- Nouveau composant `Repli` (volet fermé, les champs restent dans le formulaire ; ouvert au départ s'il est déjà rempli).
+- **Boutique** (page de 8 000 pixels) : 4 onglets (Apparence, Textes, Produits, Réglages), un seul ouvert ; Textes s'ouvre en premier tant que des textes d'exemple restent (pastille avec leur nombre). Réglages : Contact en vue ; stock et réservation, ordre des sections, adresse, pixels, carte, site personnalisé, suppression repliés.
+- **Nouveau produit** : nom (langue de l'écran), prix de vente et d'achat, quantité. Code-barres et alerte dans un lien par article ; autre langue, catégorie, TVA, photo sous « Plus de détails ».
+- **Encaisser** : le montant à payer en premier, la remise derrière « Faire une remise ».
+- **Nouvelle commande** : la commune n'apparaît qu'après la wilaya ; note derrière un lien. **Devis / facture** : remise par ligne, remise sur le total et note derrière des liens.
+- **Stock** : Arrivage et Fournisseurs rangés dans « Outils ». **Plus** : « Barre du bas » seulement dans Réglages (sauf pour qui n'y a pas accès).
+- Aucune migration. Rien n'est supprimé. L'adresse de la boutique est maintenant aussi affichée dans la carte du haut. Le choix clair/sombre, d'abord replié, est resté visible (une seule ligne, utilisé par de nombreux parcours).
+- Tests : 187 ✅ ; 88 parcours ✅ (mis à jour pour ouvrir les volets ; la vérification « aucune erreur de script » a échoué une fois puis réussi à la relance, comme le 404 aléatoire déjà connu).
+- Mis dans `main` avec l'accord du propriétaire (« Met sur main », 21/11/2026).
+
 ## 20/11/2026 — Test « comme un commerçant » ; « Barre du bas » plus en double
 
 - Demande du propriétaire : tester un compte complet comme un commerçant et faire un rapport ; « Barre du bas » apparaissait deux fois (dans Réglages, et dans « Plus » juste sous Réglages).
 - Corrigé : pour le propriétaire, « Barre du bas » n'est plus que dans Réglages ; les employés (sans page Réglages) la gardent dans « Plus ». Parcours mis à jour (vérifie l'absence du doublon).
 - Rapport : `docs/test-commercant/01-rapport.md`. Points gênants : pas de bouton « Nouvelle facture », impossible d'ajouter ou modifier un client, grille de la caisse qui bouge quand le panier grandit, écran Boutique très long, pas d'envoi WhatsApp de la facture, petits plus de caisse, mot « commande » pour un achat en caisse. Rien de cela n'est codé : en attente du choix du propriétaire.
 - Fausse alerte vérifiée : les montants en arabe s'affichent dans le bon ordre.
-- Tests : 187 ✅ ; 88 parcours ✅. Branche `claude/zealous-cerf-oq0927`, pas encore dans `main`.
+- La même correction est arrivée dans `main` par les « écrans simplifiés » (21/11) : leur version est gardée à la fusion ; le parcours vérifie en plus l'absence du doublon. L'écran Boutique en onglets règle aussi le point 4 du rapport.
 
 ## 20/11/2026 — Pixels : jamais sur une page avec des données de l'acheteur (choix B du propriétaire)
 

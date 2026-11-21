@@ -1,4 +1,4 @@
-import { ClipboardList, FileSpreadsheet, History, Package, Plus, Search, Tags, Truck } from 'lucide-react';
+import { ClipboardList, FileSpreadsheet, History, Package, Plus, Search, Tags, Truck, UsersRound } from 'lucide-react';
 import Link from 'next/link';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { EnTete } from '@/components/EnTete';
@@ -79,12 +79,6 @@ export default async function Stock({ searchParams }: { searchParams: Promise<{ 
               </section>
             ) : null}
             {cree ? <Link href="/stock/nouveau" className={classeBouton.principal}><Plus aria-hidden className="size-5" />{t('ajouter')}</Link> : null}
-            {peut(s.utilisateur.role, 'stock.corriger') ? (
-              <div className="grid grid-cols-2 gap-2">
-                <Link href="/stock/arrivages/nouveau" className={classeBouton.secondaire}><Truck aria-hidden className="size-5" />{t('arrivage')}</Link>
-                <Link href="/stock/fournisseurs" className={classeBouton.secondaire}>{t('fournisseurs')}</Link>
-              </div>
-            ) : null}
             <form action="/stock" role="search" className="flex gap-2">
               {filtre !== 'tous' ? <input type="hidden" name="filtre" value={filtre} /> : null}
               <input type="search" name="q" defaultValue={q} aria-label={t('chercher')} placeholder={t('chercher')} maxLength={80} className="min-h-12 min-w-0 flex-1 rounded-xl border border-trait bg-surface px-3 text-base text-encre placeholder:text-doux" />
@@ -137,6 +131,13 @@ export default async function Stock({ searchParams }: { searchParams: Promise<{ 
 
         <TitreSection>{t('outils')}</TitreSection>
         <div className="flex flex-col gap-2">
+          {/* Arrivages et fournisseurs : utiles, mais pas tous les jours ; rangés avec les outils. */}
+          {peut(s.utilisateur.role, 'stock.corriger') ? (
+            <>
+              <LigneLien href="/stock/arrivages/nouveau" titre={t('arrivage')} aide={t('arrivageAide')} icone={<Truck aria-hidden className="size-5" />} />
+              <LigneLien href="/stock/fournisseurs" titre={t('fournisseurs')} aide={t('fournisseursAide')} icone={<UsersRound aria-hidden className="size-5" />} />
+            </>
+          ) : null}
           <LigneLien href="/stock/inventaire" titre={t('inventaire')} aide={t('inventaireAide')} icone={<ClipboardList aria-hidden className="size-5" />} />
           <LigneLien href="/stock/etiquettes" titre={t('etiquettes')} aide={t('etiquettesAide')} icone={<Tags aria-hidden className="size-5" />} />
           {gere && !vide ? <LigneLien href="/stock/import" titre={t('importer')} aide={t('importerAide')} icone={<FileSpreadsheet aria-hidden className="size-5" />} /> : null}

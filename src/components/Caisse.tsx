@@ -12,6 +12,7 @@ import { vendre, type ResultatVente } from '@/app/actions/ventes';
 import { normaliserCode } from '@/lib/codes-barres';
 import { analyserMontant, formaterMontant } from '@/lib/formats';
 import { MODES_ENCAISSEMENT, type Langue, type ModeEncaissement } from '@/lib/types-bd';
+import { Repli } from './Repli';
 import { Scanner } from './Scanner';
 import { Carte, Champ, classeBouton, Message } from './ui';
 
@@ -374,11 +375,14 @@ export function Caisse({ articles, magasin, remises }: { articles: ArticleCaisse
               <button type="button" onClick={() => setPaiement(false)} aria-label={t('fermer')} className="inline-flex size-11 items-center justify-center rounded-xl border border-trait bg-surface"><X aria-hidden className="size-5" /></button>
             </div>
             <Carte className="flex flex-col gap-3">
-              {remises ? (
-                <Champ libelle={t('remiseTotal')} value={remiseTotal} onChange={(e) => setRemiseTotal(e.target.value)} dir="ltr" maxLength={14} autoComplete="off" aide={remiseGlobale === null ? te('remise_invalide') : t('remiseAide')} />
-              ) : null}
               {sousTotal !== total ? <p className="text-sm text-doux">{t('sousTotal')} : <span className="line-through">{formaterMontant(sousTotal, langue)}</span></p> : null}
               <div><p className="text-sm text-doux">{t('aPayer')}</p><p className="text-3xl font-bold">{formaterMontant(total, langue)}</p></div>
+              {/* La remise est rare : derrière un lien, ouvert si une remise est déjà saisie. */}
+              {remises ? (
+                <Repli titre={t('faireRemise')} ouvert={remiseTotal !== ''}>
+                  <Champ libelle={t('remiseTotal')} value={remiseTotal} onChange={(e) => setRemiseTotal(e.target.value)} dir="ltr" maxLength={14} autoComplete="off" aide={remiseGlobale === null ? te('remise_invalide') : t('remiseAide')} />
+                </Repli>
+              ) : null}
             </Carte>
             <fieldset className="flex min-w-0 flex-col gap-2">
               <legend className="mb-1.5 text-sm font-medium">{t('modePaiement')}</legend>

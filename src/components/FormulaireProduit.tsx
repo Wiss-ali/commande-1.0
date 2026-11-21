@@ -1,11 +1,13 @@
 'use client';
-// Fiche produit : noms, catégorie, photo, puis un article ou plusieurs variantes (taille, couleur).
+// Fiche produit : l'essentiel d'abord (nom, prix, quantité) ; le reste (autre langue, catégorie, photo,
+// code-barres, alerte, TVA) sous « Plus de détails », ouvert tout seul s'il est déjà rempli.
 import { Plus, ScanLine, Trash2, X } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { enregistrerProduit } from '@/app/actions/stock';
 import { ChampPhoto } from './ChampPhoto';
 import { Formulaire } from './Formulaire';
+import { Repli } from './Repli';
 import { Scanner } from './Scanner';
 import { Carte, Champ, classeBouton } from './ui';
 
@@ -35,6 +37,7 @@ const NOUVELLE = '__nouvelle';
 
 export function FormulaireProduit({ produit, variantes: initiales, categories, voitAchat, tva }: Props) {
   const t = useTranslations('produit');
+  const langue = useLocale();
   const [lignes, setLignes] = useState(() => initiales.map((v, i) => ({ ...v, cle: i })));
   const [prochaine, setProchaine] = useState(initiales.length);
   const [plusieurs, setPlusieurs] = useState(initiales.length > 1 || Boolean(initiales[0]?.libelle));
@@ -51,25 +54,17 @@ export function FormulaireProduit({ produit, variantes: initiales, categories, v
   const visibles = plusieurs ? lignes : lignes.slice(0, 1);
   const envoyees = visibles.map(({ id, libelle, code, prixAchat, prixVente, seuil, stock }) => ({ id, libelle: plusieurs ? libelle : '', code, prixAchat, prixVente, seuil, stock }));
 
+  const nomFr = <Champ libelle={t('nomFr')} name="nomFr" defaultValue={produit?.nomFr} maxLength={120} autoComplete="off" lang="fr" dir="ltr" aide={langue === 'ar' ? t('nomAide') : undefined} />;
+  const nomAr = <Champ libelle={t('nomAr')} name="nomAr" defaultValue={produit?.nomAr} maxLength={120} autoComplete="off" lang="ar" dir="rtl" aide={langue === 'ar' ? undefined : t('nomAide')} />;
+
   return (
     <>
       <Formulaire action={enregistrerProduit} bouton={t(produit ? 'enregistrer' : 'creer')} garder>
         {produit ? <input type="hidden" name="id" value={produit.id} /> : null}
         <input type="hidden" name="variantes" value={JSON.stringify(envoyees)} />
         <Carte className="flex flex-col gap-4">
-          <Champ libelle={t('nomFr')} name="nomFr" defaultValue={produit?.nomFr} maxLength={120} autoComplete="off" lang="fr" dir="ltr" />
-          <Champ libelle={t('nomAr')} name="nomAr" defaultValue={produit?.nomAr} maxLength={120} autoComplete="off" lang="ar" dir="rtl" aide={t('nomAide')} />
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">{t('categorie')}</span>
-            <select name="categorieId" value={categorie} onChange={(e) => setCategorie(e.target.value)} className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre">
-              <option value="">{t('sansCategorie')}</option>
-              {categories.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
-              <option value={NOUVELLE}>{t('nouvelleCategorie')}</option>
-            </select>
-          </label>
-          {categorie === NOUVELLE ? <Champ libelle={t('nomCategorie')} name="nouvelleCategorie" maxLength={60} autoComplete="off" /> : null}
-          {tva ? <Champ libelle={t('tauxTva')} name="tauxTva" defaultValue={tva.taux} inputMode="decimal" dir="ltr" maxLength={6} autoComplete="off" aide={t('tauxTvaAide', { taux: tva.defaut })} /> : null}
-          <ChampPhoto actuelle={produit?.photo ?? null} />
+          {langue === 'ar' ? nomAr : nomFr}
+          {produit && produit[langue === 'ar' ? 'nomFr' : 'nomAr'] ? (langue === 'ar' ? nomFr : nomAr) : null}
         </Carte>
 
         <label className="flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl border border-trait bg-surface shadow-doux px-4 py-3">
@@ -95,27 +90,27 @@ export function FormulaireProduit({ produit, variantes: initiales, categories, v
               <Champ libelle={t('prixVente')} value={v.prixVente} onChange={(e) => changer(v.cle, 'prixVente', e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" />
               {voitAchat ? <Champ libelle={t('prixAchat')} value={v.prixAchat} onChange={(e) => changer(v.cle, 'prixAchat', e.target.value)} inputMode="decimal" dir="ltr" maxLength={14} autoComplete="off" /> : null}
             </div>
-            <div className="flex items-end gap-2">
-              <div className="min-w-0 flex-1">
-                <Champ libelle={t('codeBarres')} value={v.code} onChange={(e) => changer(v.cle, 'code', e.target.value)} dir="ltr" maxLength={64} autoComplete="off" />
+            {v.id ? (
+              <div className="flex flex-col gap-1.5">
+                <span className="text-sm font-medium">{t('stockActuel')}</span>
+                <span className="chiffres text-lg font-bold">{v.quantite ?? 0}</span>
+                {i === 0 ? <span className="text-sm text-doux">{t('aideStockActuel')}</span> : null}
               </div>
-              <button type="button" onClick={() => setScan(v.cle)} className={`${classeBouton.secondaire} min-h-12`}>
-                <ScanLine aria-hidden className="size-5" />
-                {t('scanner')}
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {v.id ? (
-                <div className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium">{t('stockActuel')}</span>
-                  <span className="chiffres flex min-h-12 items-center text-lg font-bold">{v.quantite ?? 0}</span>
+            ) : (
+              <Champ libelle={t('stockInitial')} value={v.stock} onChange={(e) => changer(v.cle, 'stock', e.target.value)} inputMode="numeric" dir="ltr" maxLength={7} autoComplete="off" />
+            )}
+            <Repli titre={t('codeEtAlerte')} ouvert={Boolean(v.code || v.seuil)}>
+              <div className="flex items-end gap-2">
+                <div className="min-w-0 flex-1">
+                  <Champ libelle={t('codeBarres')} value={v.code} onChange={(e) => changer(v.cle, 'code', e.target.value)} dir="ltr" maxLength={64} autoComplete="off" />
                 </div>
-              ) : (
-                <Champ libelle={t('stockInitial')} value={v.stock} onChange={(e) => changer(v.cle, 'stock', e.target.value)} inputMode="numeric" dir="ltr" maxLength={7} autoComplete="off" />
-              )}
-              <Champ libelle={t('seuil')} value={v.seuil} onChange={(e) => changer(v.cle, 'seuil', e.target.value)} inputMode="numeric" dir="ltr" maxLength={7} autoComplete="off" />
-            </div>
-            {i === 0 ? <p className="text-sm text-doux">{t(v.id ? 'aideStockActuel' : 'aideSeuil')}</p> : null}
+                <button type="button" onClick={() => setScan(v.cle)} className={`${classeBouton.secondaire} min-h-12`}>
+                  <ScanLine aria-hidden className="size-5" />
+                  {t('scanner')}
+                </button>
+              </div>
+              <Champ libelle={t('seuil')} value={v.seuil} onChange={(e) => changer(v.cle, 'seuil', e.target.value)} inputMode="numeric" dir="ltr" maxLength={7} autoComplete="off" aide={t('aideSeuil')} />
+            </Repli>
           </Carte>
         ))}
         {plusieurs && lignes.length < 50 ? (
@@ -124,6 +119,22 @@ export function FormulaireProduit({ produit, variantes: initiales, categories, v
             {t('ajouterVariante')}
           </button>
         ) : null}
+
+        <Repli encadre titre={t('plusDetails')} ouvert={Boolean(produit?.categorieId || produit?.photo || tva?.taux)}>
+          <p className="text-sm text-doux">{t('plusDetailsAide')}</p>
+          {produit && produit[langue === 'ar' ? 'nomFr' : 'nomAr'] ? null : (langue === 'ar' ? nomFr : nomAr)}
+          <label className="flex flex-col gap-1.5">
+            <span className="text-sm font-medium">{t('categorie')}</span>
+            <select name="categorieId" value={categorie} onChange={(e) => setCategorie(e.target.value)} className="min-h-12 w-full rounded-xl border border-trait bg-surface px-3 text-base text-encre">
+              <option value="">{t('sansCategorie')}</option>
+              {categories.map((c) => <option key={c.id} value={c.id}>{c.nom}</option>)}
+              <option value={NOUVELLE}>{t('nouvelleCategorie')}</option>
+            </select>
+          </label>
+          {categorie === NOUVELLE ? <Champ libelle={t('nomCategorie')} name="nouvelleCategorie" maxLength={60} autoComplete="off" /> : null}
+          {tva ? <Champ libelle={t('tauxTva')} name="tauxTva" defaultValue={tva.taux} inputMode="decimal" dir="ltr" maxLength={6} autoComplete="off" aide={t('tauxTvaAide', { taux: tva.defaut })} /> : null}
+          <ChampPhoto actuelle={produit?.photo ?? null} />
+        </Repli>
       </Formulaire>
 
       {scan !== null ? (

@@ -471,7 +471,9 @@
     "aVerifierLigne": "بيعت بدون مخزون معروف: {n} ·",
     "verifie": "تم التحقق",
     "arrivage": "استلام بضاعة",
-    "fournisseurs": "الموردون"
+    "fournisseurs": "الموردون",
+    "arrivageAide": "تسجيل توريد من المورد",
+    "fournisseursAide": "مورّدوك وما عليك لهم"
   },
   "produit": {
     "nouveauTitre": "منتج جديد",
@@ -523,7 +525,10 @@
     "retirerPhotoN": "حذف الصورة {n}",
     "retirerPhotoCourt": "حذف",
     "ajouterPhoto": "إضافة هذه الصورة",
-    "nouvellePhoto": "صورة جديدة"
+    "nouvellePhoto": "صورة جديدة",
+    "codeEtAlerte": "الرمز الشريطي وتنبيه المخزون",
+    "plusDetails": "تفاصيل أكثر",
+    "plusDetailsAide": "اختياري: صورة، فئة، الاسم باللغة الأخرى."
   },
   "mouvement": {
     "titre": "سجل المخزون",
@@ -801,7 +806,8 @@
     "mode_carte": "بطاقة",
     "carteInactive": "الدفع بالبطاقة غير مفعّل بعد. اختر طريقة أخرى.",
     "autreMoyen": "طريقة أخرى: صك، تحويل، CCP، دَين…",
-    "genererFacture": "إعداد فاتورة أيضا (يطلبها الزبون)"
+    "genererFacture": "إعداد فاتورة أيضا (يطلبها الزبون)",
+    "faireRemise": "إجراء تخفيض"
   },
   "cloture": {
     "titre": "إقفال الصندوق",
@@ -936,7 +942,10 @@
     "remiseLigneAide": "اختياري.",
     "prixFiche": "سعر البطاقة (لا يغيّره إلا المالك أو بائع مسموح له).",
     "remiseGlobale": "تخفيض على المجموع (د.ج)",
-    "remiseGlobaleAide": "اختياري. يوزَّع على الأسطر لتبقى الرسوم صحيحة."
+    "remiseGlobaleAide": "اختياري. يوزَّع على الأسطر لتبقى الرسوم صحيحة.",
+    "remiseSurLigne": "تخفيض على هذا السطر",
+    "faireRemiseTotal": "تخفيض على المجموع",
+    "ajouterNote": "إضافة ملاحظة"
   },
   "facturation": {
     "titre": "الفوترة",
@@ -1079,7 +1088,8 @@
     "chercherArticle": "بحث",
     "reserveJusqua": "المخزون محجوز حتى {date}",
     "choisirCommune": "اختر البلدية",
-    "versements": "المال المستلم"
+    "versements": "المال المستلم",
+    "ajouterNote": "إضافة ملاحظة"
   },
   "clients": {
     "titre": "الزبائن",
@@ -1574,7 +1584,12 @@
     "supprimerGarde": "يبقى: منتجاتك ومخزونك، كل الطلبيات (حتى القادمة من المتجر)، عروض الأسعار والفواتير.",
     "supprimerAdresse": "يصبح العنوان حرًا: يمكن لشخص آخر أخذه. روابط التذاكر المرسلة سابقًا لن تعمل.",
     "supprimerBouton": "حذف المتجر نهائيًا",
-    "supprimerConfirmer": "للتأكيد، اكتب العنوان: {adresse}"
+    "supprimerConfirmer": "للتأكيد، اكتب العنوان: {adresse}",
+    "onglets": "أقسام المتجر",
+    "onglet_apparence": "المظهر",
+    "onglet_textes": "النصوص",
+    "onglet_produits": "المنتجات",
+    "onglet_reglages": "الإعدادات"
   },
   "moyens": {
     "ccp": "الحساب البريدي الجاري (CCP)",

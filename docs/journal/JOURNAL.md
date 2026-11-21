@@ -13,6 +13,7 @@ Entrées les plus récentes en haut. Une entrée par action importante.
 - **Stock** : Arrivage et Fournisseurs rangés dans « Outils ». **Plus** : « Barre du bas » seulement dans Réglages (sauf pour qui n'y a pas accès).
 - Aucune migration. Rien n'est supprimé. L'adresse de la boutique est maintenant aussi affichée dans la carte du haut. Le choix clair/sombre, d'abord replié, est resté visible (une seule ligne, utilisé par de nombreux parcours).
 - Tests : 187 ✅ ; 88 parcours ✅ (mis à jour pour ouvrir les volets ; la vérification « aucune erreur de script » a échoué une fois puis réussi à la relance, comme le 404 aléatoire déjà connu).
+- Mis dans `main` avec l'accord du propriétaire (« Met sur main », 21/11/2026).
 
 ## 20/11/2026 — Pixels : jamais sur une page avec des données de l'acheteur (choix B du propriétaire)
 

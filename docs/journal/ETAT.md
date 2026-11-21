@@ -1,6 +1,6 @@
 # État du projet
 
-Dernière mise à jour : 21/11/2026 — écrans simplifiés (l'essentiel d'abord, le reste replié ; liste `docs/simplification/01-recherche-et-liste.md`), sur la branche `claude/keen-gauss-zl1iey`, **pas encore dans `main`**. Avant : pixels (choix B), audit, nouvelles boutiques, tout dans `main`.
+Dernière mise à jour : 21/11/2026 — écrans simplifiés (l'essentiel d'abord, le reste replié ; liste `docs/simplification/01-recherche-et-liste.md`), **dans `main`** (21/11/2026) : à mettre sur le serveur (`git pull` puis `./deployer.sh test`, aucune migration). Avant : pixels (choix B), audit, nouvelles boutiques, tout dans `main`.
 
 ## Où on en est
 
@@ -17,7 +17,7 @@ Dernière mise à jour : 21/11/2026 — écrans simplifiés (l'essentiel d'abord
 - **Boutiques (19/11/2026)**, branche `claude/magical-goodall-2jle45` : suppression de la boutique (adresse à retaper, produits/commandes/factures gardés), assistant de création en 5 étapes avec aperçu, logos dessinés, 4 ambiances, 11 couleurs, textes d'exemple fr/ar signalés jusqu'à leur remplacement, boutique publique refaite. Migration 0019. 181 tests et 88 parcours passent. **À faire essayer au propriétaire, puis à mettre dans `main` avec son accord.**
 - **Audit « comme un pirate »** (rapport `docs/audit-securite/01-rapport.md`) : **corrections faites le 19/11/2026** (points 1, 3, 4, 5, 6, 8, 10, 12, 14 ; migration 0020 ; pixels, choix B, le 20/11). À mettre sur le serveur (`git pull` puis `./deployer.sh test`) (dans `main` depuis le 19/11/2026, avec les nouvelles boutiques) ; vérifier que Caddy redémarre bien (fichier modifié). Restent : 2 (clé privée à effacer par le propriétaire), 13 (copie de test : pas encore séparée, choix du propriétaire), 7 et 11 (laissés exprès).
 
-- **Écrans simplifiés (21/11/2026)**, branche `claude/keen-gauss-zl1iey` : boutique en 4 onglets (réglages rares repliés), fiche produit courte (« Plus de détails »), remise de la caisse derrière un lien, commune après la wilaya, remises et notes des devis/factures repliées, Arrivage/Fournisseurs dans les outils du stock, barre du bas dans Réglages. Aucune migration. **À faire essayer au propriétaire, puis à mettre dans `main` avec son accord.**
+- **Écrans simplifiés (21/11/2026)**, branche `claude/keen-gauss-zl1iey` : boutique en 4 onglets (réglages rares repliés), fiche produit courte (« Plus de détails »), remise de la caisse derrière un lien, commune après la wilaya, remises et notes des devis/factures repliées, Arrivage/Fournisseurs dans les outils du stock, barre du bas dans Réglages. Aucune migration. **Dans `main`** : à mettre sur le serveur et à faire essayer au propriétaire.
 
 ## Façon de travailler (décidée par le propriétaire le 16/11/2026)
 
@@ -29,7 +29,7 @@ Dernière mise à jour : 21/11/2026 — écrans simplifiés (l'essentiel d'abord
 
 ## Prochaine action
 
-- **Écrans simplifiés (21/11)** : faire essayer au propriétaire ; lui demander s'il voit d'autres écrans trop chargés, et s'il veut les « utiles » de `docs/simplification/01-recherche-et-liste.md` (premier lancement guidé par 3 questions, accueil allégé, fiche commande avec seulement l'action suivante). Puis mettre dans `main` avec son accord.
+- **Écrans simplifiés (21/11)** : faire essayer au propriétaire ; lui demander s'il voit d'autres écrans trop chargés, et s'il veut les « utiles » de `docs/simplification/01-recherche-et-liste.md` (premier lancement guidé par 3 questions, accueil allégé, fiche commande avec seulement l'action suivante).
 
 - **Boutiques (19/11)** : faire essayer (liste « À essayer » du bilan `docs/boutique-design/`), **dans `main` depuis le 19/11/2026** ; à mettre sur le serveur (`git pull` puis `./deployer.sh test` : les migrations 0019 et 0020 passent toutes seules).
 

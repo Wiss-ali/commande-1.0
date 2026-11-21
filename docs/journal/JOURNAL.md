@@ -11,7 +11,7 @@ Entrées les plus récentes en haut. Une entrée par action importante.
 - **3** : panier de la caisse, le dernier produit touché ou scanné en haut, 3 lignes visibles, le reste dans un volet.
 - **6** : montants rapides (compte exact, puis billets et sommes rondes), stock sur chaque produit de la grille, filtre par catégorie. **7** : « achats » comptés à part des commandes dans la liste des clients.
 - Le point 5 du rapport était inexact (la facture a déjà « Partager (WhatsApp, e-mail…) ») : corrigé dans le rapport.
-- Tests : 190 ✅ ; 93 parcours ✅. Branche `claude/zealous-cerf-oq0927`, **pas encore dans `main`**.
+- Tests : 190 ✅ ; 93 parcours ✅. Mis dans `main` avec l'accord du propriétaire (« Go », 21/11/2026).
 
 ## 21/11/2026 — Écrans simplifiés : l'essentiel d'abord, le reste replié
 
